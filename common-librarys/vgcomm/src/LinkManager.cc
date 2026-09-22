@@ -65,7 +65,7 @@ void LinkManager::_checkUdpLink()
     }
 
     auto udpConfig = LinkCommand::createSettings(LinkCommand::TypeUdp, this);
-    m_linkCmds.append(udpConfig);
+	_addCmd(udpConfig); 
     udpConfig->connectLink();
     _addLink(udpConfig->link());
 }
@@ -77,13 +77,18 @@ void LinkManager::_checkTcpLink()
 
     for (LinkCommand *cmd : m_linkCmds)
     {
-        if (cmd->type()==LinkCommand::TypeTcp && cmd->isConnect())
-            return;
+		if (cmd->type() == LinkCommand::TypeTcp)
+		{
+			static QSet<LinkCommand::Link_Stat> sRst = { LinkCommand::St_Connecting,  LinkCommand::St_Connected };
+			if (sRst.contains(cmd->GetLinkStat()))
+				return;
+			cmd->deleteLater();
+		}
     }
 
     if (auto config = LinkCommand::createSettings(LinkCommand::TypeTcp, this))
     {
-        m_linkCmds << config;
+        _addCmd(config);
         config->connectLink();
         _addLink(config->link());
     }
@@ -245,6 +250,17 @@ void LinkManager::_addLink(LinkInterface *link)
     m_mavlinkProtocol->resetMetadataForLink(link);
 }
  
+void LinkManager::_addCmd(LinkCommand *cmd)
+{
+	if (m_linkCmds.contains(cmd))
+		return;
+
+	m_linkCmds.append(cmd);
+	connect(cmd, &QObject::destroyed, this, [=](QObject *obj) {
+		m_linkCmds.removeAll((LinkCommand*)obj);
+	});
+}
+
 void LinkManager::DeleteLink(LinkInterface *link)
 {
     LinkCommand *cmd = link ? link->getLinkCommand() : NULL;
@@ -426,9 +442,7 @@ void LinkManager::endCreateLinkCmd(LinkCommand *cmd, bool bLink)
         return;
     }
 
-    if (!m_linkCmds.contains(cmd))
-        m_linkCmds.append(cmd);
-
+	_addCmd(cmd);
     cmd->connectLink();
     _addLink(cmd->link());
 }

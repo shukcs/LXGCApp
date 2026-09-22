@@ -1,9 +1,11 @@
 ﻿#include "VGMavLinkCode.h"
+#include <QGeoCoordinate>
 #include "MAVLinkProtocol.h"
 #include "MissionItem.h"
 #include "VGGlobalFun.h"
 #include "px4_custom_mode.h"
-#include <QGeoCoordinate>
+#include "VGApplication.h"
+#include "VGMapManager.h"
 
 static QMap<QString, px4_custom_mode> &GetModeMap()
 {
@@ -187,7 +189,7 @@ void VGMavLinkCode::EncodeMissionItem(mavlink_message_t &msg, const MissionItem 
 	
     double x = item.param5().toDouble();
     double y = item.param6().toDouble();
-    ShareFunction::toGps(x, y);
+    ShareFunction::toGps(x, y, qvgApp->mapManager()->mapTypeID());
 
     missionItem.target_system = sysId;
     missionItem.target_component = MAV_COMP_ID_MISSIONPLANNER;
@@ -220,7 +222,7 @@ void VGMavLinkCode::EncodeMissionItemInt(mavlink_message_t &msg, const MissionIt
 
     double x = item.param5().toDouble();
     double y = item.param6().toDouble();
-    ShareFunction::toGps(x, y);
+    ShareFunction::toGps(x, y, qvgApp->mapManager()->mapTypeID());
 
     missionItem.target_system = sysId;
     missionItem.target_component = MAV_COMP_ID_MISSIONPLANNER;

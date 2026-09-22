@@ -85,6 +85,7 @@ private:
     void _updateAutoConnectLinks(void);
     void _updateSerialPorts();
     void _addLink(LinkInterface *link);
+	void _addCmd(LinkCommand *cmd);
     void _checkUdpLink();
     void _checkTcpLink();
     void _checkBleLink();

@@ -2,7 +2,8 @@
 #include <QtMath>
 #include <QDebug>
 #include <stdint.h>
-#include <QApplication>
+#include "VGApplication.h"
+#include "VGMapManager.h"
 #include "VGMacro.h"
 #include "VGCoordinate.h"
 #include "MissionItem.h"
@@ -130,7 +131,7 @@ QGeoCoordinate VGGlobalFunc::gpsCorrect(const QGeoCoordinate &coordinate)
 {
     double lat = coordinate.latitude();
     double lon = coordinate.longitude();
-    ShareFunction::gpsCorrect(lat, lon);
+    ShareFunction::gpsCorrect(lat, lon, qvgApp->mapManager()->mapTypeID());
     return QGeoCoordinate(lat, lon, coordinate.altitude());
 }
 
@@ -138,7 +139,7 @@ QGeoCoordinate VGGlobalFunc::toGps(const QGeoCoordinate &coordinate)
 {
     double lat = coordinate.latitude();
     double lon = coordinate.longitude();
-    ShareFunction::toGps(lat, lon);
+    ShareFunction::toGps(lat, lon, qvgApp->mapManager()->mapTypeID());
     return QGeoCoordinate(lat, lon, coordinate.altitude());
 }
 

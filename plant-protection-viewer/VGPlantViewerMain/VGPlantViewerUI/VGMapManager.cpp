@@ -22,10 +22,12 @@ VGMapManager::VGMapManager(QObject *parent) : QObject(parent), m_bShowSR(true)
 , m_zoomLevel(14), m_bMapChanged(false), m_pixLength(0), m_propLength(80)
 , m_mgrObj(0), m_bOnlyStreet(false)
 {
-	_readConfig();
-    QGeoCoordinate coor = VGGlobalFunc::toGps(m_mapCenter);
-    m_centerLat = coor.latitude();
-    m_centerLon = coor.longitude();
+	QTimer::singleShot(10, this, [=]{
+		_readConfig();
+		QGeoCoordinate coor = VGGlobalFunc::toGps(m_mapCenter);
+		m_centerLat = coor.latitude();
+		m_centerLon = coor.longitude(); }
+	);
 }
 
 VGMapManager::~VGMapManager()

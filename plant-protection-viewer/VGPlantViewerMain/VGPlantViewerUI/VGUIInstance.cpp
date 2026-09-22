@@ -40,8 +40,8 @@
 #include "VGMissionHistory.h"
 
 VGUIInstance::VGUIInstance(QObject* parent) : QObject(parent)
-, m_vgMainPage(new VGMainPage(this)), m_plantManager(new VGPlantManager(this))
-, m_logDataObject(new VGLogDataObject(this)), m_mapManager(new VGMapManager(this))
+, m_mapManager(new VGMapManager(this)), m_vgMainPage(new VGMainPage(this))
+, m_plantManager(new VGPlantManager(this)), m_logDataObject(new VGLogDataObject(this))
 , m_landManager(new VGLandManager(this)), m_vgNetManager(new VGNetManager)
 , m_qmlEngine(new QQmlApplicationEngine(this)), m_surveyMonitor(new VGSurveyMonitor(this))
 ,m_friendsManager(new VGFriendsManager(this)), m_missionHistory(new VGMissionHistory(this))

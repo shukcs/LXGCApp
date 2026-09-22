@@ -65,7 +65,7 @@ static void _parseGPS(QGeoCoordinate &coor, const GpsInformation &gpsInfo)
     double lat = (double)gpsInfo.latitude() / 1e7;
     double altitude = (double)gpsInfo.altitude() / 1e3;
 
-    ShareFunction::gpsCorrect(lat, lon);
+    ShareFunction::gpsCorrect(lat, lon, qvgApp->mapManager()->mapTypeID());
     coor.setLatitude(lat);
     coor.setLongitude(lon);
     coor.setAltitude(altitude);

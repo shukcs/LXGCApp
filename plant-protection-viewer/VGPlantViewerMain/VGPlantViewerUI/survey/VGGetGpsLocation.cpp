@@ -1,5 +1,7 @@
 ﻿#include "VGGetGpsLocation.h"
 #include <QDebug>
+#include "VGApplication.h"
+#include "VGMapManager.h"
 #include "VGGlobalFun.h"
 
 #ifdef Q_OS_WIN
@@ -39,7 +41,7 @@ void VGGetGpsLocation::sltPositionUpdate(const QGeoPositionInfo &info)
     double longitude = coordinate.longitude();
     double latitude = coordinate.latitude();
     double alt = coordinate.altitude();
-    ShareFunction::gpsCorrect(latitude, longitude);
+    ShareFunction::gpsCorrect(latitude, longitude, qvgApp->mapManager()->mapTypeID());
 
     emit sigGetGpsCoordinate(latitude, longitude, alt, m_countSatellites);
 }

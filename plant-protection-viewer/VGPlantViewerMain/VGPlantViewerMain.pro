@@ -28,7 +28,7 @@ INCLUDEPATH +=  $$PWD/../../mavlink/v2.0/common \
                 $$PWD/../../protobuf \
                 $$PWD/../share \
                 $$PWD/../base \
-                ../../vgmapplugin \
+                $$PWD/../../vgmapplugin \
                 $$PWD/../PX4 \
                 $$PWD/VGPlantViewerUI \
                 $$PWD/VGPlantViewerUI/land \

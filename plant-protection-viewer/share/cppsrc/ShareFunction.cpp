@@ -64,9 +64,9 @@ bool ShareFunction::IsBigEndian(void)
     return sFlag.cData == sFlag.nFlag;
 }
 
-void ShareFunction::gpsCorrect(double &inLat, double &inLon)
+void ShareFunction::gpsCorrect(double &inLat, double &inLon, int mapID)
 {
-    if (outOfChina(inLat, inLon))
+    if (outOfChina(inLat, inLon) || mapID==555)
         return;
 
     double dLat;
@@ -76,9 +76,9 @@ void ShareFunction::gpsCorrect(double &inLat, double &inLon)
     inLon += dLon;
 }
 
-void ShareFunction::toGps(double &lat, double &lon)
+void ShareFunction::toGps(double &lat, double &lon, int mapID)
 {
-    if (outOfChina(lat, lon))
+    if (outOfChina(lat, lon) || mapID == 555)
         return;
 
     double dLat;

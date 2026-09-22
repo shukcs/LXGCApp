@@ -61,6 +61,7 @@ public slots:
     //qml
     void  sltSetMapZoomLevel(int level);
     void  sltSetMapCenter(double lat, double lon);
+    int mapTypeID()const;
 public:
     static void CalcBoundaryByCoor(QList<double> &ls, const QGeoCoordinate &coordinate); 
     static void CalcBoundaryByCoor(QList<double> &ls, const VGLandPolyline &ol);
@@ -71,7 +72,6 @@ protected:
     Q_INVOKABLE QString calculatePixLength(const QGeoCoordinate &c1, const QGeoCoordinate &c2, int pix=100);
     Q_INVOKABLE QString propertyMapName();
 
-    int mapTypeID()const;
     void setMapTypeID(int type);
 
     QString GetMapTypeName()const;
