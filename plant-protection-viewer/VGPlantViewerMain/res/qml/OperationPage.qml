@@ -16,7 +16,6 @@ import VGGroundControl   1.0
 Page {
     id:root
     property var routeEdit: null
-    property var wpPlanEdit: null
     property var routeSelected: null
     property bool bShowCenter: false
     property var curPlant: plantManager.currentPlant
@@ -50,7 +49,6 @@ Page {
     Component{
         id: routeInfoCom
         RouteInfoEdit{
-            routeInfo: routeEdit
             onClickedOK:  {
                 enterMission(false)
                 routeEdit = rt
@@ -61,10 +59,9 @@ Page {
     Component{
         id: wpPlanEditCom
         WPPlanInfoEdit {
-            routeInfo: wpPlanEdit
             onClickedOK:  {
                 enterMission(false)
-                wpPlanEdit = rt
+                routeEdit = rt
                 planCtrl.initial()
             }
         }
@@ -218,8 +215,7 @@ Page {
         MapItemView {
             model:    mapManager.getSpecItems(MapAbstractItem.Type_Home)
             delegate: MapQuickItem{
-                anchorPoint.x:   homeImg.width/2
-                anchorPoint.y:   homeImg.height
+                anchorPoint {x: homeImg.width/2; y: homeImg.height}
                 coordinate :     object.coordinate
                 visible:         (mapManager.mgrObj & VGMapManager.Mission)
                 z:               104
@@ -236,10 +232,9 @@ Page {
         MapItemView {
             model:    mapManager.getSpecItems(MapAbstractItem.Type_ContinueFly)
             delegate: MapQuickItem{
-                anchorPoint.x:   imgCtn.width/2
-                anchorPoint.y:   imgCtn.height
+                anchorPoint {x: imgCtn.width/2; y: imgCtn.height}
                 coordinate :     object.coordinate
-                visible:         mapManager.mgrObj !== VGMapManager.Land//mapManager.mgrObj & VGMapManager.Mission
+                visible:         mapManager.mgrObj!==VGMapManager.Land//mapManager.mgrObj & VGMapManager.Mission
                 z:               104
                 sourceItem: VGImage {
                     id:         imgCtn
@@ -254,8 +249,7 @@ Page {
         MapItemView {
             model:    mapManager.getSpecItems(MapAbstractItem.Type_ABContinueFly)
             delegate: MapQuickItem{
-                anchorPoint.x:   imgABCtn.width/2
-                anchorPoint.y:   imgABCtn.height
+                anchorPoint {x: imgABCtn.width/2; y: imgABCtn.height}
                 coordinate :     object.coordinate
                 visible:         mapManager.mgrObj !== VGMapManager.Land//mapManager.mgrObj & VGMapManager.Mission
                 z:               104
@@ -272,8 +266,7 @@ Page {
         MapItemView {
             model:    mapManager.getSpecItems(MapAbstractItem.Type_APoint)
             delegate: MapQuickItem{
-                anchorPoint.x:   imgAtn.width/2
-                anchorPoint.y:   imgAtn.height
+                anchorPoint {x: imgAtn.width/2; y: imgAtn.height}
                 coordinate :     object.coordinate
                 visible:         mapManager.mgrObj !== VGMapManager.Land
                 z:               104
@@ -290,8 +283,7 @@ Page {
         MapItemView {
             model:    mapManager.getSpecItems(MapAbstractItem.Type_BPoint)
             delegate: MapQuickItem{
-                anchorPoint.x:   imgBtn.width/2
-                anchorPoint.y:   imgBtn.height
+                anchorPoint {x: imgBtn.width/2; y: imgBtn.height}
                 coordinate :     object.coordinate
                 visible:         mapManager.mgrObj !== VGMapManager.Land
                 z:               104
@@ -308,8 +300,7 @@ Page {
         MapItemView {
             model:      mapManager.getSpecItems(MapAbstractItem.Type_Block)
             delegate: MapQuickItem {
-                anchorPoint.x: blockRec.width/2
-                anchorPoint.y: blockRec.height/2
+                anchorPoint {x: blockRec.width/2; y: blockRec.height/2}
                 visible:    object.visble
                 coordinate: object.coor
                 z:          106
@@ -324,8 +315,7 @@ Page {
                     Text{
                         id: txtSeq
                         property int widthProp: (contentHeight>contentWidth?contentHeight:contentWidth)+4
-                        anchors.horizontalCenter:   parent.horizontalCenter
-                        anchors.verticalCenter:     parent.verticalCenter
+                        anchors.centerIn: parent
                         text:                       object.id>0 ? object.id : ""
                         font:                       vgMainPage.littleFont()
                         horizontalAlignment:        Text.AlignHCenter
@@ -351,8 +341,7 @@ Page {
         MapItemView {
             model:    mapManager.getSpecItems(MapAbstractItem.Type_PointSelect)
             delegate: MapQuickItem {
-                anchorPoint.x: selectablePoint.width/2
-                anchorPoint.y: selectablePoint.height/2
+                anchorPoint {x: selectablePoint.width/2; y: selectablePoint.height/2}
                 coordinate: object.coordinate
                 visible:    object.visible
                 z:          106
@@ -532,9 +521,11 @@ Page {
                             vgMainPage.curQmlPage = wpPlanEditCom.createObject(root)
                     }
                     onDetailRout: {
-                        var page = routeDetailCom.createObject(root)
-                        page.flyRoute = rt
-                        vgMainPage.curQmlPage = page
+                        if (rt.itemType === MapAbstractItem.Type_MissionInfo) {
+                            var page = routeDetailCom.createObject(root)
+                            page.flyRoute = rt
+                            vgMainPage.curQmlPage = page
+                        }
                     }
                     onSelectRoute: {routeSelected = rt; routeSelected.selected=true}
                     onListFold: {
@@ -546,7 +537,7 @@ Page {
                     id:             planCtrl
                     anchors.fill:   parent
                     routeInfo:      routeEdit
-                    visible:        routeEdit
+                    visible:        routeEdit && routeEdit.itemType===MapAbstractItem.Type_MissionInfo
                     onExitPlan:  {
                         if (routeEdit) {
                             var page = vgTipCom.createObject(root)
@@ -565,7 +556,7 @@ Page {
                     }
                     onEditRouteInfo:    {
                         var page = routeInfoCom.createObject(root)
-                        page.routeInfo = rt
+                        page.setMissionPlan(rt)
                         vgMainPage.curQmlPage = page
                     }
                     onSelectBoundary:  vgMainPage.curQmlPage = bounarySelctCom.createObject(root.parent)
@@ -576,6 +567,25 @@ Page {
                         }
                         vgMainPage.curQmlPage = shrinkPage
                         shrinkPage.setRoute(rt)
+                    }
+                }
+                WPPlanEdit {
+                    id:             wpPlanCtrl
+                    anchors.fill:   parent
+                    wplan:          routeEdit
+                    visible:        routeEdit && routeEdit.itemType===MapAbstractItem.Type_WayPointPlan
+                    onExitPlan:  {
+                        if (routeEdit) {
+                            var page = vgTipCom.createObject(root)
+                            page.strTip = qsTr("Do you drop current plan？")//"确认取消创建任务？"
+                            page.idTip = 0
+                            vgMainPage.curQmlPage = page
+                        }
+                    }
+                    onEditRouteInfo:    {
+                        var page = wpPlanEditCom.createObject(root)
+                        page.setWayPointPlan(rt)
+                        vgMainPage.curQmlPage = page
                     }
                 }
                 VGMission {

@@ -223,14 +223,11 @@ VGMissionPlan *VGLandManager::preparePlanRoute(VGLandBoundary *bdy)
 
 VGWayPointPlan *VGLandManager::preparePlanWayPoint()
 {
-    if (!m_wayPointPlan)
+    if (m_wayPointPlan = m_wayPointPlan ? m_wayPointPlan :  new VGWayPointPlan(this))
     {
-        if (m_wayPointPlan = new VGWayPointPlan(this))
-        {
-            connect(m_wayPointPlan, &VGWayPointPlan::wayPointFinished, this, &VGLandManager::onPlanRouteFinished);
-            connect(m_wayPointPlan, &VGWayPointPlan::destroyed, this, &VGLandManager::onChildDestroyed);
-            connect(m_wayPointPlan, &VGMissionPlan::selectedChanged, this, &VGLandManager::onSelectedChanged);
-        }
+        connect(m_wayPointPlan, &VGWayPointPlan::wayPointFinished, this, &VGLandManager::onPlanRouteFinished);
+        connect(m_wayPointPlan, &QObject::destroyed, this, &VGLandManager::onChildDestroyed);
+        connect(m_wayPointPlan, &VGWayPointPlan::selectedChanged, this, &VGLandManager::onSelectedChanged);
     }
 
     if (m_wayPointPlan)
@@ -333,8 +330,6 @@ void VGLandManager::onPlanRouteFinished()
     else if (m_wayPointPlan == sender())
     {
         m_wpPlans << m_wayPointPlan;
-        m_wayPointPlan->Show(true);
-        m_wayPointPlan->SetSelected(true);
         m_wayPointPlan = nullptr;
     }
 }
@@ -525,7 +520,7 @@ void VGLandManager::onChildDestroyed()
         m_landCur = nullptr;
 
     if (m_boundaryEdit == obj)
-        m_boundaryEdit = NULL;
+        m_boundaryEdit = nullptr;
 
     if (m_routeCur == obj)
         SetCurFlyRoute(nullptr);
@@ -533,9 +528,9 @@ void VGLandManager::onChildDestroyed()
         m_flyRoutePlan = nullptr;
 
     if (m_wayPointPlan == obj)
-        SetCurFlyRoute(nullptr);
-    if (m_flyRoutePlan == obj)
-        m_flyRoutePlan = nullptr;
+        m_wayPointPlan = nullptr;
+    if (m_wpCur == obj)
+        SetCurWPPlan(nullptr);
 
 	m_lstLand.removeAll((VGLandInformation*)obj);
     m_lstBoundary.removeAll((VGLandBoundary*)obj);

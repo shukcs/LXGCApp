@@ -7,9 +7,8 @@ import QtQuick.Layouts 1.1
 import VGGroundControl   1.0
 
 Rectangle{
-	radius:                 6
-    border.width:           1
-    border.color:   "#EEEEEE"
+    radius:                 6
+    border {width: 1; color:   "#EEEEEE"}
     clip:           true
     color:          "#F6F6F6"
 
@@ -19,31 +18,11 @@ Rectangle{
     signal finishPlan()
     signal exitPlan()
     signal editRouteInfo(var rt)
-    signal selectBoundary()
-    signal editShrink(var rt)
 
     function initial(){
         tabFunc.currentIndex = 1
     }
-    VGSliderRect {
-        id:             sliderValue
-        anchors.fill:   parent
-        visible:        bEditValue
-        onFinishValue: {
-            bEditValue = !exit
-            if (!routeInfo || exit)
-                return
 
-            if (strKey === valSprinkleWidth.strKey)
-                routeInfo.sprinkleWidth = val
-            else if (strKey === valAngle.strKey)
-                routeInfo.angle = val
-            else if (strKey === valOutlineSafe.strKey)
-                routeInfo.outlineSafe = val
-            else if (strKey === valBlockSafe.strKey)
-                routeInfo.blockSafe = val
-        }
-    }
     Rectangle{
         id: rectHeader
         anchors     {left: parent.left; right: parent.right; top: parent.top}
@@ -64,11 +43,8 @@ Rectangle{
             anchors {top: parent.top; left:backImg.right; leftMargin: 5}
             Component.onCompleted: {
                 addTab(qsTr("Information"))//"信息"
-                addTab(qsTr("Parameter"))//"参数"
+                addTab(qsTr("WayPoint"))//"航点"
                 currentIndex = 1
-            }
-            onCurrentChanged: {
-                flickable.contentX = idx*flickable.width
             }
         }
         Text {
@@ -83,7 +59,7 @@ Rectangle{
                     if (tabFunc.currentIndex === 1 && routeInfo)
                         emit:finishPlan()
                     else
-                        tabFunc.setCurrent(1)
+                        tabFunc.currentIndex = 1
                 }
             }
         }
@@ -115,27 +91,17 @@ Rectangle{
                 color:              "transparent"
                 VGValueItem{
                     id:             valPesticide
-                    strKey:         qsTr("Poison")//qsTr("药剂")
-                    strValue:       routeInfo ? routeInfo.pesticide : ""
-                    enabled:        routeInfo
+                    strKey:         qsTr("Name")//qsTr("名称")
+                    strValue:       routeInfo ? routeInfo.name : ""
+                    enabled:        routeInfo && routeInfo.itemType===MapAbstractItem.Type_WayPointPlan
                     anchors {left: parent.left; leftMargin: 5; top: parent.top; topMargin: 10; right: parent.horizontalCenter; rightMargin: 2}
                     onClickedBtn:   {emit:editRouteInfo(routeInfo)}
                 }
                 VGValueItem{
-                    strKey:         qsTr("Prize")//qsTr("单价")
-                    strValue:       routeInfo ? routeInfo.price.toFixed(2) : ""
+                    strKey:         qsTr("Comment")//qsTr("注释")
+                    strValue:       routeInfo ? routeInfo.comment : ""
                     enabled:        routeInfo
                     anchors {left: parent.horizontalCenter; leftMargin: 2; top: parent.top; topMargin: 10; right: parent.right; rightMargin: 5}
-                    onClickedBtn:           {emit:editRouteInfo(routeInfo)}
-                }
-                VGValueItem{
-                    strKey:         qsTr("Crop")//qsTr("作物")
-                    strValue:       routeInfo ? routeInfo.cropper : ""
-                    enabled:        routeInfo
-                    anchors.left:           valPesticide.left
-                    anchors.top:            valPesticide.bottom
-                    anchors.topMargin:      5
-                    anchors.right:          valPesticide.right
                     onClickedBtn:           {emit:editRouteInfo(routeInfo)}
                 }
             }
@@ -227,8 +193,10 @@ Rectangle{
         }
         onMovementEnded:    {
             var idx = contentX<width/2? 0 : (contentX<width*3/2?1:2)
-            tabFunc.setCurrent(idx)
+            if (idx === tabFunc.currentIndex)
+                contentX = idx===0?0:width
+            else
+                tabFunc.currentIndex = idx
         }
     }
 }
-

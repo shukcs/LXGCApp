@@ -23,7 +23,7 @@ public:
 
     void setList(const QList<QObject*> &lstObject);
     void append(QObject* object);
-    void clear(void);
+    void clear(bool bDelObj = false);
     QObject* removeAt(int i);
     QObject* removeOne(QObject* object);
 	void removeItmes(const QObjectList &objects);
@@ -54,12 +54,12 @@ public:
 protected:
 signals:
     void countChanged();
-private:
+protected:
     // Overrides from QAbstractListModel
-    virtual int	rowCount(const QModelIndex & parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
-    virtual QHash<int, QByteArray> roleNames(void) const;
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    int	rowCount(const QModelIndex & parent = QModelIndex())const override;
+    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole)const override;
+    QHash<int, QByteArray> roleNames(void) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole)override;
 private:
     QList<QObject*> m_lsObject;
 };

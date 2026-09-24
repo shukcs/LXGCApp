@@ -14,12 +14,10 @@
 #include "MissionItem.h"
 #include "VGApplication.h"
 
-MissionItem::MissionItem(QObject* parent)
-    : QObject(parent), m_sequenceNumber(0)
-    , m_doJumpId(-1), m_isCurrentItem(false)
-	, m_autoContinue(true), m_command(MAV_CMD(0))
-	, m_frame(MAV_FRAME_GLOBAL)
-    , m_missionType(MAV_MISSION_TYPE_MISSION)
+MissionItem::MissionItem(QObject* parent, int seq) : QObject(parent), m_sequenceNumber(seq)
+, m_doJumpId(-1), m_isCurrentItem(false), m_autoContinue(true)
+, m_command(MAV_CMD_NAV_WAYPOINT), m_frame(MAV_FRAME_GLOBAL_RELATIVE_ALT)
+, m_missionType(MAV_MISSION_TYPE_MISSION)
 {
 }
 

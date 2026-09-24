@@ -30,7 +30,7 @@ QmlObjectListModel::~QmlObjectListModel()
 QObject *QmlObjectListModel::get(int index) const
 {
     if (index<0 || index>m_lsObject.count())
-        return NULL;
+        return nullptr;
 
     return m_lsObject.at(index);
 }
@@ -62,11 +62,7 @@ QVariant QmlObjectListModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> QmlObjectListModel::roleNames(void) const
 {
-    QHash<int, QByteArray> hash;
-    
-    hash[ObjectRole] = "object";
-    hash[TextRole] = "text";
-    
+    static QHash<int, QByteArray> hash = { { ObjectRole ,"object" },{ TextRole,"text" } };
     return hash;
 }
 
@@ -83,14 +79,12 @@ bool QmlObjectListModel::setData(const QModelIndex& index, const QVariant& value
 
 QObject *QmlObjectListModel::operator[](int index)
 {
-    if (index<0 || index>m_lsObject.count())
-        return NULL;
-    return m_lsObject[index];
+    return get(index);
 }
 
 const QObject* QmlObjectListModel::operator[](int index) const
 {
-    return m_lsObject[index];
+    return get(index);
 }
 
 bool QmlObjectListModel::contains(QObject* object) const
@@ -111,12 +105,19 @@ int QmlObjectListModel::indexOf(const QObject *object)
     return -1;
 }
 
-void QmlObjectListModel::clear(void)
+void QmlObjectListModel::clear(bool bDelObj)
 {
-    while (rowCount())
+    if (m_lsObject.isEmpty())
+        return;
+    beginRemoveRows(QModelIndex(), 0, m_lsObject.count()-1);
+    while (!m_lsObject.isEmpty())
     {
-        removeAt(0);
+        QObject *removedObject = m_lsObject.takeFirst();
+        if (bDelObj)
+            removedObject->deleteLater();
     }
+    endRemoveRows();
+    emit countChanged();
 }
 
 QObject *QmlObjectListModel::removeAt(int i)

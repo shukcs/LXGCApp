@@ -13,6 +13,7 @@
 #include "VGPlantInformation.h"
 #include "VGSupportPolyline.h"
 #include "VGToolBox.h"
+#include "QmlObjectListModel.h"
 
 #define SeqWaitCol QColor("#8FFF00")
 #define SeqPassCol QColor("#FF8000")
@@ -99,8 +100,11 @@ int VGMissionItem::GetSequence() const
 
 void VGMissionItem::SetSequence(int seq)
 {
-    if (m_item)
-        return m_item->setSequenceNumber(seq);
+    if (m_item && m_item->sequenceNumber()!=seq)
+    {
+        m_item->setSequenceNumber(seq);
+        emit sequenceChanged();
+    }
 }
 
 QVariant VGMissionItem::GetParam1() const
@@ -169,9 +173,13 @@ QGeoCoordinate VGMissionItem::GetCoordinate() const
 
 void VGMissionItem::SetCoordinate(const QGeoCoordinate &c)
 {
-    if (m_item)
-        m_item->setCoordinate(c);
-    emit coordinateChanged(c);
+    if (!m_item)
+    {
+        m_item = new MissionItem(this);
+        emit validChanged();
+    }
+    m_item->setCoordinate(c);
+    emit coordinateChanged();
 }
 
 void VGMissionItem::SetRelativeAtitude(double h)
@@ -183,6 +191,11 @@ void VGMissionItem::SetRelativeAtitude(double h)
 MissionItem * VGMissionItem::GetMissionItem() const
 {
     return m_item;
+}
+
+bool VGMissionItem::IsValid() const
+{
+    return m_item != nullptr;
 }
 
 bool VGMissionItem::operator==(const MapAbstractItem &item) const
@@ -199,7 +212,7 @@ VGVehicleMission::VGVehicleMission(QObject *parent, const QList<MissionItem*> &i
 ,m_msSuspend(false), m_supportEnter(NULL), m_supportReturn(NULL), m_beg(-1), m_end(-1), m_begTip(NULL), m_enterHeight(5.), m_returnHeight(5.)
 , m_curRidge(0), m_segEnter(NULL), m_endTip(NULL), m_opHeight(-1), m_segReturn(NULL), m_length(-1), m_dOpVoyage(-1), m_speed(5)
 , m_return(new MissionItem(0, MAV_CMD_NAV_RETURN_TO_LAUNCH, MAV_FRAME_MISSION, 0, 0, 0, 0, 0, 0, 0, false, false, MAV_MISSION_TYPE_MISSION, this))
-, m_bShowSeq(false), m_bdrStruct(NULL)
+, m_bShowSeq(false), m_bdrStruct(NULL), m_missionItems(new QmlObjectListModel(this))
 {
     SetBorderColor(QColor("#00FF10"));
     SetMissionItems(items);
@@ -211,7 +224,7 @@ VGVehicleMission::VGVehicleMission(VGMissionPlan *fr) : MapAbstractItem(fr), m_b
 , m_supportReturn(NULL), m_beg(fr?1:-1), m_end(-1), m_begTip(NULL), m_endTip(NULL), m_opHeight(fr ? fr->GetOperationHeight():-1), m_enterHeight(5)
 , m_returnHeight(5), m_curRidge(0), m_segEnter(NULL), m_segReturn(NULL), m_speed(5)
 , m_return(new MissionItem(0, MAV_CMD_NAV_RETURN_TO_LAUNCH, MAV_FRAME_MISSION, 0, 0, 0, 0, 0, 0, 0, false, false, MAV_MISSION_TYPE_MISSION, this))
-, m_bShowSeq(false), m_bdrStruct(NULL)
+, m_bShowSeq(false), m_bdrStruct(NULL), m_missionItems(new QmlObjectListModel(this))
 {
     SetBorderColor(QColor("#00FF10"));
     _generateMission(fr);
@@ -222,6 +235,8 @@ VGVehicleMission::VGVehicleMission(VGMissionPlan *fr) : MapAbstractItem(fr), m_b
 VGVehicleMission::~VGVehicleMission()
 {
     delete m_bdrStruct;
+    m_missionItems->clear(true);
+    delete m_missionItems;
 }
 
 bool VGVehicleMission::operator==(const MapAbstractItem &item)const
@@ -243,11 +258,13 @@ VGMissionPlan *VGVehicleMission::GetFlyRoute() const
 
 void VGVehicleMission::SetCurrentExecuteItem(int idx)
 {
-    if (idx < 0 || idx == m_iCurExecuteItem)
+    if (idx < 0 || idx == m_iCurExecuteItem || !m_missionItems)
         return;
 
-    for (VGMissionItem *itr : m_missionItems)
+    auto count = m_missionItems->count();
+    for (int i = 0; i < count; ++i)
     {
+        auto itr = (VGMissionItem*)m_missionItems->get(i);
         int seq = itr->GetSequence()-1;
         if (seq == idx)
             itr->SetColor(SeqCurCol);
@@ -260,9 +277,11 @@ void VGVehicleMission::SetCurrentExecuteItem(int idx)
 
 void VGVehicleMission::showSquences(bool b)
 {
-    foreach(VGMissionItem *itr, m_missionItems)
+    auto count = m_missionItems ? m_missionItems->count() : -1;
+    for (int i = 0; i < count; ++i)
     {
-        itr->Show(b);
+        if (auto itr = (VGMissionItem*)m_missionItems->get(i))
+            itr->Show(b);
     }
     m_bShowSeq = b;
 }
@@ -327,6 +346,11 @@ QString VGVehicleMission::GetInfo() const
         return QString(ba.toBase64().data());
     }
     return QString();
+}
+
+void VGVehicleMission::AddWayPoint(int pos)
+{
+
 }
 
 void VGVehicleMission::addSupport(const QGeoCoordinate &coor, bool bEnter, bool bRcv)
@@ -431,7 +455,7 @@ VGVehicleMission *VGVehicleMission::fromInfo(const QString &info)
 
 bool VGVehicleMission::canSync2Vehicle() const
 {
-    if (m_missionItems.count() <= 0)
+    if (!m_missionItems || m_missionItems->count() <= 0)
         return false;
 
     VGToolBox *tb = qvgApp->toolbox();
@@ -445,7 +469,7 @@ bool VGVehicleMission::canSync2Vehicle() const
 
 void VGVehicleMission::sync2Vehicle()
 {
-    if (m_missionItems.count()<=0 || m_beg<0)
+    if (!m_missionItems || m_missionItems->count()<=0 || m_beg<0)
         return;
 
     if (VGPlantManager *mgr = qvgApp->plantManager())
@@ -502,11 +526,16 @@ void VGVehicleMission::SetSuspend(int ridge, const QGeoCoordinate &c)
 
 void VGVehicleMission::UpdateMissionItem()
 {
+    auto count = m_missionItems ? m_missionItems->count() : 0;
+    if (count < 1)
+        return;
+
     VGMissionPlan *fr = GetFlyRoute();
     double rRoit = qvgApp->plantManager()->GetRoitRadius(fr ? fr->GetSprinkleWidth() : 1);
     double tmRoit = qvgApp->plantManager()->GetRoitTime();
-    for (VGMissionItem *itr : m_missionItems)
+    for (int i = 0; i < count; ++i)
     {
+        auto itr = (VGMissionItem*)m_missionItems->get(i);
         int id = itr->GetId();
         if (id>VGCoordinate::RouteBegin && id<VGCoordinate::RouteEnd)
         {
@@ -549,8 +578,10 @@ void VGVehicleMission::SetOpHeight(double f)
     if (VGMissionPlan *fr = GetFlyRoute())
         fr->SetOperationHeight(f);
 
-    for (VGMissionItem *itr : m_missionItems)
+    auto count = m_missionItems ? m_missionItems->count() : 0;
+    for (int i = 0; i < count; ++i)
     {
+        auto itr = (VGMissionItem*)m_missionItems->get(i);
         int id = itr->GetId();
         if (id >= VGCoordinate::RouteBegin && id<=VGCoordinate::RouteEnd)
             itr->SetRelativeAtitude(f);
@@ -650,7 +681,7 @@ void VGVehicleMission::processSaveReslt(const DescribeMap &result)
 
 int VGVehicleMission::CountItems() const
 {
-    int ret = m_missionItems.count();
+    int ret = m_missionItems ? m_missionItems->count() : 0;
     if (ret == 0 || m_return)
         return 0;
 
@@ -701,6 +732,11 @@ void VGVehicleMission::SetMissionSuspend(bool b)
     }
 }
 
+QmlObjectListModel *VGVehicleMission::GetWayPoints() const
+{
+    return m_missionItems;
+}
+
 double VGVehicleMission::GetSpeed() const
 {
     return m_speed;
@@ -708,12 +744,15 @@ double VGVehicleMission::GetSpeed() const
 
 void VGVehicleMission::onItemDestoyed(QObject *obj)
 {
+    if (!m_missionItems)
+        return;
+
     if (VGMissionItem *item = (VGMissionItem *)obj)
     {
-        int idx = m_missionItems.indexOf(item);
+        int idx = m_missionItems->indexOf(obj);
         if (idx >= 0)
         {
-            m_missionItems.removeAt(idx);
+            m_missionItems->removeOne(obj);
             m_path.removeAt(idx);
             _adjustSequence(idx);
         }
@@ -741,18 +780,17 @@ void VGVehicleMission::_generateMission(VGMissionPlan *fr)
 
 void VGVehicleMission::_genMissionItem(const QList<VGCoordinate*> &coors)
 {
-    if (coors.size() < 2)
+    if (coors.size() < 2 || !m_missionItems)
         return;
 
-    qDeleteAll(m_missionItems);
-    m_missionItems.clear();
+    m_missionItems->clear(true);
     m_path.clear();
 
     VGMissionPlan *fr = GetFlyRoute();
     double tmRoit = qvgApp->plantManager()->GetRoitTime();
     double rRoit = qvgApp->plantManager()->GetRoitRadius(fr ? fr->GetSprinkleWidth() : 1);
     float angle = fr ? fr->GetAngle() : VGGlobalFunc::checkAngle(coors);   //机头方向
-    int seqNum = m_missionItems.count();
+    int seqNum = 0;
 
     float bSprink = 0;//是否喷药bInital
     QGeoCoordinate c;
@@ -767,7 +805,7 @@ void VGVehicleMission::_genMissionItem(const QList<VGCoordinate*> &coors)
             .1, .5, bSprink, angle,
             c.latitude(), c.longitude(), GetOpHeight(),
             true, false);
-        m_missionItems << new VGMissionItem(item, this, VGCoordinate::RouteBegin);
+        m_missionItems->insert(-1, new VGMissionItem(item, this, VGCoordinate::RouteBegin));
         m_path << QVariant::fromValue(c);
         bSprink = 1;
     }
@@ -781,7 +819,7 @@ void VGVehicleMission::_genMissionItem(const QList<VGCoordinate*> &coors)
             tmRoit, rRoit, bSprink, angle,
             coor->GetLatitude(), coor->GetLongitude(), GetOpHeight(),
             true, false);
-        m_missionItems << new VGMissionItem(item, this, coor->GetId());
+        m_missionItems->insert(-1, new VGMissionItem(item, this, coor->GetId()));
         m_path << QVariant::fromValue(coor->GetCoordinate());
         bSprink = VGGlobalFunc::checkSprink(*coor);
     }
@@ -795,7 +833,7 @@ void VGVehicleMission::_genMissionItem(const QList<VGCoordinate*> &coors)
             .1, .5, bSprink, angle,
             c.latitude(), c.longitude(), GetOpHeight(),
             true, false);
-        m_missionItems << new VGMissionItem(item, this, VGCoordinate::RouteEnd);
+        m_missionItems->insert(-1, new VGMissionItem(item, this, VGCoordinate::RouteEnd));
         m_path << QVariant::fromValue(c);
     }
     emit pathChanged(m_path);
@@ -813,7 +851,7 @@ int VGVehicleMission::_getLinePntIndex(int nline, bool bStart /*= true*/)
         return -1;
 
     int ret = 0;
-    foreach(VGCoordinate *itr, ol->GetCoordinates())
+    for (auto itr : ol->GetCoordinates())
     {
         int id = itr->GetId();
         bool bOp = VGCoordinate::RouteBegin == id || VGCoordinate::RouteOperate==id;
@@ -830,13 +868,14 @@ int VGVehicleMission::_getLinePntIndex(int nline, bool bStart /*= true*/)
 
 void VGVehicleMission::_adjustSequence(int beg)
 {
-    if (beg >= m_missionItems.count() || beg<0)
+    if (!m_missionItems || beg >= m_missionItems->count() || beg<0)
         return;
 
-    QList<VGMissionItem*>::iterator itr = m_missionItems.begin() + beg;
-    for (int i = beg; i<m_missionItems.count(); ++itr)
+    int count = m_missionItems->count();
+    for (int i = beg; i<count; ++i)
     {
-        (*itr)->SetSequence(i++);
+        auto itr = (VGMissionItem *)m_missionItems->get(i);
+        itr->SetSequence(i);
     }
 }
 
@@ -865,11 +904,19 @@ void VGVehicleMission::_supportSegChanged(bool bEnter)
 
 void VGVehicleMission::_calculatLength()
 {
-    VGMissionItem *itmLast = NULL;
+    if (!m_missionItems || m_missionItems->count() < 1)
+    {
+        m_length = 0;
+        return;
+    }
+
+    VGMissionItem *itmLast = nullptr;
     m_length = 0;
     m_dOpVoyage = 0;
-    for (VGMissionItem *itr : m_missionItems)
+    int count = m_missionItems->count();
+    for (int i = 0; i < count; ++i)
     {
+        auto itr = (VGMissionItem *)m_missionItems->get(i);
         if (itmLast)
             m_length += itr->GetCoordinate().distanceTo(itmLast->GetCoordinate());
 
@@ -947,14 +994,14 @@ bool VGVehicleMission::_checkSupportHeight(double f)
 
 void VGVehicleMission::SetMissionItems(const QList<MissionItem*> &items, bool bRef)
 {
-    qDeleteAll(m_missionItems);
-    m_missionItems.clear();
+    if (!m_missionItems) return;
+    m_missionItems->clear();
     m_path.clear();
     m_boundarys.clear();
-    foreach(MissionItem *itr, items)
+    for (MissionItem *itr : items)
     {
         VGMissionItem *item = bRef ? new VGMissionItem(itr, this) : new VGMissionItem(*itr, this);
-        m_missionItems << item;
+        m_missionItems->insert(-1, item);
         item->Show(GetVisible() && m_beg<=0);
         if (itr->coordinate().isValid())
         {
@@ -970,16 +1017,18 @@ void VGVehicleMission::SetMissionItems(const QList<MissionItem*> &items, bool bR
     Show(true);
 }
 
-const QList<VGMissionItem*> &VGVehicleMission::VGVehicleMissionItems()const
+int VGVehicleMission::CountMissionItems() const
 {
-    return m_missionItems;
+    return m_missionItems ? m_missionItems->count() : 0;
 }
 
 QList<MissionItem*> VGVehicleMission::MissionItems()const
 {
     QList<MissionItem*> ret;
-    foreach(VGMissionItem *itr, m_missionItems)
+    int count = m_missionItems->count();
+    for (int i = 0; i < count; ++i)
     {
+        auto itr = (VGMissionItem *)m_missionItems->get(i);
         ret << itr->GetMissionItem();
     }
 

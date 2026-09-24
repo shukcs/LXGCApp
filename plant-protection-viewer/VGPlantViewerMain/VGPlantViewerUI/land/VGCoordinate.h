@@ -40,8 +40,6 @@ public:
         RouteCourse,        //中间过程点
         RouteEnd,           //结束
 
-        WayPoint = -40,
-
         SatelliteNumbBeg = 0,
         SatelliteDraw = 100,
     };

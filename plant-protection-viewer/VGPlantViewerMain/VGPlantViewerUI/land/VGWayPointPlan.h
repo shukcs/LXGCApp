@@ -5,6 +5,7 @@
 
 class VGCoordinate;
 class QGeoCoordinate;
+class VGVehicleMission;
 
 class VGWayPointPlan : public SingleTriggerItem<MapAbstractItem>
 {
@@ -13,36 +14,34 @@ class VGWayPointPlan : public SingleTriggerItem<MapAbstractItem>
     Q_PROPERTY(QString name READ GetName WRITE SetName NOTIFY nameChanged)
     Q_PROPERTY(int wpCount READ WPCount NOTIFY wpCountChanged)
     Q_PROPERTY(QString comment READ GetComment WRITE SetComment NOTIFY wpCountChanged)
-    Q_PROPERTY(QVariantList path READ GetPath NOTIFY pathChanged)
+    Q_PROPERTY(QString timeCrt READ GetCreateTime)
 public:
     explicit VGWayPointPlan(QObject *p=nullptr, const QString &n=QString());
-    VGWayPointPlan(const VGWayPointPlan &oth);
+    //VGWayPointPlan(const VGWayPointPlan &oth);
     ~VGWayPointPlan();
 
     MapItemType ItemType()const;
     bool operator==(const MapAbstractItem &item)const;
-    QVariantList GetPath()const;
     int WPCount()const;
-    void SetWayPoints(const QList<QGeoCoordinate> &cs);
-    void Show(bool b)override;
     QString GetName()const;
     void SetName(const QString &n);
     QString GetComment() const;
     void SetComment(const QString &c);
-    Q_INVOKABLE void  AddWayPoint(const QGeoCoordinate &c);
+    Q_INVOKABLE void EndEdit();
+
+    void showContent(bool b)override;
+    QString GetCreateTime()const;
 protected:
-    void addWayPoint(const QGeoCoordinate &c);
-    void remove(VGCoordinate *wp);
-    int ItemIndex(const MapAbstractItem *item)const override;
+    Q_INVOKABLE VGVehicleMission *getRoute()const;
 signals:
     void pathChanged(const QVariantList &);
     void wayPointFinished();
     void nameChanged(const QString &);
     void commentChanged(const QString &);
-    void wpCountChanged(int);
+    void wpCountChanged();
 private:
-    QList<VGCoordinate *> m_wps;
-    QVariantList m_path;
+    qint64              m_time;
+    VGVehicleMission    *m_route;
     QString m_name;
     QString m_commet;
 };

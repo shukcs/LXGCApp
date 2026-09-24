@@ -201,7 +201,7 @@ private:
     QString                 m_strActId;                         //服务器ID
     double                  m_fPrise;                           //单价
     VGCoordinate            *m_homePoint;                       //home点
-    VGLandPolyline               *m_route;                           //规划
+    VGLandPolyline          *m_route;                           //规划
     bool                    m_bSingleShrink;                    //单边
     PlanStat                m_stPlan;                            //规划状态
     bool                    m_bUploaded;                        //航线是否上传过

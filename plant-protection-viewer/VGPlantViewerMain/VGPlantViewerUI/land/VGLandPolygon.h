@@ -51,7 +51,6 @@ public:
         BlockBoundary,
         SafeBoundary,
         FlyRoute,
-        RoutePlanning,
 
         Unknow,
     };

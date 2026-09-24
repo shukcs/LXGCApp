@@ -23,6 +23,15 @@ Rectangle {
         onDoubleClicked:            {}
         onPressed:                  {}
     }
+
+    function setMissionPlan(rt) {
+        routeInfo = rt
+        if (routeInfo) {
+            cbbCropper.currentText = routeInfo.cropper
+            cbbPesticide.currentText = routeInfo.pesticide
+            txtPrise.text = routeInfo.price
+        }
+    }
     function confirm(){
         vgMainPage.onSigBack()
          if (!routeInfo) {
@@ -40,13 +49,11 @@ Rectangle {
              routeInfo.price = txtPrise.text
              emit:clickedOK(routeInfo)
          }
-
     }
 
     Rectangle{
+        anchors.centerIn:               parent
         id:                             contentRect
-        anchors.horizontalCenter:       parent.horizontalCenter
-        anchors.verticalCenter:         parent.verticalCenter
         width:                          parent.width*2/3
         height:                         lyContent.height
         color:                          vgMainPage.backColor
@@ -59,8 +66,8 @@ Rectangle {
                 height: txtHeader.contentHeight*2
                 color: "transparent"
                 Label{
-                    id:                         txtHeader
                     anchors {verticalCenter: parent.verticalCenter; left: parent.left; leftMargin: 20}
+                    id:                         txtHeader
                     text:                       strHeader
                     font:                       vgMainPage.font(true)
                     color: "#0b81ff"
@@ -86,7 +93,7 @@ Rectangle {
                 VGComboBox{
                     id:                         cbbCropper
                     font:                       vgMainPage.font()
-                    anchors {verticalCenter:     parent.verticalCenter; right: parent.right; rightMargin: 20}
+                    anchors {verticalCenter: parent.verticalCenter; right: parent.right; rightMargin: 20}
                     width:                      parent.width*2/3
                     model:                      [qsTr("Vegetables"), qsTr("Wheat"), qsTr("Rice"),qsTr("Corn")]//"蔬菜", "小麦", "水稻","玉米"
                 }

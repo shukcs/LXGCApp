@@ -74,7 +74,9 @@
         <file alias="VGNewFriendPage.qml">res/qml/VGNewFriendPage.qml</file>
         <file alias="VGMissionHistoryDetail.qml">res/qml/VGMissionHistoryDetail.qml</file>
         <file alias="VGCalendarBox.qml">res/qml/VGCalendarBox.qml</file>
+        <file alias="WayPointEdit.qml">res/qml/WayPointEdit.qml</file>
         <file alias="WPPlanInfoEdit.qml">res/qml/WPPlanInfoEdit.qml</file>
+        <file alias="WPPlanEdit.qml">res/qml/WPPlanEdit.qml</file>
     </qresource>
     <qresource prefix="/res">
         <file alias="USBBoardInfo.json">res/USBBoardInfo.json</file>

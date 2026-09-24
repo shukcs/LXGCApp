@@ -32,11 +32,17 @@ Rectangle {
             }
         }
          else {
-             routeInfo.cropper = cbbCropper.currentText
-             routeInfo.pesticide = cbbPesticide.currentText
-             routeInfo.price = txtPrise.text
+             routeInfo.name = txtName.text
+             routeInfo.comment = txtCmt.text
              emit:clickedOK(routeInfo)
          }
+    }
+    function setWayPointPlan(rt) {
+        routeInfo = rt
+        if (routeInfo) {
+            txtName.text = routeInfo.name
+            txtCmt.text = routeInfo.comment
+        }
     }
     function checkWholeInfo(){
         var bWhole = true

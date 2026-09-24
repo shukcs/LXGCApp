@@ -18,17 +18,18 @@ class VGMissionItem :public MapAbstractItem
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool valid READ IsValid NOTIFY validChanged)
     Q_PROPERTY(quint16 command READ GetCommand WRITE SetCommand NOTIFY commandChanged)
     Q_PROPERTY(quint16 frame READ GetFrame WRITE SetFrame NOTIFY frameChanged)
-    Q_PROPERTY(int sequence READ GetSequence CONSTANT)
+    Q_PROPERTY(int sequence READ GetSequence  NOTIFY sequenceChanged)
     Q_PROPERTY(QVariant param1 READ GetParam1 WRITE SetParam1 NOTIFY param1Changed)
     Q_PROPERTY(QVariant param2 READ GetParam2 WRITE SetParam2 NOTIFY param2Changed)
     Q_PROPERTY(QVariant param3 READ GetParam3 WRITE SetParam3 NOTIFY param3Changed)
     Q_PROPERTY(QVariant param4 READ GetParam4 WRITE SetParam4 NOTIFY param4Changed)
     Q_PROPERTY(QGeoCoordinate coordinate READ GetCoordinate WRITE SetCoordinate NOTIFY coordinateChanged)
 public:
-    VGMissionItem(const MissionItem &item, QObject *parent = NULL);
-    VGMissionItem(MissionItem *ref, QObject *parent = NULL, int id=0);
+    VGMissionItem(const MissionItem &item, QObject *parent=nullptr);
+    VGMissionItem(MissionItem *ref=nullptr, QObject *parent=nullptr, int id=0);
     ~VGMissionItem();
 
     QColor GetColor()const;
@@ -54,15 +55,18 @@ public:
     void SetRelativeAtitude(double h);
     bool operator==(const MapAbstractItem &item)const;
     MissionItem *GetMissionItem()const;
+    bool IsValid()const;
 private:
 signals :
     void commandChanged(quint16 cmd);
     void frameChanged(quint16 f);
-    void coordinateChanged(const QGeoCoordinate&coor);
+    void coordinateChanged();
     void param1Changed(const QVariant &param);
     void param2Changed(const QVariant &param);
     void param3Changed(const QVariant &param);
     void param4Changed(const QVariant &param);
+    void validChanged();
+    void sequenceChanged();
 private:
     MissionItem *m_item;
     QColor      m_color;
@@ -88,13 +92,15 @@ class VGVehicleMission : public MapAbstractItem
     Q_PROPERTY(double speed READ GetSpeed WRITE SetSpeed NOTIFY speedChanged)
     Q_PROPERTY(double length READ GetLength NOTIFY lengthChanged)
     Q_PROPERTY(VGLandInformation* curland READ GetLandInformation CONSTANT)
+    Q_PROPERTY(QmlObjectListModel *waypoints READ GetWayPoints CONSTANT)
 public:
+    VGVehicleMission(const VGVehicleMission &oth);
     explicit VGVehicleMission(QObject *parent = NULL, const QList<MissionItem*> &items = QList<MissionItem*>());
     explicit VGVehicleMission(VGMissionPlan *fr);
     ~VGVehicleMission();
 
     void SetMissionItems(const QList<MissionItem*> &items, bool bRef=false);
-    const QList<VGMissionItem*> &VGVehicleMissionItems()const;
+    int CountMissionItems()const;
     QList<MissionItem*> MissionItems()const;
     QList<MissionItem*> BoundaryItems()const;
     void showContent(bool b);
@@ -116,6 +122,7 @@ public:
     VGCoordinate *GetSupportEnter()const;
     VGCoordinate *GetSupportReturn()const;
     QString GetInfo()const;
+    Q_INVOKABLE void AddWayPoint(int pos=-1);
     Q_INVOKABLE void clearSupport(bool bEnter = true, bool bRcv = false);
     Q_INVOKABLE void addSupport(const QGeoCoordinate &coor, bool bEnter = true, bool bRcv = false);
     VGLandBoundary *GetBelongBoundary()const;
@@ -128,6 +135,7 @@ public:
     QString GetFlyRouteID()const;
     void SetSuspend(int ridge, const QGeoCoordinate &c);
     void UpdateMissionItem();
+    QmlObjectListModel *GetWayPoints()const;
 public:
     static VGVehicleMission *fromInfo(const QString &info);
 protected:
@@ -183,7 +191,7 @@ private:
     bool _checkSupport(const QGeoCoordinate &c);
     bool _checkSupportHeight(double f);
 private:
-    QList<VGMissionItem*>   m_missionItems;
+    QmlObjectListModel      *m_missionItems;
     QVariantList            m_path;
     QList<double>           m_boundarys;
     bool					m_bExecute;

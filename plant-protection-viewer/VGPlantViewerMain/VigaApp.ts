@@ -569,17 +569,17 @@
 <context>
     <name>LinkManager</name>
     <message>
-        <location filename="../../common-librarys/vgcomm/src/LinkManager.cc" line="353"/>
+        <location filename="../../common-librarys/vgcomm/src/LinkManager.cc" line="369"/>
         <source>Serial</source>
         <translation>串口</translation>
     </message>
     <message>
-        <location filename="../../common-librarys/vgcomm/src/LinkManager.cc" line="355"/>
+        <location filename="../../common-librarys/vgcomm/src/LinkManager.cc" line="371"/>
         <source>UDP</source>
         <translation>UDP</translation>
     </message>
     <message>
-        <location filename="../../common-librarys/vgcomm/src/LinkManager.cc" line="358"/>
+        <location filename="../../common-librarys/vgcomm/src/LinkManager.cc" line="374"/>
         <source>BlueTooth</source>
         <translation>蓝牙</translation>
     </message>
@@ -910,125 +910,126 @@
 <context>
     <name>OperationPage</name>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="96"/>
+        <location filename="res/qml/OperationPage.qml" line="93"/>
         <source>Tip</source>
         <translation>提示</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="146"/>
+        <location filename="res/qml/OperationPage.qml" line="143"/>
         <source>While correct, Uav auto fly and rotate correct magnetic compass, ensure uav in safe area!</source>
         <translation>校准过程中,飞机将自动起飞,在空中水平转动校准磁罗盘,请处于安全区域!</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="182"/>
+        <location filename="res/qml/OperationPage.qml" line="179"/>
         <source>Uav reboot, Do you confirm?</source>
         <translation>是否确认重启飞控？</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="186"/>
-        <location filename="res/qml/OperationPage.qml" line="760"/>
+        <location filename="res/qml/OperationPage.qml" line="183"/>
+        <location filename="res/qml/OperationPage.qml" line="770"/>
         <source>Test pump</source>
         <translation>测试水泵</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="189"/>
-        <location filename="res/qml/OperationPage.qml" line="761"/>
+        <location filename="res/qml/OperationPage.qml" line="186"/>
+        <location filename="res/qml/OperationPage.qml" line="771"/>
         <source>Test motor</source>
         <translation>测试电机</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="192"/>
-        <location filename="res/qml/OperationPage.qml" line="762"/>
+        <location filename="res/qml/OperationPage.qml" line="189"/>
+        <location filename="res/qml/OperationPage.qml" line="772"/>
         <source>Disarm</source>
         <translation>加锁</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="194"/>
+        <location filename="res/qml/OperationPage.qml" line="191"/>
         <source>Is Uav disarm?</source>
         <translation>是否确认加锁？</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="198"/>
-        <location filename="res/qml/OperationPage.qml" line="763"/>
+        <location filename="res/qml/OperationPage.qml" line="195"/>
+        <location filename="res/qml/OperationPage.qml" line="773"/>
         <source>Return</source>
         <translation>返航</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="202"/>
-        <location filename="res/qml/OperationPage.qml" line="764"/>
+        <location filename="res/qml/OperationPage.qml" line="199"/>
+        <location filename="res/qml/OperationPage.qml" line="774"/>
         <source>Hold</source>
         <translation>悬停</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="206"/>
-        <location filename="res/qml/OperationPage.qml" line="767"/>
+        <location filename="res/qml/OperationPage.qml" line="203"/>
+        <location filename="res/qml/OperationPage.qml" line="777"/>
         <source>Parameter setting</source>
         <translation>参数设置</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="209"/>
-        <location filename="res/qml/OperationPage.qml" line="765"/>
+        <location filename="res/qml/OperationPage.qml" line="206"/>
+        <location filename="res/qml/OperationPage.qml" line="775"/>
         <source>Imitation setting</source>
         <translation>仿地设置</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="212"/>
-        <location filename="res/qml/OperationPage.qml" line="766"/>
+        <location filename="res/qml/OperationPage.qml" line="209"/>
+        <location filename="res/qml/OperationPage.qml" line="776"/>
         <source>Auto magic correct</source>
         <translation>空中校磁</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="596"/>
+        <location filename="res/qml/OperationPage.qml" line="606"/>
         <source>Do u let Uav no rtk excute mission?</source>
         <translation>是否单点执行作业任务？</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="600"/>
+        <location filename="res/qml/OperationPage.qml" line="610"/>
         <source>Position of Uav is not prepair, do u set param permision arming?</source>
         <translation>飞机未就绪，是否设置参数允许解锁？</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="739"/>
+        <location filename="res/qml/OperationPage.qml" line="749"/>
         <source>blocks</source>
         <translation>障碍物</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="739"/>
+        <location filename="res/qml/OperationPage.qml" line="749"/>
         <source>:angle:</source>
         <translation>:角度:</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="740"/>
+        <location filename="res/qml/OperationPage.qml" line="750"/>
         <source>degree;distance:</source>
         <translation>°;距离:</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="740"/>
+        <location filename="res/qml/OperationPage.qml" line="750"/>
         <source>M</source>
         <translation>m</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="553"/>
+        <location filename="res/qml/OperationPage.qml" line="544"/>
+        <location filename="res/qml/OperationPage.qml" line="580"/>
         <source>Do you drop current plan？</source>
         <translation>确认取消创建任务？</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="594"/>
+        <location filename="res/qml/OperationPage.qml" line="604"/>
         <source>Do u let Uav excute mission?</source>
         <translation>是否执行作业任务？</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="628"/>
+        <location filename="res/qml/OperationPage.qml" line="638"/>
         <source>Precision:</source>
         <translation>航向精度:</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="697"/>
+        <location filename="res/qml/OperationPage.qml" line="707"/>
         <source>00000000</source>
         <translation>00000000</translation>
     </message>
     <message>
-        <location filename="res/qml/OperationPage.qml" line="705"/>
+        <location filename="res/qml/OperationPage.qml" line="715"/>
         <source>Unnamed</source>
         <translation>未命名</translation>
     </message>
@@ -1336,67 +1337,67 @@
         <translation>任务信息</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="81"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="88"/>
         <source>Crop</source>
         <translation>作物</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="91"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="98"/>
         <source>Vegetables</source>
         <translation>蔬菜</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="91"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="98"/>
         <source>Wheat</source>
         <translation>小麦</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="91"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="98"/>
         <source>Rice</source>
         <translation>水稻</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="91"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="98"/>
         <source>Corn</source>
         <translation>玉米</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="108"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="115"/>
         <source>Poison</source>
         <translation>药剂</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="117"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="124"/>
         <source>Control agent</source>
         <translation>控旺剂</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="117"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="124"/>
         <source>Herbicide</source>
         <translation>除草剂</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="117"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="124"/>
         <source>Foliar</source>
         <translation>叶面肥</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="117"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="124"/>
         <source>Insecticide</source>
         <translation>杀虫剂</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="134"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="141"/>
         <source>Prize(Y/A):</source>
         <translation>单价(元/亩):</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="182"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="189"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="res/qml/RouteInfoEdit.qml" line="201"/>
+        <location filename="res/qml/RouteInfoEdit.qml" line="208"/>
         <source>OK</source>
         <translation>确定</translation>
     </message>
@@ -2038,10 +2039,10 @@
 <context>
     <name>VGGetGpsLocation</name>
     <message>
-        <location filename="VGPlantViewerUI/survey/VGGetGpsLocation.cpp" line="49"/>
-        <location filename="VGPlantViewerUI/survey/VGGetGpsLocation.cpp" line="50"/>
-        <location filename="VGPlantViewerUI/survey/VGGetGpsLocation.cpp" line="81"/>
-        <location filename="VGPlantViewerUI/survey/VGGetGpsLocation.cpp" line="82"/>
+        <location filename="VGPlantViewerUI/survey/VGGetGpsLocation.cpp" line="51"/>
+        <location filename="VGPlantViewerUI/survey/VGGetGpsLocation.cpp" line="52"/>
+        <location filename="VGPlantViewerUI/survey/VGGetGpsLocation.cpp" line="83"/>
+        <location filename="VGPlantViewerUI/survey/VGGetGpsLocation.cpp" line="84"/>
         <source>timeout!!</source>
         <translation>超时！！</translation>
     </message>
@@ -2049,37 +2050,37 @@
 <context>
     <name>VGGlobalFunc</name>
     <message>
-        <location filename="../base/VGGlobalFun.cpp" line="305"/>
+        <location filename="../base/VGGlobalFun.cpp" line="306"/>
         <source>No position</source>
         <translation>未定位</translation>
     </message>
     <message>
-        <location filename="../base/VGGlobalFun.cpp" line="307"/>
+        <location filename="../base/VGGlobalFun.cpp" line="308"/>
         <source>Single postion</source>
         <translation>单点</translation>
     </message>
     <message>
-        <location filename="../base/VGGlobalFun.cpp" line="309"/>
+        <location filename="../base/VGGlobalFun.cpp" line="310"/>
         <source>RTD</source>
         <translation>RTD</translation>
     </message>
     <message>
-        <location filename="../base/VGGlobalFun.cpp" line="311"/>
+        <location filename="../base/VGGlobalFun.cpp" line="312"/>
         <source>Fixed</source>
         <translation>固定</translation>
     </message>
     <message>
-        <location filename="../base/VGGlobalFun.cpp" line="313"/>
+        <location filename="../base/VGGlobalFun.cpp" line="314"/>
         <source>Float</source>
         <translation>浮点</translation>
     </message>
     <message>
-        <location filename="../base/VGGlobalFun.cpp" line="315"/>
+        <location filename="../base/VGGlobalFun.cpp" line="316"/>
         <source>Inertia</source>
         <translation>惯导</translation>
     </message>
     <message>
-        <location filename="../base/VGGlobalFun.cpp" line="317"/>
+        <location filename="../base/VGGlobalFun.cpp" line="318"/>
         <source>User way</source>
         <translation>用户设定</translation>
     </message>
@@ -2355,7 +2356,7 @@
 <context>
     <name>VGMissionPlan</name>
     <message>
-        <location filename="VGPlantViewerUI/land/VGMissionPlan.cpp" line="749"/>
+        <location filename="VGPlantViewerUI/land/VGMissionPlan.cpp" line="748"/>
         <source>Can not Plan,please modify parameters!</source>
         <oldsource>Can not Plan,please modify parameters</oldsource>
         <translation>地块无法规划，请尝试修改参数!</translation>
@@ -2980,12 +2981,13 @@
     <message>
         <location filename="res/qml/VGRouteList.qml" line="32"/>
         <source>Survey mission</source>
-        <translation type="unfinished"></translation>
+        <translation>规划任务</translation>
     </message>
     <message>
         <location filename="res/qml/VGRouteList.qml" line="42"/>
-        <source>Route mission</source>
-        <translation type="unfinished"></translation>
+        <source>WayPoint mission</source>
+        <oldsource>Route mission</oldsource>
+        <translation>航点任务</translation>
     </message>
     <message>
         <location filename="res/qml/VGRouteList.qml" line="54"/>
@@ -3011,6 +3013,12 @@
         <location filename="res/qml/VGRouteList.qml" line="123"/>
         <source>Crop:</source>
         <translation>作物:</translation>
+    </message>
+    <message>
+        <location filename="res/qml/VGRouteList.qml" line="186"/>
+        <location filename="res/qml/VGRouteList.qml" line="203"/>
+        <source>Waypoint count: </source>
+        <translation>航点数: </translation>
     </message>
 </context>
 <context>
@@ -3160,7 +3168,7 @@
 <context>
     <name>VGSurveyMonitor</name>
     <message>
-        <location filename="VGPlantViewerUI/survey/VGSurveyMonitor.cpp" line="190"/>
+        <location filename="VGPlantViewerUI/survey/VGSurveyMonitor.cpp" line="191"/>
         <source>N/A</source>
         <translation>N/A</translation>
     </message>
@@ -3403,31 +3411,116 @@
     </message>
 </context>
 <context>
+    <name>WPPlanEdit</name>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="64"/>
+        <source>Information</source>
+        <translation>信息</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="65"/>
+        <source>Parameter</source>
+        <translation type="unfinished">参数</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="74"/>
+        <source>Save</source>
+        <translation type="unfinished">保存</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="74"/>
+        <source>Next</source>
+        <translation type="unfinished">下一步</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="113"/>
+        <source>Name</source>
+        <translation type="unfinished">名称</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="120"/>
+        <source>Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="135"/>
+        <source>Land</source>
+        <translation type="unfinished">地块</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="136"/>
+        <source>Please set operater land</source>
+        <translation type="unfinished">请设置喷洒地块</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="144"/>
+        <source>From right plan</source>
+        <translation type="unfinished">从右到左规划</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="153"/>
+        <source>Sprinkle width</source>
+        <translation type="unfinished">喷幅</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="154"/>
+        <location filename="res/qml/WPPlanEdit.qml" line="188"/>
+        <location filename="res/qml/WPPlanEdit.qml" line="197"/>
+        <source>m</source>
+        <translation type="unfinished">m</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="170"/>
+        <source>Angle</source>
+        <translation type="unfinished">角度</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="171"/>
+        <source>degree</source>
+        <translation type="unfinished">°</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="187"/>
+        <source>Boundary safe distance</source>
+        <translation type="unfinished">边界安全距离</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="189"/>
+        <source>Single shrink</source>
+        <translation type="unfinished">单边内缩</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="196"/>
+        <source>Block safe distance</source>
+        <translation type="unfinished">障碍安全距离</translation>
+    </message>
+</context>
+<context>
     <name>WPPlanInfoEdit</name>
     <message>
         <location filename="res/qml/WPPlanInfoEdit.qml" line="14"/>
         <source>Mission infomation</source>
-        <translation type="unfinished">任务信息</translation>
+        <translation>任务信息</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanInfoEdit.qml" line="84"/>
+        <location filename="res/qml/WPPlanInfoEdit.qml" line="90"/>
         <source>Mission name</source>
-        <translation type="unfinished"></translation>
+        <translation>任务名</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanInfoEdit.qml" line="111"/>
+        <location filename="res/qml/WPPlanInfoEdit.qml" line="117"/>
         <source>Comment:</source>
-        <translation type="unfinished"></translation>
+        <translation>注释:</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanInfoEdit.qml" line="153"/>
+        <location filename="res/qml/WPPlanInfoEdit.qml" line="159"/>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanInfoEdit.qml" line="172"/>
+        <location filename="res/qml/WPPlanInfoEdit.qml" line="178"/>
         <source>OK</source>
-        <translation type="unfinished">确定</translation>
+        <translation>确定</translation>
     </message>
 </context>
 <context>

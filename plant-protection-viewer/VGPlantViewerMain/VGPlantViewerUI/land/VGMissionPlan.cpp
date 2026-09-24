@@ -76,7 +76,6 @@ VGMissionPlan::VGMissionPlan(const VGMissionPlan &oth) : SingleTriggerItem<MapAb
         m_route->SetParentItem(this);
         m_route->SetShowType(Show_LineAndPoint);
         m_route->SetVisible(GetVisible());
-
     }
 }
 
@@ -727,7 +726,7 @@ void VGMissionPlan::showPlanningResult(const VGRoute &result, VGMissionPlan *rt)
 
     m_bErrorPlan = false;
     QList<VGCoordinate *>ls;
-    foreach(const VGRoutePoint &point, result.GetRoutePoints())
+    for (const VGRoutePoint &point : result.GetRoutePoints())
     {
         QGeoCoordinate coor;
         VGCoordinate::transXY2Coor(homeCoor, point.GetX(), point.GetY(), coor);

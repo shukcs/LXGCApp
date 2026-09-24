@@ -38,7 +38,7 @@ class MissionItem : public QObject
 {
     Q_OBJECT
 public:
-    MissionItem(QObject* parent = NULL);
+    MissionItem(QObject* parent=nullptr, int seq=-1);
     MissionItem(int                 sequenceNumber,
                 MAV_CMD             command,
                 MAV_FRAME           frame,

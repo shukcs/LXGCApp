@@ -25,6 +25,11 @@ Rectangle{
     function currentStr() {
         return tabNames.get(currentIndex).txtTab
     }
+    function setCurrent(idx) {
+        root.currentIndex = idx
+        emit:currentChanged(tabIndex)
+    }
+
     Row{
         id:             rowTabs
         height:         parent.height
@@ -63,8 +68,7 @@ Rectangle{
                 MouseArea{
                     anchors.fill:   parent
                     onClicked:      {
-                        root.currentIndex = tabIndex
-                        root.currentChanged(tabIndex)
+                        setCurrent(tabIndex)
                     }
                 }
             }

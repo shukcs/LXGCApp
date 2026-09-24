@@ -39,7 +39,7 @@ Rectangle{
             }
         }
         VGRadioButton {
-            text: qsTr("Route mission")//qsTr("航行任务")
+            text: qsTr("WayPoint mission")//qsTr("航点任务")
             ftText: vgMainPage.font()
             exclusiveGroup: groupTp
             onClicked: {
@@ -169,6 +169,40 @@ Rectangle{
                             object.selected = true
                             emit:selectRoute(object)
                             emit:detailRout(object)
+                        }
+                    }
+                    Column{
+                        id:         colWp1
+                        clip:       true
+                        spacing:    4
+                        anchors {left: parent.left; leftMargin: 10}
+                        width: parent.width/4
+                        Text {
+                            text:               object.name
+                            font:               vgMainPage.littleFont()
+                            color:              "#0b81ff"
+                        }
+                        Text {
+                            text:               qsTr("Waypoint count: ")+object.wpCount//航点数:
+                            font:               vgMainPage.littleFont()
+                            color:              "#605C5B"
+                        }
+                    }
+                    Column{
+                        id:         colWp2
+                        clip:       true
+                        spacing:    4
+                        anchors {left: colWp1.right; leftMargin: 10}
+                        width: parent.width/2
+                        Text {
+                            text:               object.name
+                            font:               vgMainPage.littleFont()
+                            color:              "#0b81ff"
+                        }
+                        Text {
+                            text:               qsTr("Waypoint count: ")+object.wpCount//航点数:
+                            font:               vgMainPage.littleFont()
+                            color:              "#605C5B"
                         }
                     }
                 }
