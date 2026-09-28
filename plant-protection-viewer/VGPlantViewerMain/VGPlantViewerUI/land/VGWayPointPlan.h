@@ -15,6 +15,7 @@ class VGWayPointPlan : public SingleTriggerItem<MapAbstractItem>
     Q_PROPERTY(int wpCount READ WPCount NOTIFY wpCountChanged)
     Q_PROPERTY(QString comment READ GetComment WRITE SetComment NOTIFY wpCountChanged)
     Q_PROPERTY(QString timeCrt READ GetCreateTime)
+    Q_PROPERTY(VGVehicleMission* mission READ getRoute CONSTANT)
 public:
     explicit VGWayPointPlan(QObject *p=nullptr, const QString &n=QString());
     //VGWayPointPlan(const VGWayPointPlan &oth);
@@ -32,7 +33,7 @@ public:
     void showContent(bool b)override;
     QString GetCreateTime()const;
 protected:
-    Q_INVOKABLE VGVehicleMission *getRoute()const;
+    VGVehicleMission *getRoute()const;
 signals:
     void pathChanged(const QVariantList &);
     void wayPointFinished();

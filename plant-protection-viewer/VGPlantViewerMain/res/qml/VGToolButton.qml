@@ -5,7 +5,7 @@ import QtQuick.Controls.Styles 1.4
 import VGGroundControl   1.0
 
 Rectangle {
-    id: colLy
+    id: root
     implicitWidth:  getImplicitWidth()
     implicitHeight: getImplicitHeight()
     property alias  iconName:    img.iconName
@@ -70,7 +70,7 @@ Rectangle {
         anchors.fill:   parent
         hoverEnabled:   true
         enabled:        parent.enabled
-        onClicked:      colLy.btnClicked()
+        onClicked:      root.btnClicked()
         onEntered:      img.bPress = true
         onExited:       img.bPress = false
     }

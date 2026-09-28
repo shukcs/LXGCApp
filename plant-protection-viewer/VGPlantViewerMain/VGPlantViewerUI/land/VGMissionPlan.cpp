@@ -936,7 +936,7 @@ double VGMissionPlan::GetOperateVoyage() const
 void VGMissionPlan::DetachVm(VGVehicleMission *vm)
 {
     if (vm == m_olMission)
-        m_olMission = NULL;
+        m_olMission = nullptr;
 }
 
 int VGMissionPlan::GetVoyageNum() const

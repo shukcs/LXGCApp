@@ -244,7 +244,7 @@ void VGPlantInformation::setLastConnected()
 {
     m_lastLacalTime = QDateTime::currentMSecsSinceEpoch();
     SetStatus(Connected);
-    VGMissionPlan *rt = m_uploadVm ? m_uploadVm->GetFlyRoute() : NULL;
+    VGMissionPlan *rt = m_uploadVm ? m_uploadVm->GetMissionPlan() : NULL;
     if (rt && m_flightMode == GetFlightModeDscb(MissionMod))
     {
         float tmp = rt->GetSprinkleWidth();
@@ -1705,7 +1705,7 @@ void VGPlantInformation::onContentDestroied(QObject *o)
 
 void VGPlantInformation::setMissionRun()
 {
-    bool bShow = qvgApp->mapManager()->IsMissionPage() && GetSelected();
+    bool bShow = qvgApp->mapManager()->IsShowMission() && GetSelected();
     bool bMission = m_flightMode == GetFlightModeDscb(MissionMod);
     if(m_uploadVm)
         m_uploadVm->showSquences(bShow && !IsLanded() && !IsLanded());
@@ -1870,7 +1870,7 @@ void VGPlantInformation::_prcsArmOrDisarm(bool res)
     }
     m_statSupport &= 0xffffff;
 
-    VGMissionPlan *rt = m_uploadVm ? m_uploadVm->GetFlyRoute() : NULL;
+    VGMissionPlan *rt = m_uploadVm ? m_uploadVm->GetMissionPlan() : NULL;
     if(m_bArmOp && res && rt)
     {
         float tmp = rt->GetMedPerAcre() * 1000;

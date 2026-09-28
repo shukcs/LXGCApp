@@ -366,7 +366,7 @@ Map {
             root.center.longitude = lon;
         }
         onBoundaryMissionChanged: {
-            if (mapManager.mgrObj & VGMapManager.Mission) {
+            if (mapManager.showMission) {
                 var tL = QtPositioning.coordinate(n + (n - s), w)
                 var bR = QtPositioning.coordinate(s - (n - s), e)
                 root.visibleRegion = QtPositioning.rectangle(tL, bR)

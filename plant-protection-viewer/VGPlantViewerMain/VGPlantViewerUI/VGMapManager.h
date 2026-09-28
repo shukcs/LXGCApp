@@ -26,12 +26,12 @@ class VGMapManager : public QObject
     Q_PROPERTY(int propLength READ GetPropLength NOTIFY propLengthChanged)
     Q_PROPERTY(int mgrObj READ GetManagerObj WRITE SetManagerObj NOTIFY mgrObjChanged)
     Q_PROPERTY(bool onlyStreet READ IsOnlyStreet WRITE SetOnlyStreet NOTIFY onlyStreetChanged)
+    Q_PROPERTY(bool showMission READ IsShowMission WRITE SetShowMission NOTIFY showMissionChanged)
 public:
     enum ManagerObject {
         None = 0,
         Land = 0x01,
-        Mission = 0x02,
-        Vehicle = 0x04,
+        Vehicle = 0x02,
     };
 public:
     VGMapManager(QObject *parent = 0);
@@ -55,7 +55,8 @@ public:
     bool   IsItemSelecte(const MapAbstractItem *item)const;
     double GetPixLength()const;
     QGeoCoordinate mapCenter()const;
-    bool IsMissionPage()const;
+    bool IsShowMission()const;
+    void SetShowMission(bool);
 public slots:
     void    sltQmlCreated(QObject *qmlObject, const QUrl &qmlUrl);
     //qml
@@ -95,7 +96,7 @@ protected:
     void SetCenterVisible(bool b);
 signals:
     void mapTypeIDChanged(int mapTypeID);
-    void mapCenterChanged(const QGeoCoordinate &coor);
+    void mapCenterChanged();
     void finished();
     //从数据库获取已经存在的离线地图包信息
     void updateExistMap(int id, const QString &name, const QString &mapType, const QString &zooms, long tilesNum, long tilesSize);
@@ -108,17 +109,19 @@ signals:
     void zoomLevelChanged(int level);
     void boundaryMissionChanged(double e, double w, double s, double n);
     void showScaleRuleChanged(bool);
-    void centerLatChanged(double f);
-    void centerLonChanged(double f);
+    void centerLatChanged();
+    void centerLonChanged();
     void propLengthChanged(int pix);
     void mgrObjChanged();
     void onlyStreetChanged();
     void centerVisibleChanged(bool);
+    void showMissionChanged();
 protected slots:
     void _checkSelected(QObject *item);
 private:
 	void _readConfig();
 	void _writeConfig();
+    void _setMapCenter(const QGeoCoordinate &c, bool bMap=true);
 private:
     int     m_mapTypeID;			//当前地图类型ID
     int     m_zoomLevel;
@@ -126,8 +129,6 @@ private:
     double  m_leftLat0;
     double  m_rightLon1;            //当前视图范围内右下角经纬度
     double  m_rightLat1;
-    double  m_centerLat;
-    double  m_centerLon;
     double  m_pixLength;
     int     m_propLength;
     int     m_mgrObj;
@@ -137,6 +138,7 @@ private:
 	bool   m_bMapChanged;
     bool   m_bOnlyStreet;
     bool   m_bCenterVisible;
+    bool   m_bShowMission;
     //qml
     QMap<MapAbstractItem::MapItemType, QmlObjectListModel*> m_mapItems;
     QMap<MapAbstractItem::MapItemType, MapAbstractItem*>    m_mapSelectedItem;

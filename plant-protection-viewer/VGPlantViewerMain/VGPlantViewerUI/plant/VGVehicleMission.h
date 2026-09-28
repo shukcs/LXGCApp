@@ -92,7 +92,7 @@ class VGVehicleMission : public MapAbstractItem
     Q_PROPERTY(double speed READ GetSpeed WRITE SetSpeed NOTIFY speedChanged)
     Q_PROPERTY(double length READ GetLength NOTIFY lengthChanged)
     Q_PROPERTY(VGLandInformation* curland READ GetLandInformation CONSTANT)
-    Q_PROPERTY(QmlObjectListModel *waypoints READ GetWayPoints CONSTANT)
+    Q_PROPERTY(QmlObjectListModel* waypoints READ GetWayPoints CONSTANT)
 public:
     VGVehicleMission(const VGVehicleMission &oth);
     explicit VGVehicleMission(QObject *parent = NULL, const QList<MissionItem*> &items = QList<MissionItem*>());
@@ -112,7 +112,7 @@ public:
     void Monitor();
     bool operator==(const MapAbstractItem &item)const;
     MapItemType ItemType()const;
-    VGMissionPlan *GetFlyRoute()const;
+    VGMissionPlan *GetMissionPlan()const;
     void SetCurrentExecuteItem(int idx);
     void showSquences(bool b);
     void AtachByPlant();
@@ -122,7 +122,7 @@ public:
     VGCoordinate *GetSupportEnter()const;
     VGCoordinate *GetSupportReturn()const;
     QString GetInfo()const;
-    Q_INVOKABLE void AddWayPoint(int pos=-1);
+    Q_INVOKABLE VGMissionItem *addWayPoint(int pos=-1, const QGeoCoordinate &c=QGeoCoordinate());
     Q_INVOKABLE void clearSupport(bool bEnter = true, bool bRcv = false);
     Q_INVOKABLE void addSupport(const QGeoCoordinate &coor, bool bEnter = true, bool bRcv = false);
     VGLandBoundary *GetBelongBoundary()const;

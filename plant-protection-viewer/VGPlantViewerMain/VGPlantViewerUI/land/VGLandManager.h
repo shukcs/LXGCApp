@@ -23,7 +23,7 @@ class VGLandManager : public QObject
     Q_PROPERTY(int numbSatlate READ GetNumbSatlate NOTIFY numbSatlateChanged)
     Q_PROPERTY(VGLandInformation* curLand READ GetCurLand NOTIFY curLandChanged)
     Q_PROPERTY(VGMissionPlan* curFlyRoute READ GetCurFlyRoute NOTIFY curFlyRouteChanged)
-    Q_PROPERTY(VGWayPointPlan* curWPPlan READ GetCurWPPlan NOTIFY curWPPlanChanged)
+    Q_PROPERTY(VGWayPointPlan* curWPPlan READ GetCurWPPlan WRITE SetCurWPPlan NOTIFY curWPPlanChanged)
 public:
     explicit VGLandManager(QObject *parent = 0);
     ~VGLandManager();
@@ -123,8 +123,7 @@ private:
     VGMissionPlan                       *m_routeCur;        //当前航线规划
     VGMissionPlan                       *m_flyRoutePlan;
 
-    VGWayPointPlan                      *m_wpCur;        //当前航线规划
-    VGWayPointPlan                      *m_wayPointPlan;
+    VGWayPointPlan                      *m_wayPointPlan;//当前航线规划
 
     VGLandBoundary                      *m_boundaryEdit;    //编辑地边图
     VGBDLocation                        *m_location;

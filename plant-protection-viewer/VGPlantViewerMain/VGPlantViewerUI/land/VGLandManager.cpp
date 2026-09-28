@@ -52,7 +52,6 @@ VGLandManager::VGLandManager(QObject *parent)
 , m_boundaryEdit(nullptr), m_flyRoutePlan(nullptr)
 , m_tmLastGps(QDateTime::currentMSecsSinceEpoch())
 , m_location(new VGBDLocation), m_wayPointPlan(nullptr)
-, m_wpCur(nullptr)
 {
     initPlanWork();
     startGetGps(30);
@@ -223,7 +222,8 @@ VGMissionPlan *VGLandManager::preparePlanRoute(VGLandBoundary *bdy)
 
 VGWayPointPlan *VGLandManager::preparePlanWayPoint()
 {
-    if (m_wayPointPlan = m_wayPointPlan ? m_wayPointPlan :  new VGWayPointPlan(this))
+    SetCurWPPlan(nullptr);
+    if (m_wayPointPlan =  new VGWayPointPlan(this))
     {
         connect(m_wayPointPlan, &VGWayPointPlan::wayPointFinished, this, &VGLandManager::onPlanRouteFinished);
         connect(m_wayPointPlan, &QObject::destroyed, this, &VGLandManager::onChildDestroyed);
@@ -233,13 +233,7 @@ VGWayPointPlan *VGLandManager::preparePlanWayPoint()
     if (m_wayPointPlan)
         m_wayPointPlan->Show(true);
 
-    if (m_wpCur)
-    {
-        if (m_wpPlans.indexOf(m_wpCur) >= 0)
-            m_wpCur->SetSelected(false);
-
-        SetCurWPPlan(nullptr);
-    }
+    emit curWPPlanChanged(m_wayPointPlan);
     return m_wayPointPlan;
 }
 
@@ -357,7 +351,7 @@ VGMissionPlan *VGLandManager::GetCurFlyRoute() const
 
 VGWayPointPlan * VGLandManager::GetCurWPPlan() const
 {
-    return m_wpCur;
+    return m_wayPointPlan;
 }
 
 void VGLandManager::SetCurFlyRoute(VGMissionPlan *rt)
@@ -374,13 +368,16 @@ void VGLandManager::SetCurFlyRoute(VGMissionPlan *rt)
 
 void VGLandManager::SetCurWPPlan(VGWayPointPlan *rt)
 {
-    if (m_wpCur == rt)
+    if (m_wayPointPlan == rt)
         return;
 
-    if (m_wpCur)
-        m_wpCur->disconnect(SIGNAL(destroyed(QObject*)), this);
-
-    m_wpCur = rt;
+    if (m_wayPointPlan)
+    {
+        m_wayPointPlan->disconnect(SIGNAL(destroyed(QObject*)), this);
+        if (!m_wpPlans.contains(m_wayPointPlan))
+            m_wayPointPlan->deleteLater();
+    }
+    m_wayPointPlan = rt;
     emit curWPPlanChanged(rt);
 }
 
@@ -528,8 +525,6 @@ void VGLandManager::onChildDestroyed()
         m_flyRoutePlan = nullptr;
 
     if (m_wayPointPlan == obj)
-        m_wayPointPlan = nullptr;
-    if (m_wpCur == obj)
         SetCurWPPlan(nullptr);
 
 	m_lstLand.removeAll((VGLandInformation*)obj);
@@ -563,7 +558,7 @@ void VGLandManager::onSelectedChanged(bool b)
         else if (item->ItemType() == MapAbstractItem::Type_MissionInfo)
             m_routeCur = (VGMissionPlan*)item;
         else if (item->ItemType() == MapAbstractItem::Type_WayPointPlan)
-            m_wpCur = (VGWayPointPlan*)item;
+            m_wayPointPlan = (VGWayPointPlan*)item;
     }
 }
 

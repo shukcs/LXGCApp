@@ -7,196 +7,77 @@ import QtQuick.Layouts 1.1
 import VGGroundControl   1.0
 
 Rectangle{
-    radius:                 6
-    border {width: 1; color:   "#EEEEEE"}
     clip:           true
     color:          "#F6F6F6"
-
-    property var routeInfo:     null
-    property bool bEditValue:  false
-
-    signal finishPlan()
-    signal exitPlan()
-    signal editRouteInfo(var rt)
-
-    function initial(){
-        tabFunc.currentIndex = 1
-    }
-
-    Rectangle{
-        id: rectHeader
-        anchors     {left: parent.left; right: parent.right; top: parent.top}
-        height:     tabFunc.height+seperator.height
-        visible:    !bEditValue
-        color:      "transparent"
-        VGImage {
-            id: backImg
-            anchors {left: parent.left; leftMargin: 10; verticalCenter: tabFunc.verticalCenter}
-            width:      30
-            height:     width
-            iconName:   "backb"
-            onImgClicked: {emit:exitPlan()}
-        }
-        VGTabHeader {
-            id:                     tabFunc
-            txtFont:                vgMainPage.font(true)
-            anchors {top: parent.top; left:backImg.right; leftMargin: 5}
-            Component.onCompleted: {
-                addTab(qsTr("Information"))//"信息"
-                addTab(qsTr("WayPoint"))//"航点"
-                currentIndex = 1
-            }
-        }
-        Text {
-            id: txtSave
-            anchors {right: parent.right; rightMargin: 15; verticalCenter: tabFunc.verticalCenter}
-            enabled:   tabFunc.getCurrentIndex()!==1 || (routeInfo && routeInfo.valide)
-            color:     enabled ? "black":"gray"
-            text:      tabFunc.currentIndex===1 ? qsTr("Save") : qsTr("Next")//qsTr("保存") : qsTr("下一步")
-            MouseArea{
-                anchors.fill: parent
-                onClicked: {
-                    if (tabFunc.currentIndex === 1 && routeInfo)
-                        emit:finishPlan()
-                    else
-                        tabFunc.currentIndex = 1
-                }
-            }
-        }
-        Rectangle{
-            id:                     seperator
-            anchors.top:            tabFunc.bottom
-            anchors.left:           parent.left
-            anchors.right:          parent.right
-            height:                 1
-            color:                  "#D3D3D3"
-        }
-    }
+    property var curItem: null
+    property var mission: landManager.curWPPlan.mission
     Flickable{
-        id:                 flickable
-        anchors {top: rectHeader.bottom; left: parent.left; bottom: parent.bottom}
-        width:              parent.width
+        id:                 flick
+        anchors {top: parent.top; topMargin: 5; left: parent.left; leftMargin: 10; bottom: parent.bottom}
+        width:              40
         clip:               true
-        flickableDirection: Flickable.HorizontalFlick
-        contentHeight:      height
-        contentWidth:       rowContent.width
-        visible:            !bEditValue
+        flickableDirection: Flickable.VerticalFlick
+        contentHeight:      colContent.height
+        contentWidth:       40
         contentX:           tabFunc.currentIndex*parent.width
-        Row {
-            id:     rowContent
-            height: parent.height
-            Rectangle {
-                height:             parent.height
-                width:              flickable.width
-                color:              "transparent"
-                VGValueItem{
-                    id:             valPesticide
-                    strKey:         qsTr("Name")//qsTr("名称")
-                    strValue:       routeInfo ? routeInfo.name : ""
-                    enabled:        routeInfo && routeInfo.itemType===MapAbstractItem.Type_WayPointPlan
-                    anchors {left: parent.left; leftMargin: 5; top: parent.top; topMargin: 10; right: parent.horizontalCenter; rightMargin: 2}
-                    onClickedBtn:   {emit:editRouteInfo(routeInfo)}
-                }
-                VGValueItem{
-                    strKey:         qsTr("Comment")//qsTr("注释")
-                    strValue:       routeInfo ? routeInfo.comment : ""
-                    enabled:        routeInfo
-                    anchors {left: parent.horizontalCenter; leftMargin: 2; top: parent.top; topMargin: 10; right: parent.right; rightMargin: 5}
-                    onClickedBtn:           {emit:editRouteInfo(routeInfo)}
-                }
-            }
-            Rectangle {
-                height:             parent.height
-                width:              flickable.width
-                color:              "transparent"
-                enabled:            routeInfo
-                VGValueItem {
-                    id:             valBoundary
-                    bTip:           true
-                    strKey:         qsTr("Land")//qsTr("地块")
-                    strValue:       (routeInfo && routeInfo.landName.length>0) ? routeInfo.landName+"("+routeInfo.area.toFixed(2)+")" : qsTr("Please set operater land")//qsTr("请设置喷洒地块")
-                    enabled:        routeInfo
-                    width:          parent.width*4/7
-                    anchors  {left:  parent.left;leftMargin: 5; top: parent.top;topMargin: 10}
-                    onClickedBtn:           {emit:selectBoundary()}
-                }
-                VGCheckBox {
-                    anchors     {right: parent.right;rightMargin: 15; verticalCenter: valBoundary.verticalCenter}
-                    text:       qsTr("From right plan")//qsTr("从右到左规划")
-                    checked:    routeInfo && routeInfo.anti
-                    onCheckedChanged: {
-                        if(routeInfo)
-                            routeInfo.anti = checked
+        Column {
+            anchors.horizontalCenter: parent.horizontalCenter
+            id:         colContent
+            height:     parent.height
+            spacing:    10
+            Repeater {
+                model: mission.waypoints
+                Rectangle {
+                    width: 30
+                    height: width
+                    radius:                 width/2
+                    border {width:1; color: "#600000"}
+                    color: object.selected ? "#008000" : "#FFFFFF"
+                    Text{
+                        anchors.fill: parent
+                        text: object.sequence
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment:Text.AlignVCenter
                     }
-                }
-                VGValueItem{
-                    id:             valSprinkleWidth
-                    strKey:         qsTr("Sprinkle width")//qsTr("喷幅")
-                    strUnit:        qsTr("m")
-                    strValue:       routeInfo ? routeInfo.sprinkleWidth.toFixed(1) : ""
-                    enabled:        routeInfo && routeInfo.landName.length>0
-                    anchors  {left:  valBoundary.left; right: parent.horizontalCenter;rightMargin: 2;top: valBoundary.bottom;topMargin: 5}
-                    onClickedBtn:           {
-                        sliderValue.setMaxValue(10)
-                        sliderValue.setMinValue(1)
-                        sliderValue.setStep(.1)
-                        sliderValue.strUnit = strUnit
-                        sliderValue.setValue(value)
-                        sliderValue.strHeader = key
-                        bEditValue = true
-                    }
-                }
-                VGValueItem{
-                    id:                 valAngle
-                    strKey:             qsTr("Angle")//qsTr("角度")
-                    strUnit:            qsTr("degree")//qsTr("°")
-                    strValue:           routeInfo ? routeInfo.angle.toFixed(0) : ""
-                    enabled:            routeInfo && routeInfo.landName.length>0
-                    anchors  {left:  parent.horizontalCenter; leftMargin: 2; right: parent.right;rightMargin: 10; top: valSprinkleWidth.top}
-                    onClickedBtn:       {
-                        sliderValue.setMaxValue(180)
-                        sliderValue.setMinValue(-180)
-                        sliderValue.setStep(1)
-                        sliderValue.setValue(value)
-                        sliderValue.strHeader = strKey
-                        sliderValue.strUnit = strUnit
-                        bEditValue = true
-                    }
-                }
-                VGValueItem{
-                    id:                 valOutlineSafe
-                    strKey:             qsTr("Boundary safe distance")//qsTr("边界安全距离")
-                    strUnit:            (routeInfo&&!routeInfo.singleShrink)?qsTr("m"):""
-                    strValue:           routeInfo?(routeInfo.singleShrink?qsTr("Single shrink"):routeInfo.outlineSafe.toFixed(1)) : ""//qsTr("单边内缩")
-                    enabled:            routeInfo && routeInfo.landName.length>0
-                    anchors  {left:  valSprinkleWidth.left; right: valSprinkleWidth.right;top: valSprinkleWidth.bottom;topMargin: 5}
-                    onClickedBtn:      {emit:editShrink(routeInfo)}
-                }
-                VGValueItem{
-                    id:                 valBlockSafe
-                    strKey:             qsTr("Block safe distance")//qsTr("障碍安全距离")
-                    strUnit:            qsTr("m")
-                    strValue:           routeInfo ? routeInfo.blockSafe.toFixed(1) : ""
-                    enabled:            routeInfo && routeInfo.landName.length>0
-                    anchors  {left:  valAngle.left; right: valAngle.right;top: valOutlineSafe.top}
-                    onClickedBtn:           {
-                        sliderValue.setMaxValue(8)
-                        sliderValue.setMinValue(0)
-                        sliderValue.setStep(.1)
-                        sliderValue.strUnit = strUnit
-                        sliderValue.setValue(value)
-                        sliderValue.strHeader = strKey
-                        bEditValue = true
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            object.selected = true
+                            curItem = object
+                        }
+                        onDoubleClicked: object.releaseSafe()
                     }
                 }
             }
         }
-        onMovementEnded:    {
-            var idx = contentX<width/2? 0 : (contentX<width*3/2?1:2)
-            if (idx === tabFunc.currentIndex)
-                contentX = idx===0?0:width
-            else
-                tabFunc.currentIndex = idx
+    }
+    Row {
+        anchors {left: flick.right; leftMargin: 15; top: flick.top;}
+        spacing: 10
+        VGToolButton {
+            width: 30
+            height: 30
+            iconName: "add"
+            colNormal: transparent
+            enabled:  landManager.curWPPlan
+            onBtnClicked: {
+                var c = mapManager.mapCenter
+                var item = mission.addWayPoint(curItem?curItem.sequence-1 : -1, c)
+                curItem = item.sequence
+            }
+        }
+        VGToolButton {
+            anchors {left: flick.right; leftMargin: 15; top: flick.top;}
+            width: 30
+            height: 30
+            iconName: "minus"
+            colNormal: transparent
+            enabled: curItem
+            onBtnClicked: {
+                if (curItem)
+                    curItem.releaseSafe()
+                curItem = null
+            }
         }
     }
 }

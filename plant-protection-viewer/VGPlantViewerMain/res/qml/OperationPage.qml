@@ -27,11 +27,11 @@ Page {
 
     function enterMission(bM) {
         if (bM) {
-            mapManager.mgrObj |= VGMapManager.Mission
+            mapManager.showMission = true
             missionCtrl.setOperationRoute(routeSelected)
         }
         else {
-            mapManager.mgrObj &= ~VGMapManager.Mission
+            mapManager.showMission = false
         }
 
         mapRect.setBtnVisible("mission", !bM)
@@ -39,7 +39,7 @@ Page {
         missionCtrl.curOp = 0
     }
     function backQml() {
-        mapManager.mgrObj &= ~VGMapManager.Mission
+        mapManager.showMission = false
         mapRect.setBtnVisible("mission", true)
         mapRect.setBtnVisible("operation", false)
         routeSelected = null
@@ -217,7 +217,7 @@ Page {
             delegate: MapQuickItem{
                 anchorPoint {x: homeImg.width/2; y: homeImg.height}
                 coordinate :     object.coordinate
-                visible:         (mapManager.mgrObj & VGMapManager.Mission)
+                visible:         mapManager.showMission
                 z:               104
                 sourceItem: VGImage {
                     id:     homeImg
@@ -234,7 +234,7 @@ Page {
             delegate: MapQuickItem{
                 anchorPoint {x: imgCtn.width/2; y: imgCtn.height}
                 coordinate :     object.coordinate
-                visible:         mapManager.mgrObj!==VGMapManager.Land//mapManager.mgrObj & VGMapManager.Mission
+                visible:         mapManager.mgrObj!==VGMapManager.Land
                 z:               104
                 sourceItem: VGImage {
                     id:         imgCtn
@@ -245,13 +245,13 @@ Page {
                 }
             }
         }
-        //AB点中断点断点
+        //AB点中断点
         MapItemView {
             model:    mapManager.getSpecItems(MapAbstractItem.Type_ABContinueFly)
             delegate: MapQuickItem{
                 anchorPoint {x: imgABCtn.width/2; y: imgABCtn.height}
                 coordinate :     object.coordinate
-                visible:         mapManager.mgrObj !== VGMapManager.Land//mapManager.mgrObj & VGMapManager.Mission
+                visible:         mapManager.mgrObj !== VGMapManager.Land
                 z:               104
                 sourceItem: VGImage {
                     id:         imgABCtn
@@ -378,7 +378,7 @@ Page {
                 anchorPoint.x: supportPoint.width/2
                 anchorPoint.y: supportPoint.height/2
                 coordinate: object.coordinate
-                visible:    object.visible && (mapManager.mgrObj & VGMapManager.Mission)
+                visible:    object.visible &&   mapManager.showMission
                 z:          106
                 sourceItem: Rectangle {
                     id:         supportPoint
@@ -398,7 +398,7 @@ Page {
                 anchorPoint.x:   tipPointImg.width/2
                 anchorPoint.y:   tipPointImg.height
                 coordinate :     object.coordinate
-                visible:         object.visible && (mapManager.mgrObj & VGMapManager.Mission)
+                visible:         object.visible && mapManager.showMission
                 z:               99
                 sourceItem: VGImage {
                     id:       tipPointImg
@@ -413,7 +413,7 @@ Page {
         MapItemView {
             model:    mapManager.getSpecItems(MapAbstractItem.Type_DashLine)
             delegate: VGPolylineMapItem {
-                visible:        object.visible && (mapManager.mgrObj&VGMapManager.Mission)
+                visible:        object.visible && mapManager.showMission
                 path:           object.path
                 line    {color: object.borderColor; width: object.width; pxSeg: 5}
                 smooth:         true
@@ -427,7 +427,7 @@ Page {
                 anchorPoint.x: pointR.width/2
                 anchorPoint.y: pointR.height/2
                 coordinate : object.coordinate
-                visible: object.visible && (mapManager.mgrObj & VGMapManager.Mission)
+                visible: object.visible && mapManager.showMission
                 z: 110
                 sourceItem: Rectangle {
                     id:         pointR
@@ -451,7 +451,7 @@ Page {
         MapItemView {
             model:    mapManager.getSpecItems(MapAbstractItem.Type_VehicleMission)
             delegate: MapPolyline {
-                visible:        object.visible && (mapManager.mgrObj&VGMapManager.Mission)
+                visible:        object.visible && mapManager.showMission
                 path:           object.path
                 line {color: object.borderColor; width: object.width}
                 smooth:         true
@@ -513,7 +513,7 @@ Page {
                 color:          "transparent"
                 VGRouteList{
                     anchors.fill:   parent
-                    visible:        !routeEdit && !(mapManager.mgrObj&VGMapManager.Mission)
+                    visible:        !routeEdit && !mapManager.showMission
                     onCreateClick:  {
                         if (tp === MapAbstractItem.Type_MissionInfo)
                             vgMainPage.curQmlPage = routeInfoCom.createObject(root)
@@ -572,7 +572,7 @@ Page {
                 WPPlanEdit {
                     id:             wpPlanCtrl
                     anchors.fill:   parent
-                    wplan:          routeEdit
+                    wplan:          visible ? routeEdit : null
                     visible:        routeEdit && routeEdit.itemType===MapAbstractItem.Type_WayPointPlan
                     onExitPlan:  {
                         if (routeEdit) {
@@ -587,10 +587,18 @@ Page {
                         page.setWayPointPlan(rt)
                         vgMainPage.curQmlPage = page
                     }
+                    onFinishPlan:   {
+                        if (!routeEdit || !routeEdit.valide)
+                            return
+
+                        routeEdit.save(true)
+                        routeEdit = null
+                        enterMission(false)
+                    }
                 }
                 VGMission {
                     id:             missionCtrl
-                    visible:        mapManager.mgrObj&VGMapManager.Mission
+                    visible:        mapManager.showMission
                     anchors.fill:   parent
                     onExitMission: {
                         enterMission(false)
@@ -719,7 +727,7 @@ Page {
                         anchors.fill: parent
                         onClicked: {
                             plantManager.currentPlant = object
-                            if (mapManager.mgrObj&VGMapManager.Mission)
+                            if (mapManager.showMission)
                                 missionCtrl.enterVMission()
                             if (object.status===VGPlantInformation.Connected && object.coordinate.isValid)
                                 mapRect.center = object.coordinate

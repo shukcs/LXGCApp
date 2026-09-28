@@ -3034,79 +3034,79 @@
         <translation>参数</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="76"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="79"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="76"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="79"/>
         <source>Next</source>
         <translation>下一步</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="115"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="118"/>
         <source>Poison</source>
         <translation>药剂</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="122"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="125"/>
         <source>Prize</source>
         <translation>单价</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="129"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="132"/>
         <source>Crop</source>
         <translation>作物</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="147"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="150"/>
         <source>Land</source>
         <translation>地块</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="148"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="151"/>
         <source>Please set operater land</source>
         <translation>请设置喷洒地块</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="156"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="159"/>
         <source>From right plan</source>
         <translation>从右到左规划</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="165"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="168"/>
         <source>Sprinkle width</source>
         <translation>喷幅</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="166"/>
-        <location filename="res/qml/VGRoutePlan.qml" line="200"/>
-        <location filename="res/qml/VGRoutePlan.qml" line="209"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="169"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="203"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="212"/>
         <source>m</source>
         <translation>m</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="182"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="185"/>
         <source>Angle</source>
         <translation>角度</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="183"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="186"/>
         <source>degree</source>
         <translation>°</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="199"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="202"/>
         <source>Boundary safe distance</source>
         <translation>边界安全距离</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="201"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="204"/>
         <source>Single shrink</source>
         <translation>单边内缩</translation>
     </message>
     <message>
-        <location filename="res/qml/VGRoutePlan.qml" line="208"/>
+        <location filename="res/qml/VGRoutePlan.qml" line="211"/>
         <source>Block safe distance</source>
         <translation>障碍安全距离</translation>
     </message>
@@ -3297,27 +3297,27 @@
 <context>
     <name>VGVehicleMission</name>
     <message>
-        <location filename="VGPlantViewerUI/plant/VGVehicleMission.cpp" line="543"/>
+        <location filename="VGPlantViewerUI/plant/VGVehicleMission.cpp" line="571"/>
         <source>Operation height mast be lower than support height</source>
         <translation>作业高度不能大于辅助点高度</translation>
     </message>
     <message>
-        <location filename="VGPlantViewerUI/plant/VGVehicleMission.cpp" line="921"/>
+        <location filename="VGPlantViewerUI/plant/VGVehicleMission.cpp" line="967"/>
         <source>Land data error!</source>
         <translation>地块数据出错！</translation>
     </message>
     <message>
-        <location filename="VGPlantViewerUI/plant/VGVehicleMission.cpp" line="932"/>
+        <location filename="VGPlantViewerUI/plant/VGVehicleMission.cpp" line="978"/>
         <source>Support can not be in block!</source>
         <translation>辅助点不能设置在障碍物中！</translation>
     </message>
     <message>
-        <location filename="VGPlantViewerUI/plant/VGVehicleMission.cpp" line="934"/>
+        <location filename="VGPlantViewerUI/plant/VGVehicleMission.cpp" line="980"/>
         <source>Support can not be out boundary!</source>
         <translation>辅助点不能设置在地块外！</translation>
     </message>
     <message>
-        <location filename="VGPlantViewerUI/plant/VGVehicleMission.cpp" line="942"/>
+        <location filename="VGPlantViewerUI/plant/VGVehicleMission.cpp" line="988"/>
         <source>Support height mast higher than operate height!</source>
         <translation>辅助点高度不能小于作业高度！</translation>
     </message>
@@ -3413,86 +3413,78 @@
 <context>
     <name>WPPlanEdit</name>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="64"/>
+        <location filename="res/qml/WPPlanEdit.qml" line="37"/>
         <source>Information</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="65"/>
         <source>Parameter</source>
-        <translation type="unfinished">参数</translation>
+        <translation type="obsolete">参数</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="74"/>
+        <location filename="res/qml/WPPlanEdit.qml" line="38"/>
+        <source>WayPoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="res/qml/WPPlanEdit.qml" line="49"/>
         <source>Save</source>
         <translation type="unfinished">保存</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="74"/>
+        <location filename="res/qml/WPPlanEdit.qml" line="49"/>
         <source>Next</source>
         <translation type="unfinished">下一步</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="113"/>
+        <location filename="res/qml/WPPlanEdit.qml" line="88"/>
         <source>Name</source>
         <translation type="unfinished">名称</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="120"/>
+        <location filename="res/qml/WPPlanEdit.qml" line="95"/>
         <source>Comment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="135"/>
         <source>Land</source>
-        <translation type="unfinished">地块</translation>
+        <translation type="obsolete">地块</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="136"/>
         <source>Please set operater land</source>
-        <translation type="unfinished">请设置喷洒地块</translation>
+        <translation type="obsolete">请设置喷洒地块</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="144"/>
         <source>From right plan</source>
-        <translation type="unfinished">从右到左规划</translation>
+        <translation type="obsolete">从右到左规划</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="153"/>
         <source>Sprinkle width</source>
-        <translation type="unfinished">喷幅</translation>
+        <translation type="obsolete">喷幅</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="154"/>
-        <location filename="res/qml/WPPlanEdit.qml" line="188"/>
-        <location filename="res/qml/WPPlanEdit.qml" line="197"/>
         <source>m</source>
-        <translation type="unfinished">m</translation>
+        <translation type="obsolete">m</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="170"/>
         <source>Angle</source>
-        <translation type="unfinished">角度</translation>
+        <translation type="obsolete">角度</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="171"/>
         <source>degree</source>
-        <translation type="unfinished">°</translation>
+        <translation type="obsolete">°</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="187"/>
         <source>Boundary safe distance</source>
-        <translation type="unfinished">边界安全距离</translation>
+        <translation type="obsolete">边界安全距离</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="189"/>
         <source>Single shrink</source>
-        <translation type="unfinished">单边内缩</translation>
+        <translation type="obsolete">单边内缩</translation>
     </message>
     <message>
-        <location filename="res/qml/WPPlanEdit.qml" line="196"/>
         <source>Block safe distance</source>
-        <translation type="unfinished">障碍安全距离</translation>
+        <translation type="obsolete">障碍安全距离</translation>
     </message>
 </context>
 <context>
@@ -3521,6 +3513,91 @@
         <location filename="res/qml/WPPlanInfoEdit.qml" line="178"/>
         <source>OK</source>
         <translation>确定</translation>
+    </message>
+</context>
+<context>
+    <name>WayPointEdit</name>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="36"/>
+        <source>Information</source>
+        <translation type="unfinished">信息</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="37"/>
+        <source>WayPoint</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="46"/>
+        <source>Save</source>
+        <translation type="unfinished">保存</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="46"/>
+        <source>Next</source>
+        <translation type="unfinished">下一步</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="85"/>
+        <source>Name</source>
+        <translation type="unfinished">名称</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="92"/>
+        <source>Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="107"/>
+        <source>Land</source>
+        <translation type="unfinished">地块</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="108"/>
+        <source>Please set operater land</source>
+        <translation type="unfinished">请设置喷洒地块</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="116"/>
+        <source>From right plan</source>
+        <translation type="unfinished">从右到左规划</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="125"/>
+        <source>Sprinkle width</source>
+        <translation type="unfinished">喷幅</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="126"/>
+        <location filename="res/qml/WayPointEdit.qml" line="160"/>
+        <location filename="res/qml/WayPointEdit.qml" line="169"/>
+        <source>m</source>
+        <translation type="unfinished">m</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="142"/>
+        <source>Angle</source>
+        <translation type="unfinished">角度</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="143"/>
+        <source>degree</source>
+        <translation type="unfinished">°</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="159"/>
+        <source>Boundary safe distance</source>
+        <translation type="unfinished">边界安全距离</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="161"/>
+        <source>Single shrink</source>
+        <translation type="unfinished">单边内缩</translation>
+    </message>
+    <message>
+        <location filename="res/qml/WayPointEdit.qml" line="168"/>
+        <source>Block safe distance</source>
+        <translation type="unfinished">障碍安全距离</translation>
     </message>
 </context>
 <context>

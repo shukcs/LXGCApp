@@ -8,11 +8,12 @@ import VGGroundControl   1.0
 
 Rectangle{
     clip:           true
-    property var    wplan:       null
+    property var    wplan:       landManager.curWPPlan
     property bool   bEditValue:  false
     signal editRouteInfo(var rt)
     signal finishPlan()
     signal exitPlan()
+    color: "#F6F6F6"
 
     Rectangle{
         id: rectHeader
@@ -99,15 +100,15 @@ Rectangle{
                     onClickedBtn:           {emit:editRouteInfo(wplan)}
                 }
             }
-            Rectangle {
+            WayPointEdit {
+                id:                 idWpEd
                 height:             parent.height
                 width:              flickable.width
-                color:              "transparent"
                 enabled:            wplan
             }
         }
         onMovementEnded:    {
-            var idx = contentX<width/2? 0 : (contentX<width*3/2?1:2)
+            var idx = contentX<width/2? 0 : 1
             tabFunc.setCurrent(idx)
         }
     }

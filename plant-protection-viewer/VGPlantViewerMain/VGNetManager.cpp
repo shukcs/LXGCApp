@@ -929,7 +929,7 @@ void VGNetManager::_processUploadMissionResult(const QByteArray &byte)
 
 void VGNetManager::uploadMission(VGVehicleMission *ms, const QString &uavId)
 {
-    VGMissionPlan *fr = ms ? ms->GetFlyRoute() : NULL;
+    VGMissionPlan *fr = ms ? ms->GetMissionPlan() : nullptr;
     if (m_connectState != 1 || !fr || !fr->IsValide())
         return;
 

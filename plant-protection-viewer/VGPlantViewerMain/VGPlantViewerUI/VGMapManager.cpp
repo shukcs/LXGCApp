@@ -20,14 +20,11 @@ const int s_scaleLengths[] = { 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 1
 VGMapManager::VGMapManager(QObject *parent) : QObject(parent), m_bShowSR(true)
 , m_mapCenter(40.12121, 119.12121), m_mapTypeID(UrlFactory::AMapSatelliteMap)
 , m_zoomLevel(14), m_bMapChanged(false), m_pixLength(0), m_propLength(80)
-, m_mgrObj(0), m_bOnlyStreet(false)
+, m_mgrObj(0), m_bOnlyStreet(false), m_bShowMission(false)
 {
 	QTimer::singleShot(10, this, [=]{
 		_readConfig();
-		QGeoCoordinate coor = VGGlobalFunc::toGps(m_mapCenter);
-		m_centerLat = coor.latitude();
-		m_centerLon = coor.longitude(); }
-	);
+    });
 }
 
 VGMapManager::~VGMapManager()
@@ -82,6 +79,7 @@ void VGMapManager::setMapTypeID(int type)
 	m_bMapChanged = true;
     getQGCMapEngine()->getMapTypeName((UrlFactory::MapType)type);
     emit mapTypeIDChanged(type);
+    emit mapCenterChanged();
 }
 
 QString VGMapManager::GetMapTypeName() const
@@ -107,27 +105,26 @@ QString VGMapManager::GetStreetMapName() const
 
 QGeoCoordinate VGMapManager::mapCenter() const
 {
-	return m_mapCenter;
+	return VGGlobalFunc::gpsCorrect(m_mapCenter);
 }
 
-bool VGMapManager::IsMissionPage() const
+bool VGMapManager::IsShowMission() const
 {
-    return m_mgrObj & Mission;
+    return m_bShowMission;
 }
 
-void VGMapManager::setMapCenter(const QGeoCoordinate &coordinate)
+void VGMapManager::SetShowMission(bool b)
 {
-    if (coordinate != m_mapCenter)
+    if (b!=m_bShowMission)
     {
-        m_mapCenter = coordinate;
-		m_bMapChanged = true;
-		emit mapCenterChanged(coordinate);
-        QGeoCoordinate coor = VGGlobalFunc::toGps(coordinate);
-        m_centerLat = coor.latitude();
-        emit centerLatChanged(m_centerLat);
-        m_centerLon = coor.longitude();
-        emit centerLonChanged(m_centerLat);
+        m_bShowMission = b;
+        emit showMissionChanged();
     }
+}
+
+void VGMapManager::setMapCenter(const QGeoCoordinate &c)
+{
+    _setMapCenter(c);
 }
 
 int VGMapManager::zoomLevel() const
@@ -147,34 +144,32 @@ void VGMapManager::setZoomLevel(int level)
 
 double VGMapManager::centerLat() const
 {
-    return m_centerLat;
+    return m_mapCenter.latitude();
 }
 
 void VGMapManager::setCenterLat(double lat)
 {
-    if (m_centerLat == lat)
+    if (lat == m_mapCenter.latitude())
         return;
 
-    m_centerLat = lat;
-    emit centerLatChanged(lat);
-    m_mapCenter = VGGlobalFunc::gpsCorrect(QGeoCoordinate(m_centerLat, m_centerLon));
-    emit mapCenterChanged(m_mapCenter);
+    m_mapCenter.setLatitude(lat);
+    emit centerLatChanged();
+    emit mapCenterChanged();
 }
 
 double VGMapManager::centerLon() const
 {
-    return m_centerLon;
+    return m_mapCenter.longitude();
 }
 
 void VGMapManager::setCenterLon(double lon)
 {
-    if (m_centerLon == lon)
+    if (m_mapCenter.longitude() == lon)
         return;
 
-    m_centerLon = lon;
-    emit centerLonChanged(lon);
-    m_mapCenter = VGGlobalFunc::gpsCorrect(QGeoCoordinate(m_centerLat, m_centerLon));
-    emit mapCenterChanged(m_mapCenter);
+    m_mapCenter.setLongitude(lon);
+    emit centerLonChanged();
+    emit mapCenterChanged();
 }
 
 int VGMapManager::GetPropLength() const
@@ -258,7 +253,7 @@ void VGMapManager::sltSetMapCenter(double lat, double lon)
 {
     QGeoCoordinate mapCenter(lat, lon);
     qDebug() << "new Map Center" << lat << lon;
-    setMapCenter(mapCenter);
+    _setMapCenter(mapCenter, false);
 }
 
 QString VGMapManager::propertyMapName()
@@ -324,7 +319,7 @@ void VGMapManager::_readConfig()
         m_zoomLevel = settings->value("zoomLevel", 14).toInt();
 		QGeoCoordinate coor = VGCoordinate::coordinateFromString(settings->value("center").toString());
 		if (coor.isValid())
-			setMapCenter(coor);
+			_setMapCenter(coor, false);
 		m_bMapChanged = false;
 		settings->endGroup();
 	}
@@ -341,6 +336,19 @@ void VGMapManager::_writeConfig()
 		settings->setValue("center", VGCoordinate::coordinate2String(m_mapCenter));
 		settings->endGroup();
 	}
+}
+
+void VGMapManager::_setMapCenter(const QGeoCoordinate &c, bool bMap)
+{
+    auto coor = bMap ? VGGlobalFunc::toGps(c) : c;
+    if (coor != m_mapCenter)
+    {
+        m_mapCenter = coor;
+        emit mapCenterChanged();
+        emit centerLatChanged();
+        emit centerLonChanged();
+        m_bMapChanged = true;
+    }
 }
 
 void VGMapManager::_checkSelected(QObject *item)

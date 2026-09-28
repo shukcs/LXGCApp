@@ -251,7 +251,7 @@ MapAbstractItem::MapItemType VGVehicleMission::ItemType() const
     return Type_VehicleMission;
 }
 
-VGMissionPlan *VGVehicleMission::GetFlyRoute() const
+VGMissionPlan *VGVehicleMission::GetMissionPlan() const
 {
     return qobject_cast<VGMissionPlan *>(m_parentItem);
 }
@@ -288,7 +288,7 @@ void VGVehicleMission::showSquences(bool b)
 
 void VGVehicleMission::AtachByPlant()
 {
-    if (VGMissionPlan *fr = GetFlyRoute())
+    if (VGMissionPlan *fr = GetMissionPlan())
         fr->DetachVm(this);
 }
 
@@ -296,16 +296,16 @@ void VGVehicleMission::SetSelected(bool b)
 {
     SetVisible(b);
     MapAbstractItem::SetSelected(b);
-    if(b && qvgApp->mapManager()->IsMissionPage())
+    if(b && qvgApp->mapManager()->IsShowMission())
     {
-        if (VGMissionPlan *fr = GetFlyRoute())
+        if (VGMissionPlan *fr = GetMissionPlan())
             fr->SetSelected(true);
     }
 }
 
 uint32_t VGVehicleMission::CountBlock() const
 {
-    if (VGMissionPlan *fr = GetFlyRoute())
+    if (VGMissionPlan *fr = GetMissionPlan())
         return fr->CountBlock();
 
     return 0;
@@ -323,7 +323,7 @@ VGCoordinate * VGVehicleMission::GetSupportReturn() const
 
 QString VGVehicleMission::GetInfo() const
 {
-    if (VGMissionPlan *fr = GetFlyRoute())
+    if (VGMissionPlan *fr = GetMissionPlan())
     {
         DescribeMap dsc;
         if (!VGGlobalFunc::initialItemDescribe(dsc, *fr, false))
@@ -348,9 +348,38 @@ QString VGVehicleMission::GetInfo() const
     return QString();
 }
 
-void VGVehicleMission::AddWayPoint(int pos)
+VGMissionItem *VGVehicleMission::addWayPoint(int pos, const QGeoCoordinate &c)
 {
+    if (!m_missionItems) return nullptr;
 
+    pos = 0<=pos && pos<m_missionItems->count() ? pos : -1;
+    auto item = new VGMissionItem(nullptr, this);
+    m_missionItems->insert(pos, item);
+    connect(item, &QObject::destroyed, this, [=](QObject *obj) {
+        auto idx = m_missionItems->indexOf(obj);
+        if (idx >= 0)
+        {
+            m_missionItems->removeAt(idx);
+            m_path.removeAt(idx);
+            emit pathChanged(m_path);
+            _adjustSequence(idx);
+        }
+    });
+    item->SetCoordinate(c);
+    item->Show(GetVisible() && m_beg <= 0);
+    m_missionItems->insert(pos, item);
+    item->SetSelected(true);
+    _adjustSequence(pos>=0 ? pos : m_missionItems->count() - 1);
+    if (c.isValid())
+    {
+        m_path.insert(pos, QVariant::fromValue(c));
+        VGMapManager::CalcBoundaryByCoor(m_boundarys, c);
+    }
+    if (m_path.count())
+        SetExecutable(true);
+
+    emit pathChanged(m_path);
+    return item;
 }
 
 void VGVehicleMission::addSupport(const QGeoCoordinate &coor, bool bEnter, bool bRcv)
@@ -386,7 +415,7 @@ void VGVehicleMission::addSupport(const QGeoCoordinate &coor, bool bEnter, bool 
 
 VGLandBoundary *VGVehicleMission::GetBelongBoundary() const
 {
-    if (VGMissionPlan *fr = GetFlyRoute())
+    if (VGMissionPlan *fr = GetMissionPlan())
         return fr->GetBelongedBoundary();
     return NULL;
 }
@@ -488,7 +517,7 @@ void VGVehicleMission::SetBegin(int beg)
 
     m_beg = beg;
     emit beginChanged(beg);
-    _generateMission(GetFlyRoute());
+    _generateMission(GetMissionPlan());
     if (m_segEnter && m_begTip)
         m_segEnter->SetBegin(m_begTip->GetCoordinate());
 }
@@ -505,7 +534,7 @@ double VGVehicleMission::GetOpVoyage() const
 
 QString VGVehicleMission::GetFlyRouteID() const
 {
-    if (auto fr = GetFlyRoute())
+    if (auto fr = GetMissionPlan())
         return fr->GetActId();
 
     return QString();
@@ -513,7 +542,7 @@ QString VGVehicleMission::GetFlyRouteID() const
 
 void VGVehicleMission::SetSuspend(int ridge, const QGeoCoordinate &c)
 {
-    bool bHas = 0<=ridge && (!GetFlyRoute() || ridge<GetFlyRoute()->CountRidges());
+    bool bHas = 0<=ridge && (!GetMissionPlan() || ridge<GetMissionPlan()->CountRidges());
     if (bHas != m_hasSuspend)
     {
         m_hasSuspend = bHas;
@@ -530,7 +559,7 @@ void VGVehicleMission::UpdateMissionItem()
     if (count < 1)
         return;
 
-    VGMissionPlan *fr = GetFlyRoute();
+    VGMissionPlan *fr = GetMissionPlan();
     double rRoit = qvgApp->plantManager()->GetRoitRadius(fr ? fr->GetSprinkleWidth() : 1);
     double tmRoit = qvgApp->plantManager()->GetRoitTime();
     for (int i = 0; i < count; ++i)
@@ -552,7 +581,7 @@ void VGVehicleMission::SetEnd(int end)
 
     m_end = end;
     emit endChanged(end);
-    _generateMission(GetFlyRoute());
+    _generateMission(GetMissionPlan());
     if (m_segReturn && m_endTip)
         m_segReturn->SetBegin(m_endTip->GetCoordinate());
 }
@@ -575,7 +604,7 @@ void VGVehicleMission::SetOpHeight(double f)
 
     m_opHeight = f;
     emit opHeightChanged(f);
-    if (VGMissionPlan *fr = GetFlyRoute())
+    if (VGMissionPlan *fr = GetMissionPlan())
         fr->SetOperationHeight(f);
 
     auto count = m_missionItems ? m_missionItems->count() : 0;
@@ -590,7 +619,7 @@ void VGVehicleMission::SetOpHeight(double f)
 
 float VGVehicleMission::GetMedPerAcre() const
 {
-    if (VGMissionPlan *fr = GetFlyRoute())
+    if (VGMissionPlan *fr = GetMissionPlan())
         return fr->GetMedPerAcre();
 
     return -1;
@@ -598,7 +627,7 @@ float VGVehicleMission::GetMedPerAcre() const
 
 void VGVehicleMission::SetMedPerAcre(float f)
 {
-    if (VGMissionPlan *fr = GetFlyRoute())
+    if (VGMissionPlan *fr = GetMissionPlan())
     {
         if (fr->GetMedPerAcre() == f)
             return;
@@ -661,14 +690,14 @@ double VGVehicleMission::GetLength() const
 
 VGLandInformation *VGVehicleMission::GetLandInformation() const
 {
-    if (VGMissionPlan *rt = GetFlyRoute())
+    if (VGMissionPlan *rt = GetMissionPlan())
         return rt->GetBelongedLand();
     return NULL;
 }
 
 void VGVehicleMission::processSaveReslt(const DescribeMap &result)
 {
-    if(VGMissionPlan *fr = GetFlyRoute())
+    if(VGMissionPlan *fr = GetMissionPlan())
     {
         DescribeMap::const_iterator itr = result.find("ActualId");
         if (itr != result.end())
@@ -698,7 +727,7 @@ void VGVehicleMission::SetSpeed(double f)
 
 int VGVehicleMission::GetCountOperationLine() const
 {
-    if (VGMissionPlan *fr = GetFlyRoute())
+    if (VGMissionPlan *fr = GetMissionPlan())
         return fr->CountRidges();
 
     return 0;
@@ -726,7 +755,7 @@ void VGVehicleMission::SetMissionSuspend(bool b)
     {
         m_beg = b ? m_curRidge+1 : 1;
         emit beginChanged(m_beg);
-        _generateMission(GetFlyRoute());
+        _generateMission(GetMissionPlan());
         if (m_segEnter && m_begTip)
             m_segEnter->SetBegin(m_begTip->GetCoordinate());
     }
@@ -786,7 +815,7 @@ void VGVehicleMission::_genMissionItem(const QList<VGCoordinate*> &coors)
     m_missionItems->clear(true);
     m_path.clear();
 
-    VGMissionPlan *fr = GetFlyRoute();
+    VGMissionPlan *fr = GetMissionPlan();
     double tmRoit = qvgApp->plantManager()->GetRoitTime();
     double rRoit = qvgApp->plantManager()->GetRoitRadius(fr ? fr->GetSprinkleWidth() : 1);
     float angle = fr ? fr->GetAngle() : VGGlobalFunc::checkAngle(coors);   //机头方向
@@ -844,7 +873,7 @@ int VGVehicleMission::_getLinePntIndex(int nline, bool bStart /*= true*/)
 {
 
     VGLandPolyline *ol = NULL;
-    if (VGMissionPlan *fr = GetFlyRoute())
+    if (VGMissionPlan *fr = GetMissionPlan())
         ol = fr->allMissionRoute();
 
     if (!ol)
@@ -962,7 +991,7 @@ bool VGVehicleMission::_checkSupport(const QGeoCoordinate &c)
 {
     if (!m_bdrStruct)
     {
-        VGMissionPlan *fr = GetFlyRoute();
+        VGMissionPlan *fr = GetMissionPlan();
         if (!fr)
         {
             qvgApp->SetQmlTip(tr("Land data error!"), true);//"地块数据出错！"
@@ -1046,7 +1075,7 @@ QList<MissionItem*> VGVehicleMission::MissionItems()const
 
 QList<MissionItem*> VGVehicleMission::BoundaryItems() const
 {
-    if (VGMissionPlan *rt = GetFlyRoute())
+    if (VGMissionPlan *rt = GetMissionPlan())
         return rt->GetSafeBoudaryItems();
 
     return QList<MissionItem*>();
@@ -1082,7 +1111,7 @@ QVariantList VGVehicleMission::GetPath() const
 void VGVehicleMission::Show(bool b)
 {
     MapAbstractItem::Show(b);
-    if (b && GetFlyRoute()==NULL)
+    if (b && GetMissionPlan()==nullptr)
         Monitor();
 }
 

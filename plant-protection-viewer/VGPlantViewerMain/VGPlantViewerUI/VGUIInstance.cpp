@@ -74,6 +74,7 @@ VGUIInstance::VGUIInstance(QObject* parent) : QObject(parent)
     qmlRegisterUncreatableType<VGBluetoothManager>("VGGroundControl", 1, 0, "VGBluetoothManager", "Reference only");
     qmlRegisterUncreatableType<VGMapManager>("VGGroundControl", 1, 0, "VGMapManager", "Reference only");
     qmlRegisterUncreatableType<VGVehicleMission>("VGGroundControl", 1, 0, "VGVehicleMission", "Reference only");
+    qmlRegisterUncreatableType<VGMissionItem>("VGGroundControl", 1, 0, "VGMissionItem", "Reference only");
     qmlRegisterUncreatableType<VGQXManager>("VGGroundControl", 1, 0, "VGQXManager", "Reference only");
     qmlRegisterUncreatableType<ParametersLimit>("VGGroundControl", 1, 0, "ParametersLimit", "Reference only");
     qmlRegisterUncreatableType<VGPlantEvent>("VGGroundControl", 1, 0, "VGPlantEvent", "Reference only");
