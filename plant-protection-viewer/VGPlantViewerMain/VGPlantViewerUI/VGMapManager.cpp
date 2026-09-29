@@ -20,7 +20,7 @@ const int s_scaleLengths[] = { 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 1
 VGMapManager::VGMapManager(QObject *parent) : QObject(parent), m_bShowSR(true)
 , m_mapCenter(40.12121, 119.12121), m_mapTypeID(UrlFactory::AMapSatelliteMap)
 , m_zoomLevel(14), m_bMapChanged(false), m_pixLength(0), m_propLength(80)
-, m_mgrObj(0), m_bOnlyStreet(false), m_bShowMission(false)
+, m_mgrObj(0), m_bOnlyStreet(false)
 {
 	QTimer::singleShot(10, this, [=]{
 		_readConfig();
@@ -110,15 +110,40 @@ QGeoCoordinate VGMapManager::mapCenter() const
 
 bool VGMapManager::IsShowMission() const
 {
-    return m_bShowMission;
+    return 0!=(Map_Mission & m_mgrObj);
 }
 
 void VGMapManager::SetShowMission(bool b)
 {
-    if (b!=m_bShowMission)
+    if ((Map_Mission&m_mgrObj) && !b)
     {
-        m_bShowMission = b;
+        m_mgrObj &= ~Map_Mission;
         emit showMissionChanged();
+    }
+    else if (0 == (Map_Mission&m_mgrObj) && b)
+    {
+        m_mgrObj |= Map_Mission;
+        emit showMissionChanged();
+    }
+}
+
+bool VGMapManager::IsWayPointEdit() const
+{
+    return 0 != (Map_WPEdit & m_mgrObj);
+}
+
+void VGMapManager::SetWayPointEdit(bool b)
+{
+    SetCenterVisible(b);
+    if ((Map_WPEdit&m_mgrObj) && !b)
+    {
+        m_mgrObj &= ~Map_WPEdit;
+        emit wpEditChanged();
+    }
+    else if (0 == (Map_WPEdit&m_mgrObj) && b)
+    {
+        m_mgrObj |= Map_WPEdit;
+        emit wpEditChanged();
     }
 }
 

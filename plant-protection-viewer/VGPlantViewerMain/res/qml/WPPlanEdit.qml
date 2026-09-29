@@ -15,6 +15,7 @@ Rectangle{
     signal exitPlan()
     color: "#F6F6F6"
 
+    onVisibleChanged: mapManager.wpEdit = visible
     Rectangle{
         id: rectHeader
         anchors     {left: parent.left; right: parent.right; top: parent.top}
@@ -51,7 +52,7 @@ Rectangle{
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    if (tabFunc.currentIndex === 1 && wplan)
+                    if (tabFunc.currentIndex === 1)
                         emit:finishPlan()
                     else
                         tabFunc.setCurrent(1)

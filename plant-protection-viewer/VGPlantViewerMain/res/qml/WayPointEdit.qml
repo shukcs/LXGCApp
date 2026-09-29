@@ -14,16 +14,14 @@ Rectangle{
     Flickable{
         id:                 flick
         anchors {top: parent.top; topMargin: 5; left: parent.left; leftMargin: 10; bottom: parent.bottom}
-        width:              40
+        width:              30
         clip:               true
         flickableDirection: Flickable.VerticalFlick
         contentHeight:      colContent.height
-        contentWidth:       40
-        contentX:           tabFunc.currentIndex*parent.width
+        contentWidth:       30
         Column {
-            anchors.horizontalCenter: parent.horizontalCenter
             id:         colContent
-            height:     parent.height
+            anchors.horizontalCenter: parent.horizontalCenter
             spacing:    10
             Repeater {
                 model: mission.waypoints
@@ -41,11 +39,15 @@ Rectangle{
                     }
                     MouseArea{
                         anchors.fill: parent
-                        onClicked: {
-                            object.selected = true
-                            curItem = object
-                        }
+                        onClicked: object.selected = true
                         onDoubleClicked: object.releaseSafe()
+                    }
+                    Connections{
+                        target: object
+                        onSelectedChanged: {
+                            if (object.selected)
+                              curItem = object
+                        }
                     }
                 }
             }
@@ -62,8 +64,7 @@ Rectangle{
             enabled:  landManager.curWPPlan
             onBtnClicked: {
                 var c = mapManager.mapCenter
-                var item = mission.addWayPoint(curItem?curItem.sequence-1 : -1, c)
-                curItem = item.sequence
+                curItem = mission.addWayPoint(curItem?curItem.sequence-1 : -1, c)
             }
         }
         VGToolButton {

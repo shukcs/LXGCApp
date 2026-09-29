@@ -14,6 +14,7 @@
 #include "VGSupportPolyline.h"
 #include "VGToolBox.h"
 #include "QmlObjectListModel.h"
+#include "ShareFunction.h"
 
 #define SeqWaitCol QColor("#8FFF00")
 #define SeqPassCol QColor("#FF8000")
@@ -166,7 +167,7 @@ void VGMissionItem::SetParam4(const QVariant &p)
 QGeoCoordinate VGMissionItem::GetCoordinate() const
 {
     if (m_item)
-        return m_item->coordinate();
+        return VGGlobalFunc::gpsCorrect(m_item->coordinate());
 
     return QGeoCoordinate();
 }
@@ -178,14 +179,60 @@ void VGMissionItem::SetCoordinate(const QGeoCoordinate &c)
         m_item = new MissionItem(this);
         emit validChanged();
     }
-    m_item->setCoordinate(c);
+    m_item->setCoordinate(VGGlobalFunc::toGps(c));
     emit coordinateChanged();
+    emit latitudeChanged();
+    emit longitudeChanged();
+}
+
+double VGMissionItem::GetLatitude() const
+{
+    if (m_item)
+        return m_item->param5().toDouble();
+
+    return 0;
+}
+
+void VGMissionItem::SetLatitude(double la)
+{
+    if (m_item && !DoubleEqu(la, GetLatitude()))
+    {
+        m_item->setParam5(la);
+        emit latitudeChanged();
+        emit coordinateChanged();
+    }
+}
+
+double VGMissionItem::GetLongitude() const
+{
+    if (m_item)
+        return m_item->param6().toDouble();
+
+    return 0;
+}
+
+void VGMissionItem::SetLongitude(double lon)
+{
+    if (m_item && !DoubleEqu(lon, GetLongitude()))
+    {
+        m_item->setParam6(lon);
+        emit longitudeChanged();
+        emit coordinateChanged();
+    }
+}
+
+double VGMissionItem::RelativeAtitude() const
+{
+    return m_item ? m_item->param7().toDouble() : 0;
 }
 
 void VGMissionItem::SetRelativeAtitude(double h)
 {
     if (m_item)
+    {
         m_item->setParam7(h);
+        emit rlAltChanged();
+    }
 }
 
 MissionItem * VGMissionItem::GetMissionItem() const
@@ -352,33 +399,19 @@ VGMissionItem *VGVehicleMission::addWayPoint(int pos, const QGeoCoordinate &c)
 {
     if (!m_missionItems) return nullptr;
 
-    pos = 0<=pos && pos<m_missionItems->count() ? pos : -1;
+    pos = 0<=pos && pos<m_missionItems->count() ? pos : m_missionItems->count();
     auto item = new VGMissionItem(nullptr, this);
     m_missionItems->insert(pos, item);
-    connect(item, &QObject::destroyed, this, [=](QObject *obj) {
-        auto idx = m_missionItems->indexOf(obj);
-        if (idx >= 0)
-        {
-            m_missionItems->removeAt(idx);
-            m_path.removeAt(idx);
-            emit pathChanged(m_path);
-            _adjustSequence(idx);
-        }
-    });
     item->SetCoordinate(c);
     item->Show(GetVisible() && m_beg <= 0);
-    m_missionItems->insert(pos, item);
     item->SetSelected(true);
+    connect(item, &QObject::destroyed, this, &VGVehicleMission::onItemDestoyed);
+    connect(item, &VGMissionItem::coordinateChanged, this, &VGVehicleMission::onItemChanged);
     _adjustSequence(pos>=0 ? pos : m_missionItems->count() - 1);
-    if (c.isValid())
-    {
-        m_path.insert(pos, QVariant::fromValue(c));
-        VGMapManager::CalcBoundaryByCoor(m_boundarys, c);
-    }
+    _genPath();
     if (m_path.count())
         SetExecutable(true);
 
-    emit pathChanged(m_path);
     return item;
 }
 
@@ -781,10 +814,24 @@ void VGVehicleMission::onItemDestoyed(QObject *obj)
         int idx = m_missionItems->indexOf(obj);
         if (idx >= 0)
         {
-            m_missionItems->removeOne(obj);
+            m_missionItems->removeAt(idx);
             m_path.removeAt(idx);
             _adjustSequence(idx);
+            emit pathChanged(m_path);
+            if (m_path.count() < 1)
+                SetExecutable(false);
         }
+    }
+}
+
+void VGVehicleMission::onItemChanged()
+{
+    if (auto obj = dynamic_cast<VGMissionItem*>(sender()))
+    {
+        auto idx = m_missionItems->indexOf(obj);
+        if (idx >= 0)
+            m_path[idx] = QVariant::fromValue(obj->GetCoordinate());
+        emit pathChanged(m_path);
     }
 }
 
@@ -1019,6 +1066,19 @@ bool VGVehicleMission::_checkSupportHeight(double f)
         return false;
     }
     return true;
+}
+
+void VGVehicleMission::_genPath()
+{
+    m_path.clear();
+    if (!m_missionItems)return;
+    int count = m_missionItems->count();
+    for (int i = 0; i < count; ++i)
+    {
+        auto itr = (VGMissionItem *)m_missionItems->get(i);
+        m_path << QVariant::fromValue(itr->GetCoordinate());
+    }
+    emit pathChanged(m_path);
 }
 
 void VGVehicleMission::SetMissionItems(const QList<MissionItem*> &items, bool bRef)

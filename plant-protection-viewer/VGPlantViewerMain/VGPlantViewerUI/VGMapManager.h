@@ -27,11 +27,14 @@ class VGMapManager : public QObject
     Q_PROPERTY(int mgrObj READ GetManagerObj WRITE SetManagerObj NOTIFY mgrObjChanged)
     Q_PROPERTY(bool onlyStreet READ IsOnlyStreet WRITE SetOnlyStreet NOTIFY onlyStreetChanged)
     Q_PROPERTY(bool showMission READ IsShowMission WRITE SetShowMission NOTIFY showMissionChanged)
+    Q_PROPERTY(bool wpEdit READ IsWayPointEdit WRITE SetWayPointEdit NOTIFY wpEditChanged)
 public:
     enum ManagerObject {
-        None = 0,
-        Land = 0x01,
-        Vehicle = 0x02,
+        Map_None = 0,
+        Map_Land = 0x01,
+        Map_Vehicle = 0x02,
+        Map_Mission = 0x04,
+        Map_WPEdit = 0x08,
     };
 public:
     VGMapManager(QObject *parent = 0);
@@ -57,6 +60,8 @@ public:
     QGeoCoordinate mapCenter()const;
     bool IsShowMission()const;
     void SetShowMission(bool);
+    bool IsWayPointEdit()const;
+    void SetWayPointEdit(bool b);
 public slots:
     void    sltQmlCreated(QObject *qmlObject, const QUrl &qmlUrl);
     //qml
@@ -116,6 +121,7 @@ signals:
     void onlyStreetChanged();
     void centerVisibleChanged(bool);
     void showMissionChanged();
+    void wpEditChanged();
 protected slots:
     void _checkSelected(QObject *item);
 private:
@@ -138,7 +144,6 @@ private:
 	bool   m_bMapChanged;
     bool   m_bOnlyStreet;
     bool   m_bCenterVisible;
-    bool   m_bShowMission;
     //qml
     QMap<MapAbstractItem::MapItemType, QmlObjectListModel*> m_mapItems;
     QMap<MapAbstractItem::MapItemType, MapAbstractItem*>    m_mapSelectedItem;

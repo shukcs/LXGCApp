@@ -62,7 +62,7 @@ Page {
             }
         }
         isInitial = true
-        mapManager.mgrObj = VGMapManager.Land
+        mapManager.mgrObj = VGMapManager.Map_Land
     }
     function setSurvey(tp) {
         if (tp === MapAbstractItem.Survey_DrawMap)

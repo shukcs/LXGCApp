@@ -27,6 +27,9 @@ class VGMissionItem :public MapAbstractItem
     Q_PROPERTY(QVariant param3 READ GetParam3 WRITE SetParam3 NOTIFY param3Changed)
     Q_PROPERTY(QVariant param4 READ GetParam4 WRITE SetParam4 NOTIFY param4Changed)
     Q_PROPERTY(QGeoCoordinate coordinate READ GetCoordinate WRITE SetCoordinate NOTIFY coordinateChanged)
+    Q_PROPERTY(double latitude READ GetLatitude WRITE SetLatitude NOTIFY latitudeChanged)
+    Q_PROPERTY(double longitude READ GetLongitude WRITE SetLongitude NOTIFY longitudeChanged)
+    Q_PROPERTY(double rlAlt READ RelativeAtitude WRITE SetRelativeAtitude NOTIFY rlAltChanged)
 public:
     VGMissionItem(const MissionItem &item, QObject *parent=nullptr);
     VGMissionItem(MissionItem *ref=nullptr, QObject *parent=nullptr, int id=0);
@@ -52,6 +55,11 @@ public:
     void SetParam4(const QVariant &p);
     QGeoCoordinate GetCoordinate()const;
     void SetCoordinate(const QGeoCoordinate &c);
+    double GetLatitude()const;
+    void SetLatitude(double la);
+    double GetLongitude()const;
+    void SetLongitude(double lon);
+    double RelativeAtitude()const;
     void SetRelativeAtitude(double h);
     bool operator==(const MapAbstractItem &item)const;
     MissionItem *GetMissionItem()const;
@@ -61,10 +69,13 @@ signals :
     void commandChanged(quint16 cmd);
     void frameChanged(quint16 f);
     void coordinateChanged();
+    void latitudeChanged();
+    void longitudeChanged();
     void param1Changed(const QVariant &param);
     void param2Changed(const QVariant &param);
     void param3Changed(const QVariant &param);
     void param4Changed(const QVariant &param);
+    void rlAltChanged();
     void validChanged();
     void sequenceChanged();
 private:
@@ -177,8 +188,9 @@ signals:
     void lengthChanged(double f);
     void countItemChanged();
     void speedChanged();
-protected slots:
+protected:
     void onItemDestoyed(QObject *obj);
+    void onItemChanged();
 private:
     void _generateMission(VGMissionPlan *fr);
     void _genMissionItem(const QList<VGCoordinate*> &coors);
@@ -190,6 +202,7 @@ private:
     void _sendSupport(bool bEnter, VGCoordinate *pnt);
     bool _checkSupport(const QGeoCoordinate &c);
     bool _checkSupportHeight(double f);
+    void _genPath();
 private:
     QmlObjectListModel      *m_missionItems;
     QVariantList            m_path;

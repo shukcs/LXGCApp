@@ -214,7 +214,6 @@ void MissionItem::setCoordinate(const QGeoCoordinate& coordinate)
 {
     setParam5(coordinate.latitude());
     setParam6(coordinate.longitude());
-    setParam7(coordinate.altitude());
 }
 
 bool MissionItem::relativeAltitude(void) const
@@ -224,7 +223,7 @@ bool MissionItem::relativeAltitude(void) const
 
 QGeoCoordinate MissionItem::coordinate(void) const
 {
-    return QGeoCoordinate(param5().toDouble(), param6().toDouble(), param7().toDouble());
+    return QGeoCoordinate(m_params[4].toDouble(), m_params[5].toDouble());
 }
 
 int MissionItem::doJumpId() const

@@ -234,7 +234,7 @@ Page {
             delegate: MapQuickItem{
                 anchorPoint {x: imgCtn.width/2; y: imgCtn.height}
                 coordinate :     object.coordinate
-                visible:         mapManager.mgrObj!==VGMapManager.Land
+                visible:         mapManager.mgrObj!==VGMapManager.Map_Land
                 z:               104
                 sourceItem: VGImage {
                     id:         imgCtn
@@ -251,7 +251,7 @@ Page {
             delegate: MapQuickItem{
                 anchorPoint {x: imgABCtn.width/2; y: imgABCtn.height}
                 coordinate :     object.coordinate
-                visible:         mapManager.mgrObj !== VGMapManager.Land
+                visible:         mapManager.mgrObj !== VGMapManager.Map_Land
                 z:               104
                 sourceItem: VGImage {
                     id:         imgABCtn
@@ -268,7 +268,7 @@ Page {
             delegate: MapQuickItem{
                 anchorPoint {x: imgAtn.width/2; y: imgAtn.height}
                 coordinate :     object.coordinate
-                visible:         mapManager.mgrObj !== VGMapManager.Land
+                visible:         mapManager.mgrObj !== VGMapManager.Map_Land
                 z:               104
                 sourceItem: VGImage {
                     id:         imgAtn
@@ -285,7 +285,7 @@ Page {
             delegate: MapQuickItem{
                 anchorPoint {x: imgBtn.width/2; y: imgBtn.height}
                 coordinate :     object.coordinate
-                visible:         mapManager.mgrObj !== VGMapManager.Land
+                visible:         mapManager.mgrObj !== VGMapManager.Map_Land
                 z:               104
                 sourceItem: VGImage {
                     id:         imgBtn
@@ -332,7 +332,7 @@ Page {
             delegate: MapPolyline {
                 path:           object.path
                 line  {color: object.itemColor; width: 3}
-                visible:        object.visible && (mapManager.mgrObj & VGMapManager.Land)
+                visible:        object.visible && (mapManager.mgrObj & VGMapManager.Map_Land)
                 smooth:         true
                 z:              103
             }
@@ -424,10 +424,11 @@ Page {
         MapItemView {
             model:    mapManager.getSpecItems(MapAbstractItem.Type_SequencePoint)
             delegate: MapQuickItem{
+                id: idWayPoint
                 anchorPoint.x: pointR.width/2
                 anchorPoint.y: pointR.height/2
                 coordinate : object.coordinate
-                visible: object.visible && mapManager.showMission
+                visible: object.visible && (mapManager.showMission || mapManager.wpEdit)
                 z: 110
                 sourceItem: Rectangle {
                     id:         pointR
@@ -444,6 +445,23 @@ Page {
                         horizontalAlignment:        Text.AlignHCenter
                         verticalAlignment:          Text.AlignVCenter
                     }
+                    MouseArea {
+                        id: idWayPointMous
+                        anchors.fill: parent
+                        enabled: mapManager.wpEdit
+                        onClicked:  object.selected = true
+                        onDoubleClicked: object.releaseSafe()
+                        preventStealing:    true
+                        drag.target: idWayPoint ///拖拽需要是MapQuickItem
+                        drag.axis: Drag.XAndYAxis
+                        property bool dragActive:   drag.active
+                        onDragActiveChanged: {
+                            if (!drag.active) {
+                                var pos = Qt.point(idWayPoint.x+idWayPoint.width/2, idWayPoint.y+idWayPoint.height/2)
+                                object.coordinate = mapRect.toCoordinate(pos)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -451,7 +469,7 @@ Page {
         MapItemView {
             model:    mapManager.getSpecItems(MapAbstractItem.Type_VehicleMission)
             delegate: MapPolyline {
-                visible:        object.visible && mapManager.showMission
+                visible:        object.visible && (mapManager.showMission || mapManager.wpEdit)
                 path:           object.path
                 line {color: object.borderColor; width: object.width}
                 smooth:         true
@@ -602,7 +620,7 @@ Page {
                     anchors.fill:   parent
                     onExitMission: {
                         enterMission(false)
-                        mapManager.mgrObj |= VGMapManager.Land
+                        mapManager.mgrObj |= VGMapManager.Map_Land
                         routeEdit = null
                     }
                     onStartMission: {
@@ -796,7 +814,7 @@ Page {
         onSigShowPage: {
             if (root ===page) {
                 mapRect.center = mapManager.mapCenter
-                mapManager.mgrObj |= VGMapManager.Land|VGMapManager.Vehicle
+                mapManager.mgrObj |= VGMapManager.Map_Land|VGMapManager.Map_Vehicle
             }
 
             var vis = vgMainPage.isVisible(root);

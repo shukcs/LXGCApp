@@ -303,7 +303,7 @@ Page {
                     vgMainPage.destroyQmlObject(root)
                 }
                 root.bSaving = false
-                mapManager.mgrObj = VGMapManager.Land
+                mapManager.mgrObj = VGMapManager.Map_Land
             }
             else if (landInfo && surveyPause.visible) {
                 landInfo.surverStat = VGLandInformation.Stat_SurveyPause

@@ -137,7 +137,7 @@ Map {
             id:             mylandOL
             path:           object.path
             color:          object.color
-            visible:        object.visible && (mapManager.mgrObj & VGMapManager.Land)
+            visible:        object.visible && (mapManager.mgrObj & VGMapManager.Map_Land)
             border          {color: object.borderColor; width: object.width}
             z:              103
         }
@@ -149,7 +149,7 @@ Map {
             anchorPoint.x: normalPoint.width/2
             anchorPoint.y: normalPoint.height/2
             coordinate: object.coordinate
-            visible:    object.visible && (mapManager.mgrObj & VGMapManager.Land)
+            visible:    object.visible && (mapManager.mgrObj & VGMapManager.Map_Land)
             z:          object.id<0 ?106:99
             sourceItem: Rectangle {
                 id:         normalPoint
@@ -187,7 +187,7 @@ Map {
             anchorPoint.x: routePoint.width/2
             anchorPoint.y: routePoint.height/2
             coordinate: object.coordinate
-            visible:    object.visible && (mapManager.mgrObj & VGMapManager.Land)
+            visible:    object.visible && (mapManager.mgrObj & VGMapManager.Map_Land)
             z:          106
             sourceItem: Rectangle {
                 id:         routePoint
@@ -250,7 +250,7 @@ Map {
         height: colBtn.height+6
         radius: 6
         color: "#DFFFFFFF"
-        visible: mapManager.mgrObj!==VGMapManager.Vehicle
+        visible: mapManager.mgrObj!==VGMapManager.Map_Vehicle
         z:200
         ListModel{
             id: btnModel
