@@ -20,6 +20,7 @@ class VGMissionItem :public MapAbstractItem
 
     Q_PROPERTY(bool valid READ IsValid NOTIFY validChanged)
     Q_PROPERTY(quint16 command READ GetCommand WRITE SetCommand NOTIFY commandChanged)
+    Q_PROPERTY(QString cmdName READ GetCommandName WRITE SetCommandName NOTIFY commandChanged)
     Q_PROPERTY(quint16 frame READ GetFrame WRITE SetFrame NOTIFY frameChanged)
     Q_PROPERTY(int sequence READ GetSequence  NOTIFY sequenceChanged)
     Q_PROPERTY(QVariant param1 READ GetParam1 WRITE SetParam1 NOTIFY param1Changed)
@@ -41,6 +42,8 @@ public:
 
     quint16 GetCommand()const;
     void SetCommand(quint16 cmd);
+    QString GetCommandName()const;
+    void SetCommandName(const QString &str);
     quint16 GetFrame()const;
     void SetFrame(quint16 fr);
     int GetSequence()const;
@@ -55,6 +58,7 @@ public:
     void SetParam4(const QVariant &p);
     QGeoCoordinate GetCoordinate()const;
     void SetCoordinate(const QGeoCoordinate &c);
+    Q_INVOKABLE void setMapCoor(const QGeoCoordinate &c);
     double GetLatitude()const;
     void SetLatitude(double la);
     double GetLongitude()const;
@@ -66,7 +70,7 @@ public:
     bool IsValid()const;
 private:
 signals :
-    void commandChanged(quint16 cmd);
+    void commandChanged();
     void frameChanged(quint16 f);
     void coordinateChanged();
     void latitudeChanged();
@@ -133,7 +137,7 @@ public:
     VGCoordinate *GetSupportEnter()const;
     VGCoordinate *GetSupportReturn()const;
     QString GetInfo()const;
-    Q_INVOKABLE VGMissionItem *addWayPoint(int pos=-1, const QGeoCoordinate &c=QGeoCoordinate());
+    VGMissionItem *AddWayPoint(int pos=-1, const QGeoCoordinate &c=QGeoCoordinate(), uint16_t tp=0);
     Q_INVOKABLE void clearSupport(bool bEnter = true, bool bRcv = false);
     Q_INVOKABLE void addSupport(const QGeoCoordinate &coor, bool bEnter = true, bool bRcv = false);
     VGLandBoundary *GetBelongBoundary()const;
@@ -173,6 +177,7 @@ protected:
     bool HasSuspend()const;
     bool IsMissionSuspend()const;
     void SetMissionSuspend(bool);
+    void onMapIdChanged();
 signals:
     void pathChanged(const QVariantList &path);
     void beginChanged(int beg);
@@ -203,6 +208,7 @@ private:
     bool _checkSupport(const QGeoCoordinate &c);
     bool _checkSupportHeight(double f);
     void _genPath();
+    void _genMapBoundary();
 private:
     QmlObjectListModel      *m_missionItems;
     QVariantList            m_path;

@@ -1,4 +1,5 @@
 ﻿#include "VGPlantInformation.h"
+#include <stdio.h>
 #include "VGApplication.h"
 #include "VGPlantManager.h"
 #include "VGNetManager.h"
@@ -19,7 +20,8 @@
 #include "VGVehicleManager.h"
 #include "MAVLinkProtocol.h"
 #include "VGBlock.h"
-#include <stdio.h>
+#include "VGWayPointPlan.h"
+#include "VGLandManager.h"
 
 #define MAXHEIGHT 1000
 #define DOUBLELIIM 1000000
@@ -103,7 +105,7 @@ VGPlantInformation::VGPlantInformation(QObject *parent) : MapAbstractItem(parent
 , m_bBind(0), m_distance(0), m_bDirectLink(false), m_bLanded(true), m_satNum(0), m_horSpeed(0)
 , m_verSpeed(0), m_relativeAltitude(0), m_compassAngle(0), m_rollAngle(0), m_pitchAngle(0)
 , m_powerPercent(0), m_medicineSpeed(0), m_medicineVol(0), m_precision(0), m_uploadVm(NULL)
-, m_bMonitor(false), m_lastTime(0), m_lat(0), m_lon(0), m_lastLacalTime(QDateTime::currentMSecsSinceEpoch())
+, m_bMonitor(false), m_lastTime(0), m_lastLacalTime(QDateTime::currentMSecsSinceEpoch())
 , m_lastPosChgTm(m_lastLacalTime),  m_bMissionValible(false), m_tpPos(0), m_homeCoor(NULL), m_cntnCoor(NULL)
 , m_planMissionLine(NULL), m_acc(0), m_baseMode(0), m_bSetArm(false), m_bSychUav(false), m_gndHeight(0)
 , m_bSys(false), m_powerGrade(0), m_medicineGrade(0), m_voltage(0), m_bWlcLose(true), m_bRestrain(false)
@@ -116,7 +118,7 @@ VGPlantInformation::VGPlantInformation(const VGPlantInformation &oth) : MapAbstr
 , m_medicineVol(oth.m_medicineVol), m_uploadVm(NULL), m_bBind(oth.m_bBind), m_distance(oth.m_distance)
 , m_lastTime(oth.m_lastTime), m_master(oth.m_master), m_lastPosition(oth.m_lastPosition)
 , m_bindTime(oth.m_bindTime), m_bDirectLink(oth.m_bDirectLink), m_bLanded(oth.m_bLanded)
-, m_satNum(oth.m_satNum), m_horSpeed(oth.m_horSpeed), m_verSpeed(oth.m_verSpeed), m_lat(0), m_lon(0)
+, m_satNum(oth.m_satNum), m_horSpeed(oth.m_horSpeed), m_verSpeed(oth.m_verSpeed)
 , m_relativeAltitude(oth.m_relativeAltitude), m_compassAngle(oth.m_compassAngle)
 , m_rollAngle(oth.m_rollAngle), m_pitchAngle(oth.m_pitchAngle), m_powerPercent(oth.m_powerPercent)
 , m_medicineSpeed(oth.m_medicineSpeed), m_precision(0), m_status(oth.m_status), m_bMonitor(oth.m_bMonitor)
@@ -291,9 +293,7 @@ void VGPlantInformation::setCoordinate(const QGeoCoordinate &coor)
     auto tm = QDateTime::currentMSecsSinceEpoch();
     bool bValidLast = m_lastPosition.isValid();
     bool bValid = coor.isValid();
-    m_lat = coor.latitude();
-    m_lon = coor.longitude();
-    m_lastPosition = bValid ? VGGlobalFunc::gpsCorrect(coor) : QGeoCoordinate();
+    m_lastPosition = bValid ? coor : QGeoCoordinate();
     emit coordinateChanged();
     if (bValid != bValidLast)
     {
@@ -311,7 +311,7 @@ void VGPlantInformation::setCoordinate(const QGeoCoordinate &coor)
 
 QGeoCoordinate VGPlantInformation::lastCoordinate() const
 {
-    return m_lastPosition;
+    return VGGlobalFunc::gpsCorrect(m_lastPosition);
 }
 
 double VGPlantInformation::distance() const
@@ -1219,6 +1219,18 @@ void VGPlantInformation::ClearWay()
         m_planMissionLine->clear();
 }
 
+void VGPlantInformation::SetVihevleMisson(const QList<MissionItem*> &items)
+{
+    if (auto landMgr = !m_uploadVm ? qvgApp->landManager() : nullptr)
+    {
+        auto wpp = new VGWayPointPlan(landMgr, tr("%1 download waypoints").arg(planeId()));
+        wpp->SetMissionItems(items);
+        wpp->endEdit();
+        landMgr->AddChild(wpp);
+        m_uploadVm = wpp->GetMission();
+    }
+}
+
 void VGPlantInformation::reqMissionFromNet(int idx)
 {
     if (idx >= 0 && !m_bDirectLink && m_missionCount>0)
@@ -1256,15 +1268,16 @@ void VGPlantInformation::SetContinueCoor(const QGeoCoordinate &c, int type)
     _showContinue(GetSelected());
 }
 
-void VGPlantInformation::SetAPointCoor(const QGeoCoordinate &a, bool clear)
+void VGPlantInformation::SetAPointCoor(const QGeoCoordinate &c, bool clear)
 {
-    if (!a.isValid() || clear)
+    if (!c.isValid() || clear)
     {
         if (m_aPointCoor)
             m_aPointCoor->SetCoordinate(QGeoCoordinate());
         return;
     }
 
+    auto a = VGGlobalFunc::toGps(c);
     if (!m_aPointCoor)
         m_aPointCoor = new VGCoordinate(a, VGCoordinate::A_Point, this);
     else
@@ -1274,19 +1287,20 @@ void VGPlantInformation::SetAPointCoor(const QGeoCoordinate &a, bool clear)
         m_aPointCoor->Show(!clear);
 }
 
-void VGPlantInformation::SetBPointCoor(const QGeoCoordinate &b, bool clear)
+void VGPlantInformation::SetBPointCoor(const QGeoCoordinate &c, bool clear)
 {
-    if (!b.isValid() || clear)
+    if (!c.isValid() || clear)
     {
         if (m_bPointCoor)
             m_bPointCoor->SetCoordinate(QGeoCoordinate());
         return;
     }
 
+    auto coor = VGGlobalFunc::toGps(c);
     if (!m_bPointCoor)
-        m_bPointCoor = new VGCoordinate(b, VGCoordinate::B_Point, this);
+        m_bPointCoor = new VGCoordinate(coor, VGCoordinate::B_Point, this);
     else
-        m_bPointCoor->SetCoordinate(b);
+        m_bPointCoor->SetCoordinate(coor);
 
     if (m_bPointCoor && GetSelected())
         m_bPointCoor->Show(!clear);
@@ -1342,12 +1356,12 @@ bool VGPlantInformation::IsShowWay(const QGeoCoordinate &coor, uint32_t tm) cons
 
 double VGPlantInformation::GetLat() const
 {
-    return m_lat;
+    return m_lastPosition.latitude();
 }
 
 double VGPlantInformation::GetLon() const
 {
-    return m_lon;
+    return m_lastPosition.longitude();
 }
 
 VGVehicleMission *VGPlantInformation::beginOperation(VGMissionPlan *fr)

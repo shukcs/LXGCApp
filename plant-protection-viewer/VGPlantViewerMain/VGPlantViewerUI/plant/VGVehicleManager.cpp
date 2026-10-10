@@ -218,7 +218,11 @@ void VGVehicleManager::onNewMissionItemsAvailable(bool, MAV_MISSION_TYPE tp)
         return;
 
     if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect())
+    {
         plant->SetMissionValible(true, tp);
+        if (mm && MAV_MISSION_TYPE_MISSION == tp && mm->hasValidMissionItems())
+            plant->SetVihevleMisson(mm->missionItems());
+    }
 }
 
 void VGVehicleManager::onSysAvalibleChange(bool)

@@ -4,12 +4,14 @@
 #include "VGApplication.h"
 #include "VGMapManager.h"
 #include "VGPlanningWorker.h"
+#include "VGGlobalFun.h"
 
 VGLandPolygon::VGLandPolygon(QObject *parent, int tp) : MapAbstractItem(parent, tp)
 , m_typeShow(Show_LineAndPoint)
 {
     connect(this, &VGLandPolygon::idChanged, this, &VGLandPolygon::onIdChange);
     onIdChange(tp);
+    connect(qvgApp->mapManager(), &VGMapManager::mapTypeIDChanged, this, &VGLandPolygon::_genPath);
 }
 
 VGLandPolygon::VGLandPolygon(VGLandPolygon &polygon) : MapAbstractItem(polygon)
@@ -18,10 +20,11 @@ VGLandPolygon::VGLandPolygon(VGLandPolygon &polygon) : MapAbstractItem(polygon)
     connect(this, &VGLandPolygon::idChanged, this, &VGLandPolygon::onIdChange);
     for (VGCoordinate *itr : polygon.m_coors)
     {
-        VGCoordinate *tmp = _getCoordinate(itr->GetCoordinate(), itr->GetId());
+        VGCoordinate *tmp = _getCoordinate(itr->GetGpsCoordinate(), itr->GetId());
         m_coors << tmp;
         tmp->Show(GetVisible() && (m_typeShow & Show_Point));
     }
+    connect(qvgApp->mapManager(), &VGMapManager::mapTypeIDChanged, this, &VGLandPolygon::_genPath);
 }
 
 VGLandPolygon::~VGLandPolygon()
@@ -36,7 +39,7 @@ QVariantList VGLandPolygon::GetPath() const
 
 void VGLandPolygon::SetPath(const QVariantList &path, const QList<VGCoordinate *> &coors)
 {
-    foreach(const QVariant &itr, path)
+    for (const QVariant &itr : path)
     {
         if (itr.value<QVariant>().isValid())
             m_path.append(itr);
@@ -45,7 +48,7 @@ void VGLandPolygon::SetPath(const QVariantList &path, const QList<VGCoordinate *
     if (GetId() == NoPoint)
         return;
 
-    foreach(VGCoordinate *itr, coors)
+    for (VGCoordinate *itr : coors)
     {
         if (VGCoordinate *tmp = _getCoordinate(itr->GetCoordinate(), itr->GetId()))
         {
@@ -86,9 +89,14 @@ QList <VGCoordinate *> VGLandPolygon::GetCoordinates() const
     return m_coors;
 }
 
+void VGLandPolygon::SetCoordinates(const QList <VGCoordinate *> &coors)
+{
+    m_coors = coors;
+}
+
 int VGLandPolygon::CountCoordinate() const
 {
-    return m_path.count();
+    return m_coors.count();
 }
 
 double VGLandPolygon::CalculateArea() const
@@ -101,7 +109,7 @@ double VGLandPolygon::CalculateArea() const
 
 MapAbstractItem::MapItemType VGLandPolygon::ItemType() const
 {
-    return m_path.count()>2 ? Type_Polygon : Type_PolyLine;
+    return m_coors.count()>2 ? Type_Polygon : Type_PolyLine;
 }
 
 void VGLandPolygon::Show(bool b)
@@ -109,9 +117,12 @@ void VGLandPolygon::Show(bool b)
     if (VGMapManager *mgr = qvgApp->mapManager())
     {
         bool bShowLine = b && (m_typeShow&Show_Line);
+        if (bShowLine && m_path.isEmpty())
+            _genPath();
+
         _show(bShowLine);
         bool bShowPoint = b && (m_typeShow&Show_Point);
-        foreach(VGCoordinate *itr, m_coors)
+        for (auto itr : m_coors)
         {
             bShowPoint ? mgr->InsertItem(itr) : mgr->RemoveItem(itr);
         }
@@ -137,7 +148,7 @@ int VGLandPolygon::ItemIndex(const MapAbstractItem *item) const
 
 bool VGLandPolygon::IsValid() const
 {
-    return m_path.count() > 2;
+    return m_coors.count() > 2;
 }
 
 void VGLandPolygon::Clear()
@@ -160,7 +171,7 @@ bool VGLandPolygon::operator==(const MapAbstractItem &item) const
         return false;
 
     const VGLandPolygon &ol = *static_cast<const VGLandPolygon*>(&item);
-    if (m_path.count() != ol.m_path.count())
+    if (m_coors.count() != ol.m_coors.count())
         return false;
 
     QVariantList::const_iterator itr = m_path.begin();
@@ -230,15 +241,14 @@ void VGLandPolygon::onPointDelete()
 	}
 }
 
-void VGLandPolygon::onPointChanged(const QGeoCoordinate &co)
+void VGLandPolygon::onPointChanged()
 {
-    VGCoordinate *coor = qobject_cast<VGCoordinate *>(sender());
-    if (coor)
+    if (auto coor = qobject_cast<VGCoordinate *>(sender()))
     {
         int idx = m_coors.indexOf(coor);
         if (idx >= 0)
         {
-            m_path[idx].setValue(co);
+            m_path[idx].setValue(coor->GetCoordinate());
             emit pathChanged(m_path);
         }
     }
@@ -267,40 +277,50 @@ void VGLandPolygon::_insertCoor(VGCoordinate *item, VGCoordinate *behind)
     else
         m_coors.insert(index+1, item);
 
+    emit countCoorChanged(m_coors.size());
+    if (!qvgApp->mapManager()->HasItem(this) && m_path.isEmpty())
+        return;
 
     if (index < 0)
     {
         m_path.append(QVariant::fromValue(item->GetCoordinate()));
         return;
     }
-    else
+
+    m_path.insert(index + 1, QVariant::fromValue(item->GetCoordinate()));
+    QList<VGCoordinate*>::iterator itr = m_coors.begin() + index + 1;
+    for (; itr != m_coors.end(); ++itr)
     {
-        m_path.insert(index + 1, QVariant::fromValue(item->GetCoordinate()));
-        QList<VGCoordinate*>::iterator itr = m_coors.begin()+index+1;
-        for (; itr != m_coors.end(); ++itr)
-        {
-            emit(*itr)->indexChanged();
-        }
+        emit(*itr)->indexChanged();
     }
-    emit countCoorChanged(m_coors.size());
 }
+
+void VGLandPolygon::_genPath()
+{
+    m_path.clear();
+    for (auto itr : m_coors)
+    {
+        m_path << QVariant::fromValue(itr->GetCoordinate());
+    }
+    emit pathChanged(m_path);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //VGLandDis
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 VGLandDis::VGLandDis(const QGeoCoordinate &coor, double dis,QObject *parent):MapAbstractItem(parent)
-  ,m_coor(coor),m_dis(dis)
+  ,m_coor(coor), m_dis(dis)
 {
-
+    connect(qvgApp->mapManager(), &VGMapManager::mapTypeIDChanged, this, &VGLandDis::coorChanged);
 }
 
 VGLandDis::VGLandDis(VGLandDis &landDis):MapAbstractItem(landDis),m_coor(landDis.m_coor),m_dis(landDis.m_dis)
 {
-
+    connect(qvgApp->mapManager(), &VGMapManager::mapTypeIDChanged, this, &VGLandDis::coorChanged);
 }
 
 VGLandDis::~VGLandDis()
 {
-
 }
 
 double VGLandDis::dis() const
@@ -308,9 +328,9 @@ double VGLandDis::dis() const
     return m_dis;
 }
 
-const QGeoCoordinate & VGLandDis::coordinate() const
+QGeoCoordinate VGLandDis::coordinate() const
 {
-    return m_coor;
+    return VGGlobalFunc::gpsCorrect(m_coor);
 }
 
 void VGLandDis::setDis(double dis)
@@ -336,7 +356,7 @@ bool VGLandDis::operator==(const MapAbstractItem &item) const
         return false;
 
     const VGLandDis &ol = *static_cast<const VGLandDis*>(&item);
-    if (ol.coordinate() != m_coor || ol.dis() != m_dis)
+    if (ol.m_coor != m_coor || ol.dis() != m_dis)
         return false;
     return true;
 }

@@ -1,16 +1,8 @@
-﻿/****************************************************************************
- *
- *   (c) 2009-2016 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
- *
- * QGroundControl is licensed according to the terms in the file
- * COPYING.md in the root of the source code directory.
- *
- ****************************************************************************/
-
-#include "VGCoordinate.h"
+﻿#include "VGCoordinate.h"
 #include <QQmlEngine>
 #include <qmath.h>
 #include "RouteStruct.h"
+#include "VGGlobalFun.h"
 
 #define SatelliteGoodNumb 15
 #define SatelliteBadNumb 6
@@ -56,17 +48,22 @@ VGCoordinate::VGCoordinate(const VGCoordinate &oth) : MapAbstractItem(oth)
 {
 }
 
-const QGeoCoordinate &VGCoordinate::GetCoordinate(void) const
+QGeoCoordinate VGCoordinate::GetCoordinate(void) const
+{
+    return VGGlobalFunc::gpsCorrect(m_coordinate);
+}
+
+const QGeoCoordinate &VGCoordinate::GetGpsCoordinate(void) const
 {
     return m_coordinate;
 }
 
-void VGCoordinate::SetCoordinate(const QGeoCoordinate& coordinate)
+void VGCoordinate::SetCoordinate(const QGeoCoordinate& coor)
 {
-    if (m_coordinate != coordinate)
+    if (m_coordinate != coor)
     {
-        m_coordinate = coordinate;
-        emit coordinateChanged(coordinate);
+        m_coordinate = coor;
+        emit coordinateChanged();
     }
 }
 
@@ -185,7 +182,7 @@ bool VGCoordinate::IsValid() const
 
 double VGCoordinate::DistanceTo(const VGCoordinate &oth) const
 {
-    return m_coordinate.distanceTo(oth.m_coordinate);
+    return DistanceToCoor(oth.m_coordinate);
 }
 
 

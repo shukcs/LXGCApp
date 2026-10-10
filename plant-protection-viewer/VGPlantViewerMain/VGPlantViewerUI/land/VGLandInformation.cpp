@@ -22,8 +22,7 @@
 VGLandInformation::VGLandInformation(QObject *parent) : SingleTriggerItem<MapAbstractItem>(parent, 1)
 , m_typeSurvey(Survey_DrawMap), m_bUploaded(false), m_bSaveLocal(false), m_bRemoveDB(false)
 , m_time(0), m_precision(1)
-{                        
-    qRegisterMetaType<QGeoCoordinate>("QGeoCoordinate");
+{
     setUserId(qvgApp->GetUserId());
 }
 
@@ -34,7 +33,7 @@ VGLandInformation::VGLandInformation(const VGLandInformation &info) : SingleTrig
 , m_bRemoveDB(false), m_adress(info.m_adress)
 {
 	SetItemColor(QColor(255 * 0.4, 255 * 0.9, 255 * 0.4, 127), QColor(255, 127, 127, 127));
-    foreach (VGCoordinate *itr, info.m_coorsSurvey)
+    for (auto itr : info.m_coorsSurvey)
     {
         _addOneBoundaryPoint(itr->GetCoordinate(), itr->GetId());
     }
@@ -320,7 +319,7 @@ void VGLandInformation::_addOneBoundaryPoint(const QGeoCoordinate &coor, int nSa
 void VGLandInformation::releaseSafe()
 {
     SingleTriggerItem<MapAbstractItem>::releaseSafe();
-    foreach(VGLandBoundary *itr, m_boundarys)
+    for (auto itr : m_boundarys)
     {
         itr->releaseSafe();
     }

@@ -15,7 +15,7 @@ import VGGroundControl   1.0
 */
 Page {
     id:root
-    property var routeEdit: null
+    property var planEdit: null
     property var routeSelected: null
     property bool bShowCenter: false
     property var curPlant: plantManager.currentPlant
@@ -51,7 +51,7 @@ Page {
         RouteInfoEdit{
             onClickedOK:  {
                 enterMission(false)
-                routeEdit = rt
+                planEdit = rt
                 planCtrl.initial()
             }
         }
@@ -61,7 +61,7 @@ Page {
         WPPlanInfoEdit {
             onClickedOK:  {
                 enterMission(false)
-                routeEdit = rt
+                planEdit = rt
                 planCtrl.initial()
             }
         }
@@ -93,10 +93,10 @@ Page {
             strTitle:   qsTr("Tip")//qsTr("提示")
             onFinished: {
                 if (id === 0) {
-                    if (accept && routeEdit) {
-                        routeEdit.selected = false
-                        routeEdit.releaseSafe()
-                        routeEdit = null
+                    if (accept && planEdit) {
+                        planEdit.selected = false
+                        planEdit.releaseSafe()
+                        planEdit = null
                     }
                     if (accept)
                         planCtrl.bEditValue = false
@@ -122,9 +122,9 @@ Page {
             anchors.fill: parent
             bCanEdit: false
             onBoundarySelected: {
-                if (bdr.itemType !== MapAbstractItem.Type_LandBoundary || !routeEdit)
+                if (bdr.itemType !== MapAbstractItem.Type_LandBoundary || !planEdit)
                     return
-                routeEdit.setBelongBoundary(bdr)
+                planEdit.setBelongBoundary(bdr)
                 bdr.showType = MapAbstractItem.Show_Line
             }
         }
@@ -165,7 +165,7 @@ Page {
                 plantManager.clear()
             }
             else if (txt === "mission") {
-                if (!routeEdit && curPlant) {
+                if (!planEdit && curPlant) {
                     plantManager.mission = true
                     enterMission(true)
                     missionCtrl.enterVMission()
@@ -408,9 +408,8 @@ Page {
                     bMosEnable:false
                 }
             }
-        }
-        //虚线
-        MapItemView {
+        }      
+        MapItemView { //虚线
             model:    mapManager.getSpecItems(MapAbstractItem.Type_DashLine)
             delegate: VGPolylineMapItem {
                 visible:        object.visible && mapManager.showMission
@@ -420,8 +419,7 @@ Page {
                 z:              105
             }
         }
-        //序列点
-        MapItemView {
+        MapItemView {//序列点
             model:    mapManager.getSpecItems(MapAbstractItem.Type_SequencePoint)
             delegate: MapQuickItem{
                 id: idWayPoint
@@ -435,7 +433,7 @@ Page {
                     width:      sequece.contentHeight>sequece.contentWidth ? sequece.contentHeight:sequece.contentWidth
                     height:     width
                     radius:     width / 2
-                    color:      object.color
+                    color:      (mapManager.wpEdit&&object.selected) ? "#10c010":object.color
                     Text{
                         id: sequece
                         anchors.horizontalCenter:   parent.horizontalCenter
@@ -458,15 +456,14 @@ Page {
                         onDragActiveChanged: {
                             if (!drag.active) {
                                 var pos = Qt.point(idWayPoint.x+idWayPoint.width/2, idWayPoint.y+idWayPoint.height/2)
-                                object.coordinate = mapRect.toCoordinate(pos)
+                                object.setMapCoor(mapRect.toCoordinate(pos))
                             }
                         }
                     }
                 }
             }
         }
-        //任务航线
-        MapItemView {
+        MapItemView {//任务航线
             model:    mapManager.getSpecItems(MapAbstractItem.Type_VehicleMission)
             delegate: MapPolyline {
                 visible:        object.visible && (mapManager.showMission || mapManager.wpEdit)
@@ -531,7 +528,7 @@ Page {
                 color:          "transparent"
                 VGRouteList{
                     anchors.fill:   parent
-                    visible:        !routeEdit && !mapManager.showMission
+                    visible:        !planEdit && !mapManager.showMission
                     onCreateClick:  {
                         if (tp === MapAbstractItem.Type_MissionInfo)
                             vgMainPage.curQmlPage = routeInfoCom.createObject(root)
@@ -544,8 +541,12 @@ Page {
                             page.flyRoute = rt
                             vgMainPage.curQmlPage = page
                         }
+                        else if (rt.itemType === MapAbstractItem.Type_WayPointPlan) {
+                            planEdit = rt
+                            planCtrl.initial()
+                        }
                     }
-                    onSelectRoute: {routeSelected = rt; routeSelected.selected=true}
+                    onSelectRoute: routeSelected = rt
                     onListFold: {
                         rctRoute.width= 0
                         btnShowRctRoute.visible = true
@@ -554,10 +555,10 @@ Page {
                 VGRoutePlan {
                     id:             planCtrl
                     anchors.fill:   parent
-                    routeInfo:      routeEdit
-                    visible:        routeEdit && routeEdit.itemType===MapAbstractItem.Type_MissionInfo
+                    routeInfo:      planEdit
+                    visible:        planEdit && planEdit.itemType===MapAbstractItem.Type_MissionInfo
                     onExitPlan:  {
-                        if (routeEdit) {
+                        if (planEdit) {
                             var page = vgTipCom.createObject(root)
                             page.strTip = qsTr("Do you drop current plan？")//"确认取消创建任务？"
                             page.idTip = 0
@@ -565,11 +566,11 @@ Page {
                         }
                     }
                     onFinishPlan:   {
-                        if (!routeEdit || !routeEdit.valide)
+                        if (!planEdit || !planEdit.valide)
                             return
-                        routeEdit.save(false)
-                        routeEdit.save(true)
-                        routeEdit = null
+                        planEdit.save(false)
+                        planEdit.save(true)
+                        planEdit = null
                         enterMission(false)
                     }
                     onEditRouteInfo:    {
@@ -590,10 +591,10 @@ Page {
                 WPPlanEdit {
                     id:             wpPlanCtrl
                     anchors.fill:   parent
-                    wplan:          visible ? routeEdit : null
-                    visible:        routeEdit && routeEdit.itemType===MapAbstractItem.Type_WayPointPlan
+                    wplan:          visible ? planEdit : null
+                    visible:        planEdit && planEdit.itemType===MapAbstractItem.Type_WayPointPlan
                     onExitPlan:  {
-                        if (routeEdit) {
+                        if (planEdit) {
                             var page = vgTipCom.createObject(root)
                             page.strTip = qsTr("Do you drop current plan？")//"确认取消创建任务？"
                             page.idTip = 0
@@ -606,11 +607,12 @@ Page {
                         vgMainPage.curQmlPage = page
                     }
                     onFinishPlan:   {
-                        if (!routeEdit || !routeEdit.valide)
+                        if (!visible)
                             return
 
-                        routeEdit.save(true)
-                        routeEdit = null
+                        planEdit.endEdit()
+                        planEdit.save(true)
+                        planEdit = null
                         enterMission(false)
                     }
                 }
@@ -621,7 +623,7 @@ Page {
                     onExitMission: {
                         enterMission(false)
                         mapManager.mgrObj |= VGMapManager.Map_Land
-                        routeEdit = null
+                        planEdit = null
                     }
                     onStartMission: {
                         var v = vgTipCom.createObject(root)

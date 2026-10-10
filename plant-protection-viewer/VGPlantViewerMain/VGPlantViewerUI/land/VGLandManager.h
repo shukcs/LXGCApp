@@ -22,7 +22,7 @@ class VGLandManager : public QObject
     Q_PROPERTY(int landCount READ landCount CONSTANT)
     Q_PROPERTY(int numbSatlate READ GetNumbSatlate NOTIFY numbSatlateChanged)
     Q_PROPERTY(VGLandInformation* curLand READ GetCurLand NOTIFY curLandChanged)
-    Q_PROPERTY(VGMissionPlan* curFlyRoute READ GetCurFlyRoute NOTIFY curFlyRouteChanged)
+    Q_PROPERTY(VGMissionPlan* curFlyRoute READ GetCurFlyRoute WRITE SetCurFlyRoute NOTIFY curFlyRouteChanged)
     Q_PROPERTY(VGWayPointPlan* curWPPlan READ GetCurWPPlan WRITE SetCurWPPlan NOTIFY curWPPlanChanged)
 public:
     explicit VGLandManager(QObject *parent = 0);
@@ -62,6 +62,8 @@ public:
     static VGGetGpsLocation *GetGps();
     static void PreparePlanRoute(VGMissionPlan *fr);
     static VGPlanningWorker *PlanningWorker();
+    static const QMap<QString, uint16_t> &getDiscsItem();
+    Q_INVOKABLE QStringList missionTypeNames()const;
 protected:
     //只允许Qml调用
     Q_INVOKABLE  VGMissionPlan *preparePlanRoute(VGLandBoundary *bdy);
@@ -95,7 +97,7 @@ protected slots :
     void    onLandSurveyed(VGLandInformation *land);//地块测绘完成
     void    onEditFinished(VGLandBoundary *bd);
     void    onGpsPosition(double lat, double lon, double alt, int sat);
-    void    onPlanRouteFinished();
+    void    onPlanFinished();
 private:
     VGLandInformation *_getLandInformation();
     VGLandBoundary    *_getBoundary();

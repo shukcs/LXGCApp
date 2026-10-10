@@ -46,8 +46,9 @@ public:
 public:
     VGCoordinate(const QGeoCoordinate &coor = QGeoCoordinate(), int nSat = 0, QObject* parent = NULL);//nSat卫星数或者类型
     VGCoordinate(const VGCoordinate &oth);
-    const QGeoCoordinate &GetCoordinate(void) const;
-    void            SetCoordinate(const QGeoCoordinate& coordinate);
+    QGeoCoordinate GetCoordinate(void) const;
+    const QGeoCoordinate &GetGpsCoordinate(void) const;
+    void SetCoordinate(const QGeoCoordinate& coordinate);
     void            SetSatelliteNumbOrType(int nNumb);
     MapItemType     ItemType()const;
     bool operator==(const MapAbstractItem &item)const;
@@ -82,7 +83,7 @@ protected:
     void  SetColor(const QColor &col);
     void _setBDColById(int id);
 signals:
-    void coordinateChanged(const QGeoCoordinate &coordinate);
+    void coordinateChanged();
 private:
     QGeoCoordinate  m_coordinate;
     QColor          m_colorBG;

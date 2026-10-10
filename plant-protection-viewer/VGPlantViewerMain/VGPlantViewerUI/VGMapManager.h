@@ -110,7 +110,6 @@ signals:
     void sigError(int nErrorType);
 
     void sigUpdateMapItems();       //地图飞机数发生变化
-    void sigMapCenterChanged(double lon, double lat);
     void zoomLevelChanged(int level);
     void boundaryMissionChanged(double e, double w, double s, double n);
     void showScaleRuleChanged(bool);

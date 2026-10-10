@@ -60,7 +60,7 @@ Rectangle {
         VGComboBox {
             id:             baudCombo
             model:          linkManager.serialBaudRates
-            width:                  root.width/4
+            width:          root.width/4
             onActivated: {
                 if (index != -1) {
                     serialCmd.baud = parseInt(linkManager.serialBaudRates[index])

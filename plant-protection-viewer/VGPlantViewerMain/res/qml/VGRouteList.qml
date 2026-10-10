@@ -33,18 +33,19 @@ Rectangle{
             ftText: vgMainPage.font()
             exclusiveGroup: groupTp
             checked: true
-            onClicked: {
+            onCheckedChanged: {
                 colBoundary.visible = checked
-                colRouteM.visible = !checked
+                landManager.curWPPlan = null
             }
         }
         VGRadioButton {
             text: qsTr("WayPoint mission")//qsTr("航点任务")
             ftText: vgMainPage.font()
             exclusiveGroup: groupTp
-            onClicked: {
-                colBoundary.visible = !checked
+            onCheckedChanged: {
                 colRouteM.visible = checked
+                landManager.curFlyRoute = null
+                mapManager.wpEdit = checked
             }
         }
     }
@@ -88,7 +89,10 @@ Rectangle{
                     border          {width: 1; color: object.selected ? "#b7C2FF":"transparent"}
                     MouseArea{
                         anchors.fill: parent
-                        onClicked: {emit:selectRoute(object)}
+                        onClicked: {
+                            object.selected = true
+                            emit:selectRoute(object)
+                        }
                     }
                     Column{
                         id:         itemLand1
@@ -152,13 +156,16 @@ Rectangle{
                 model: mapManager.getSpecItems(MapAbstractItem.Type_WayPointPlan)
                 delegate: Rectangle{
                     width:          routeCol.width
-                    height:         itemLand1.height+10
+                    height:         colWp1.height+10
                     color:          object.itemColor
                     visible:        object.visible
                     border          {width: 1; color: object.selected ? "#b7C2FF":"transparent"}
                     MouseArea{
                         anchors.fill: parent
-                        onClicked: {emit:selectRoute(object)}
+                        onClicked: {
+                            object.selected = true
+                            emit:selectRoute(object)
+                        }
                     }
                     VGImage{
                         anchors {right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter}
@@ -167,7 +174,6 @@ Rectangle{
                         iconName:	"detail"
                         onImgClicked: {
                             object.selected = true
-                            emit:selectRoute(object)
                             emit:detailRout(object)
                         }
                     }
@@ -193,14 +199,14 @@ Rectangle{
                         clip:       true
                         spacing:    4
                         anchors {left: colWp1.right; leftMargin: 10}
-                        width: parent.width/2
+                        width: parent.width/3
                         Text {
-                            text:               object.name
+                            text:               qsTr("Comment: ")+object.comment
                             font:               vgMainPage.littleFont()
-                            color:              "#0b81ff"
+                            color:              "#605C5B"
                         }
                         Text {
-                            text:               qsTr("Waypoint count: ")+object.wpCount//航点数:
+                            text:               qsTr("Create time: ")+object.timeCrt//创建时间:
                             font:               vgMainPage.littleFont()
                             color:              "#605C5B"
                         }

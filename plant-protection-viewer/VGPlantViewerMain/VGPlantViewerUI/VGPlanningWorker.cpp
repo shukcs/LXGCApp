@@ -95,7 +95,7 @@ QGeoCoordinate VGPlanningWorker::GetPolygonCenter(const VGLandPolygon &plg)
     if (plg.CountCoordinate() <= 0)
         return QGeoCoordinate();
 
-    QGeoCoordinate coor = plg.GetCoordinates().first()->GetCoordinate();
+    QGeoCoordinate coor = plg.GetCoordinates().first()->GetGpsCoordinate();
     VGPolygon pg; 
     TrancePlygon(coor, plg, pg);
     VGPoint pnt = pg.GetCenter();
@@ -128,7 +128,7 @@ bool VGPlanningWorker::_genPlanBoudary(VGMissionPlan *rt)
     {
         m_landBoundary = bdr;
         m_boundary.ClearBlocks();
-        foreach(VGLandPolygon *plg, m_landBoundary->Polygos())
+        for (auto plg : m_landBoundary->Polygos())
         {
             if (plg->GetId() == VGLandPolygon::Boundary)
             {
@@ -148,10 +148,10 @@ bool VGPlanningWorker::_genPlanBoudary(VGMissionPlan *rt)
 void VGPlanningWorker::TrancePlygon(const QGeoCoordinate &home, const VGLandPolygon &ldPlg, VGPolygon &plg)
 {
     plg.Clear();
-    for (const QVariant &var : ldPlg.GetPath())
+    for (auto itr : ldPlg.GetCoordinates())
     {
         double x, y;
-        VGCoordinate::transCoor2XY(home, var.value<QGeoCoordinate>(), x, y);
+        VGCoordinate::transCoor2XY(home, itr->GetGpsCoordinate(), x, y);
         plg.SetPoint(x, y);
     }
 }
@@ -159,7 +159,7 @@ void VGPlanningWorker::TrancePlygon(const QGeoCoordinate &home, const VGLandPoly
 double VGPlanningWorker::CalculatePolygonArea(const VGLandPolygon &plg)
 {
     VGPolygon plgTmp;
-    TrancePlygon(plg.GetCoordinates().first()->GetCoordinate(), plg, plgTmp);
+    TrancePlygon(plg.GetCoordinates().first()->GetGpsCoordinate(), plg, plgTmp);
     return plgTmp.CalculatePolygonArea();
 }
 

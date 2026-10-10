@@ -6,8 +6,7 @@ import QtQuick.Controls.Styles 1.4
   * 封装的组件：可复用的圆角按钮组件
   *
 */
-CheckBox
-{
+CheckBox {
     id:     control
 	style:	CheckBoxStyle {
 		label:      Label{

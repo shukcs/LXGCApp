@@ -10,6 +10,7 @@
 #include "VGVehicleManager.h"
 #include "VGVehicle.h"
 #include "VGMapManager.h"
+#include "VGGlobalFun.h"
 
 VGSurveyMonitor::VGSurveyMonitor(QObject *parent) : QObject(parent), m_relativeAltitude(0)
 , m_altitude(0), m_fPrecision(0), m_powerPercent(0), m_satNum(0), m_compass(0), m_idTimer(-1)
@@ -45,7 +46,6 @@ void VGSurveyMonitor::SetLatAndLon(double lat, double lon, bool bHasGGa)
     if (!bHasGGa)
         qvgApp->qxManager()->SendGGA(VGQXManager::GenerateGGa(QGeoCoordinate(lat, lon, m_altitude), m_relativeAltitude, m_satNum, m_fPrecision));
 
-    ShareFunction::gpsCorrect(lat, lon, qvgApp->mapManager()->mapTypeID());
     m_pos.setLatitude(lat);
     m_pos.setLongitude(lon);
     emit coordinateChanged();
@@ -193,7 +193,7 @@ QString VGSurveyMonitor::GetPositionTip() const
 
 QGeoCoordinate VGSurveyMonitor::GetCoordinate() const
 {
-    return m_pos;
+    return VGGlobalFunc::gpsCorrect(m_pos);
 }
 
 bool VGSurveyMonitor::IsConnected() const

@@ -149,9 +149,8 @@ Page {
             width:              parent.width
             height:             parent.height-rctInfo.height
             bEnableEdit:        true
-            fBtnTop:            headerRct.visible?headerRct.height:0
-            //边界距离
-            MapItemView {
+            fBtnTop:            headerRct.visible?headerRct.height:0 
+            MapItemView { //边界距离
                 model:      mapManager.getSpecItems(MapAbstractItem.Type_EdgeTip)
                 delegate:   MapQuickItem {
                     anchorPoint.x: normalDis.width/2
@@ -177,7 +176,7 @@ Page {
                     }
                 }
             }
-            MapQuickItem {
+            MapQuickItem {//面积
                 visible:        landBoundary && landBoundary.landArea>0
                 coordinate :    landBoundary ? landBoundary.center : QtPositioning.coordinate()
                 anchorPoint.x:  rctArea.width/2
@@ -199,7 +198,7 @@ Page {
                     }
                 }
             }
-            MapQuickItem {
+            MapQuickItem {//踩点
                 anchorPoint.x:  imgSv.width/2
                 anchorPoint.y:  imgSv.height/2
                 visible:        landBoundary && landBoundary.surveyType===MapAbstractItem.Survey_BanLv

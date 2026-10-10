@@ -39,10 +39,11 @@ signals:
     void    pathChanged(const QVariantList &path);
 protected slots:
     void onPointDelete();
-    void onPointChanged(const QGeoCoordinate &coor);
+    void onPointChanged();
 private:
     bool _isCoordinateVisble(const VGCoordinate &coor)const;
     void _genCoordinate(const QGeoCoordinate &coor, int id);
+    void _genPath();
 private:
     QVariantList            m_path;     //
     QList<VGCoordinate*>    m_coors;    //点

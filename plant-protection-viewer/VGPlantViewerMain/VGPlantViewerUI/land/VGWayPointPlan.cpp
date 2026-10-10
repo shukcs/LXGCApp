@@ -1,5 +1,6 @@
 ﻿#include "VGWayPointPlan.h"
 #include <QDateTime>
+#include <mavlink.h>
 #include "MapItemFactory.h"
 #include "VGCoordinate.h"
 #include "VGApplication.h"
@@ -8,20 +9,17 @@
 #include "VGGlobalFun.h"
 #include "VGMainPage.h"
 #include "QmlObjectListModel.h"
+#include "VGLandManager.h"
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//VGWayPointPlan
+//VGWayPointPlangetDiscsItem
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 VGWayPointPlan::VGWayPointPlan(QObject *p, const QString &n) : SingleTriggerItem<MapAbstractItem>(p)
 , m_name(n), m_time(0), m_route(new VGVehicleMission(this))
 {
     connect(m_route->GetWayPoints(), &QmlObjectListModel::countChanged, this, &VGWayPointPlan::wpCountChanged);
+    SetAddType(VGLandManager::getDiscsItem().key(MAV_CMD_NAV_WAYPOINT));
 }
-
-// VGWayPointPlan::VGWayPointPlan(const VGWayPointPlan &oth) : SingleTriggerItem<MapAbstractItem>(oth)
-// , m_name(oth.m_name), m_commet(oth.m_commet), m_time(oth.m_time), m_route(new VGVehicleMission(this))
-// {
-// 
-// }
 
 VGWayPointPlan::~VGWayPointPlan()
 {
@@ -39,12 +37,21 @@ int VGWayPointPlan::WPCount() const
 }
 
 
-void VGWayPointPlan::EndEdit()
+void VGWayPointPlan::endEdit()
 {
     Show(true);
     SetSelected(true);
     m_time = QDateTime::currentMSecsSinceEpoch();
+    emit timeChanged();
     emit wayPointFinished();
+}
+
+VGMissionItem *VGWayPointPlan::addWayPoint(const QGeoCoordinate &c, int idx /*= -1*/)
+{
+    if (auto cmd = m_route ? VGLandManager::getDiscsItem().value(m_addType, 0) : 0)
+        return m_route->AddWayPoint(idx, VGGlobalFunc::toGps(c), cmd);
+
+    return nullptr;
 }
 
 void VGWayPointPlan::showContent(bool b)
@@ -58,9 +65,43 @@ QString VGWayPointPlan::GetCreateTime() const
     return VGMainPage::GetTimeString(m_time);
 }
 
+void VGWayPointPlan::SetSelected(bool b)
+{
+    MapAbstractItem::SetSelected(b);
+    if (!m_route)
+        return;
+
+    m_route->Show(b);
+}
+
+void VGWayPointPlan::SetMissionItems(const QList<MissionItem *> &items)
+{
+    if (m_route)
+        m_route->SetMissionItems(items);
+}
+
+VGVehicleMission * VGWayPointPlan::GetMission() const
+{
+    return m_route;
+}
+
 VGVehicleMission *VGWayPointPlan::getRoute()const
 {
     return m_route;
+}
+
+QString VGWayPointPlan::GetAddType() const
+{
+    return m_addType;
+}
+
+void VGWayPointPlan::SetAddType(const QString &str)
+{
+    if (m_addType != str && VGLandManager::getDiscsItem().value(str, 0))
+    {
+        m_addType = str;
+        emit addTypeChanged();
+    }
 }
 
 QString VGWayPointPlan::GetName() const

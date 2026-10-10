@@ -15,7 +15,6 @@ Rectangle{
     signal exitPlan()
     color: "#F6F6F6"
 
-    onVisibleChanged: mapManager.wpEdit = visible
     Rectangle{
         id: rectHeader
         anchors     {left: parent.left; right: parent.right; top: parent.top}

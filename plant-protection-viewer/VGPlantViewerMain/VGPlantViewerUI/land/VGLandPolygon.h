@@ -21,7 +21,7 @@ public:
     ~VGLandDis();
 
     double dis()const;
-    const QGeoCoordinate &coordinate()const;
+    QGeoCoordinate coordinate()const;
     void setDis(double dis);
     void setCoordinate(const QGeoCoordinate &coor);
 
@@ -64,12 +64,13 @@ public:
     void AddCoordinate(const QGeoCoordinate &coor, int nSat = 0, VGCoordinate *c=NULL);
     void AddCoordinate(const VGCoordinate &coor);
     QList <VGCoordinate *> GetCoordinates()const;
+    void SetCoordinates(const QList <VGCoordinate *> &coors);
     int CountCoordinate()const;
     double CalculateArea()const;
 
     MapItemType ItemType()const;
     bool operator==(const MapAbstractItem &item)const;
-    void Show(bool b);
+    void Show(bool b)override;
     void SetShowType(int t);
 
     int ItemIndex(const MapAbstractItem *item)const;
@@ -78,10 +79,11 @@ public:
 private slots :
     void onIdChange(int id);
     void onPointDelete();
-    void onPointChanged(const QGeoCoordinate &co);
+    void onPointChanged();
 private:
     VGCoordinate *_getCoordinate(const QGeoCoordinate &co, int id);
     void _insertCoor(VGCoordinate *item, VGCoordinate *behind);
+    void _genPath();
 signals:
     void    pathChanged(const QVariantList &path);
     void    countCoorChanged(int);

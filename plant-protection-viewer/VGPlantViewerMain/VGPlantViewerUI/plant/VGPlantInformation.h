@@ -220,6 +220,7 @@ public:
     void PrcsBlocks(const QList<BlockInfo> &blocks);
     VGVehicleMission *GetPrepareMission()const;
     void ClearWay();
+    void SetVihevleMisson(const QList<MissionItem*> &item);
 public:
     static QString GetFlightModeDscb(const QString &str);
     static QString GetQxStatDscb(int stat);
@@ -322,9 +323,6 @@ private:
     bool            m_bBind;        //0 未绑定 1 绑定
     bool            m_bSychUav;
     bool            m_bSys;
-
-    double          m_lat;          //GPS
-    double          m_lon;          //GPS
     double          m_relativeAltitude;
     double          m_gndHeight;
     int             m_satNum;
@@ -376,7 +374,7 @@ private:
     VGCoordinate            *m_cntnCoor;    //中断点
     VGCoordinate            *m_aPointCoor;  //AB点的A
     VGCoordinate            *m_bPointCoor;  //AB点的B
-    VGLandPolyline          *m_planMissionLine;
+    VGLandPolyline          *m_planMissionLine; ///航线
     unsigned                m_baseMode;
     uint32_t                m_statSupport;
     VGSupportPolyline       *m_rtl;

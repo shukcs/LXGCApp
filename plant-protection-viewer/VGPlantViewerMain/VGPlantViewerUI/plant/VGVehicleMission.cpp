@@ -73,8 +73,21 @@ quint16 VGMissionItem::GetCommand() const
 
 void VGMissionItem::SetCommand(quint16 cmd)
 {
-    if (m_item)
+    if (m_item && m_item->command()!=cmd && cmd!=MAV_CMD_ENUM_END)
+    {
         m_item->setCommand((MAV_CMD)cmd);
+        emit commandChanged();
+    }
+}
+
+QString VGMissionItem::GetCommandName() const
+{
+    return VGLandManager::getDiscsItem().key(GetCommand());
+}
+
+void VGMissionItem::SetCommandName(const QString &str)
+{
+    SetCommand(VGLandManager::getDiscsItem().value(str, MAV_CMD_ENUM_END));
 }
 
 quint16 VGMissionItem::GetFrame() const
@@ -179,10 +192,15 @@ void VGMissionItem::SetCoordinate(const QGeoCoordinate &c)
         m_item = new MissionItem(this);
         emit validChanged();
     }
-    m_item->setCoordinate(VGGlobalFunc::toGps(c));
+    m_item->setCoordinate(c);
     emit coordinateChanged();
     emit latitudeChanged();
     emit longitudeChanged();
+}
+
+void VGMissionItem::setMapCoor(const QGeoCoordinate &c)
+{
+    SetCoordinate(VGGlobalFunc::toGps(c));
 }
 
 double VGMissionItem::GetLatitude() const
@@ -265,6 +283,7 @@ VGVehicleMission::VGVehicleMission(QObject *parent, const QList<MissionItem*> &i
     SetMissionItems(items);
     SetWidth(1);
     _calculatLength();
+    connect(qvgApp->mapManager(), &VGMapManager::mapTypeIDChanged, this, &VGVehicleMission::onMapIdChanged);
 }
 
 VGVehicleMission::VGVehicleMission(VGMissionPlan *fr) : MapAbstractItem(fr), m_bExecute(false), m_hasSuspend(false), m_msSuspend(false), m_supportEnter(NULL)
@@ -277,6 +296,7 @@ VGVehicleMission::VGVehicleMission(VGMissionPlan *fr) : MapAbstractItem(fr), m_b
     _generateMission(fr);
     SetWidth(1);
     m_length = fr->GetTotalVoyage();
+    connect(qvgApp->mapManager(), &VGMapManager::mapTypeIDChanged, this, &VGVehicleMission::onMapIdChanged);
 }
 
 VGVehicleMission::~VGVehicleMission()
@@ -395,16 +415,17 @@ QString VGVehicleMission::GetInfo() const
     return QString();
 }
 
-VGMissionItem *VGVehicleMission::addWayPoint(int pos, const QGeoCoordinate &c)
+VGMissionItem *VGVehicleMission::AddWayPoint(int pos, const QGeoCoordinate &c, uint16_t tp)
 {
-    if (!m_missionItems) return nullptr;
+    if (!m_missionItems || tp<1) return nullptr;
 
     pos = 0<=pos && pos<m_missionItems->count() ? pos : m_missionItems->count();
     auto item = new VGMissionItem(nullptr, this);
     m_missionItems->insert(pos, item);
     item->SetCoordinate(c);
-    item->Show(GetVisible() && m_beg <= 0);
+    item->Show(GetVisible());
     item->SetSelected(true);
+    item->SetCommand(tp);
     connect(item, &QObject::destroyed, this, &VGVehicleMission::onItemDestoyed);
     connect(item, &VGMissionItem::coordinateChanged, this, &VGVehicleMission::onItemChanged);
     _adjustSequence(pos>=0 ? pos : m_missionItems->count() - 1);
@@ -794,6 +815,12 @@ void VGVehicleMission::SetMissionSuspend(bool b)
     }
 }
 
+void VGVehicleMission::onMapIdChanged()
+{
+    _genPath();
+    _genMapBoundary();
+}
+
 QmlObjectListModel *VGVehicleMission::GetWayPoints() const
 {
     return m_missionItems;
@@ -859,9 +886,6 @@ void VGVehicleMission::_genMissionItem(const QList<VGCoordinate*> &coors)
     if (coors.size() < 2 || !m_missionItems)
         return;
 
-    m_missionItems->clear(true);
-    m_path.clear();
-
     VGMissionPlan *fr = GetMissionPlan();
     double tmRoit = qvgApp->plantManager()->GetRoitTime();
     double rRoit = qvgApp->plantManager()->GetRoitRadius(fr ? fr->GetSprinkleWidth() : 1);
@@ -869,10 +893,12 @@ void VGVehicleMission::_genMissionItem(const QList<VGCoordinate*> &coors)
     int seqNum = 0;
 
     float bSprink = 0;//是否喷药bInital
+    m_missionItems->clear(true);
     QGeoCoordinate c;
     if (m_msSuspend && m_suspend.isValid())
         c = m_suspend;
 
+    QObjectList ls;
     if (c.isValid())
     {
         MissionItem* item = new MissionItem(seqNum++,
@@ -881,23 +907,20 @@ void VGVehicleMission::_genMissionItem(const QList<VGCoordinate*> &coors)
             .1, .5, bSprink, angle,
             c.latitude(), c.longitude(), GetOpHeight(),
             true, false);
-        m_missionItems->insert(-1, new VGMissionItem(item, this, VGCoordinate::RouteBegin));
-        m_path << QVariant::fromValue(c);
         bSprink = 1;
+        ls << new VGMissionItem(item, this, VGCoordinate::RouteBegin);
     }
 
     for (VGCoordinate *coor : coors)
     {
-        VGMapManager::CalcBoundaryByCoor(m_boundarys, coor->GetCoordinate());
         MissionItem* item = new MissionItem(seqNum++,
             MAV_CMD_NAV_WAYPOINT,                   //航迹点
             MAV_FRAME_GLOBAL_RELATIVE_ALT,          //相对高度
             tmRoit, rRoit, bSprink, angle,
             coor->GetLatitude(), coor->GetLongitude(), GetOpHeight(),
             true, false);
-        m_missionItems->insert(-1, new VGMissionItem(item, this, coor->GetId()));
-        m_path << QVariant::fromValue(coor->GetCoordinate());
         bSprink = VGGlobalFunc::checkSprink(*coor);
+        ls << new VGMissionItem(item, this, coor->GetId());
     }
 
     c = coors.last()->GetCoordinate();
@@ -908,10 +931,12 @@ void VGVehicleMission::_genMissionItem(const QList<VGCoordinate*> &coors)
             MAV_FRAME_GLOBAL_RELATIVE_ALT,          //相对高度
             .1, .5, bSprink, angle,
             c.latitude(), c.longitude(), GetOpHeight(),
-            true, false);
-        m_missionItems->insert(-1, new VGMissionItem(item, this, VGCoordinate::RouteEnd));
-        m_path << QVariant::fromValue(c);
+            true, false); 
+        ls << new VGMissionItem(item, this, VGCoordinate::RouteEnd);
     }
+    m_missionItems->insertList(ls);
+    _genPath();
+    _genMapBoundary();
     emit pathChanged(m_path);
     emit countItemChanged();
 }
@@ -1072,33 +1097,41 @@ void VGVehicleMission::_genPath()
 {
     m_path.clear();
     if (!m_missionItems)return;
-    int count = m_missionItems->count();
-    for (int i = 0; i < count; ++i)
+    for (auto obj : m_missionItems->AllQObject())
     {
-        auto itr = (VGMissionItem *)m_missionItems->get(i);
+        auto itr = (VGMissionItem *)obj;
         m_path << QVariant::fromValue(itr->GetCoordinate());
     }
     emit pathChanged(m_path);
+}
+
+void VGVehicleMission::_genMapBoundary()
+{
+    m_boundarys.clear();
+    if (!m_missionItems)return;
+    for (auto itr : m_missionItems->AllQObject())
+    {
+        auto mi = (VGMissionItem *)itr;
+        VGMapManager::CalcBoundaryByCoor(m_boundarys, mi->GetCoordinate());
+    }
 }
 
 void VGVehicleMission::SetMissionItems(const QList<MissionItem*> &items, bool bRef)
 {
     if (!m_missionItems) return;
     m_missionItems->clear();
-    m_path.clear();
-    m_boundarys.clear();
+    QObjectList ls;
     for (MissionItem *itr : items)
     {
         VGMissionItem *item = bRef ? new VGMissionItem(itr, this) : new VGMissionItem(*itr, this);
-        m_missionItems->insert(-1, item);
         item->Show(GetVisible() && m_beg<=0);
-        if (itr->coordinate().isValid())
-        {
-            QGeoCoordinate coor = itr->coordinate();
-            m_path << QVariant::fromValue(coor);
-            VGMapManager::CalcBoundaryByCoor(m_boundarys, coor);
-        }
+        connect(item, &QObject::destroyed, this, &VGVehicleMission::onItemDestoyed);
+        connect(item, &VGMissionItem::coordinateChanged, this, &VGVehicleMission::onItemChanged);
+        ls << item;
     }
+    m_missionItems->insertList(ls);
+    _genPath();
+    _genMapBoundary();
 	if (m_path.count())
 		SetExecutable(true);
     
@@ -1157,7 +1190,7 @@ void VGVehicleMission::showContent(bool b)
     if (m_segReturn && m_segReturn->IsValide())
         m_segReturn->Show(b);
 
-    if (m_bShowSeq)
+    if (m_bShowSeq || qvgApp->mapManager()->IsWayPointEdit())
         showSquences(b);
 
     _show(b);
@@ -1187,7 +1220,11 @@ bool VGVehicleMission::GetExecutable() const
 
 void VGVehicleMission::Monitor()
 {
-    VGMapManager *mgr = qvgApp->mapManager();
-    if (mgr && m_boundarys.count())
-        mgr->SetMissionBoundary(m_boundarys);
+    if (auto mgr = qvgApp->landManager())
+    {
+        if (m_boundarys.count() < 4 && CountMissionItems()>2)
+            _genMapBoundary();
+        if (m_boundarys.count() >= 4)
+            mgr->BoundaryChanged(m_boundarys);
+    }
 }

@@ -222,7 +222,7 @@ void VGDbManager::_saveBoundary(VGLandBoundary &boundary)
 		return;
 
     QByteArray outlines;
-    foreach(VGLandPolygon *itr, boundary.m_polygons)
+    for (auto itr : boundary.m_polygons)
     {
         outlines += polygonSeriers(*itr);
     }
@@ -718,7 +718,7 @@ QByteArray VGDbManager::polygonSeriers(const VGLandPolygon &plg)
     st << (int32_t)SRS_Polygon;
     st << (int32_t)plg.GetId();
     st << (int32_t)plg.CountCoordinate();
-    foreach(VGCoordinate *itr, plg.GetCoordinates())
+    for (auto itr : plg.GetCoordinates())
     {
         arry += coordinateSeriers(*itr);
     }
@@ -732,7 +732,7 @@ QByteArray VGDbManager::polylineSeriers(const VGLandPolyline &polyLine)
     st << (int32_t)SRS_Polyline;
     st << (int32_t)polyLine.GetId();
     st << (int32_t)polyLine.coordinateCount();
-    foreach(VGCoordinate *itr, polyLine.GetCoordinates())
+    for (auto itr : polyLine.GetCoordinates())
     {
         arry += coordinateSeriers(*itr);
     }
@@ -787,13 +787,16 @@ bool VGDbManager::initalPolygon(VGLandPolygon &plg, QDataStream &st)
     plg.SetId(sig);
 
     st >> sig;
+    QList<VGCoordinate*>coors;
     for (int i = 0; i < sig; ++i)
     {
-        VGCoordinate coor;
-        initalCoordinate(coor, st);
-        plg.AddCoordinate(coor);
+        if (auto coor = new VGCoordinate())
+        {
+            initalCoordinate(*coor, st);
+            coors << coor;
+        }
     }
-
+    plg.SetCoordinates(coors);
     return plg.CountCoordinate()>0;
 }
 
@@ -817,7 +820,6 @@ bool VGDbManager::initalPolyline(VGLandPolyline &pll, QDataStream &st)
         initalCoordinate(coor, st);
         pll.addCoordinate(coor.GetCoordinate(), coor.GetId());
     }
-
 
     return true;
 }

@@ -29,15 +29,17 @@ VGLandPolyline::VGLandPolyline(QObject *parent, int id) : MapAbstractItem(parent
         SetBorderColor(Qt::green);
         break;
     }
+    connect(qvgApp->mapManager(), &VGMapManager::mapTypeIDChanged, this, &VGLandPolyline::_genPath);
 }
 
 VGLandPolyline::VGLandPolyline(const VGLandPolyline &oth) : MapAbstractItem(oth)
 , m_showType(oth.m_showType), m_path(oth.m_path)
 {
-    foreach(VGCoordinate *itr, oth.m_coors)
+    for (VGCoordinate *itr : oth.m_coors)
     {
-        _genCoordinate(itr->GetCoordinate(), itr->GetId());
+        _genCoordinate(itr->GetGpsCoordinate(), itr->GetId());
     }
+    connect(qvgApp->mapManager(), &VGMapManager::mapTypeIDChanged, this, &VGLandPolyline::_genPath);
 }
 
 VGLandPolyline::~VGLandPolyline()
@@ -52,11 +54,10 @@ QVariantList VGLandPolyline::GetPath() const
 
 void VGLandPolyline::addCoordinate(QGeoCoordinate coordinate, int id)
 {
-    m_path.append(QVariant::fromValue(coordinate));
-
     if (GetId()!=VGLandPolygon::NoPoint)
         _genCoordinate(coordinate, id);
 
+    m_path.append(QVariant::fromValue(coordinate));
     emit pathChanged(m_path);
 }
 
@@ -226,15 +227,14 @@ void VGLandPolyline::onPointDelete()
     }
 }
 
-void VGLandPolyline::onPointChanged(const QGeoCoordinate &co)
+void VGLandPolyline::onPointChanged()
 {
-    VGCoordinate *coor = qobject_cast<VGCoordinate *>(sender());
-    if (coor)
+    if (auto coor = qobject_cast<VGCoordinate *>(sender()))
     {
         int idx = m_coors.indexOf(coor);
         if (idx >= 0 && idx < m_path.count())
         {
-            m_path[idx].setValue(co);
+            m_path[idx].setValue(coor->GetCoordinate());
             emit pathChanged(m_path);
         }
     }
@@ -260,18 +260,30 @@ void VGLandPolyline::_genCoordinate(const QGeoCoordinate &coor, int id)
     }
 }
 
+void VGLandPolyline::_genPath()
+{
+    m_path.clear();
+    for (auto itr : m_coors)
+    {
+        m_path << QVariant::fromValue(itr->GetCoordinate());
+    }
+    emit pathChanged(m_path);
+}
+
 bool VGLandPolyline::operator==(const MapAbstractItem &item)const
 {
     if (item.ItemType() != ItemType())
         return false;
 
     const VGLandPolyline &ol = *static_cast<const VGLandPolyline*>(&item);
+    if (coordinateCount() != ol.coordinateCount())
+        return false;
 
-    QVariantList::const_iterator itr = m_path.begin();
-    QVariantList::const_iterator itr2 = ol.m_path.begin();
-    for (; itr != m_path.end() && itr2 != ol.m_path.end(); ++itr, ++itr2)
+    auto itr = m_coors.begin();
+    auto itr2 = ol.m_coors.begin();
+    for (; itr != m_coors.end(); ++itr, ++itr2)
     {
-        if (itr->value<QGeoCoordinate>() != itr2->value<QGeoCoordinate>())
+        if ((*itr)->GetGpsCoordinate() != (*itr2)->GetGpsCoordinate())
             return false;
     }
     return true;

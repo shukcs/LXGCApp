@@ -11,6 +11,7 @@
 class VGMissionPlan;
 class VGCoordinate;
 class VGLandPolygon;
+class VGLandDis;
 class VGDbManager;
 class VGLandManager;
 
@@ -124,9 +125,9 @@ private:
     friend                  VGMissionPlan;
     friend                  VGDbManager;
     friend                  VGNetManager;
-
     QString                 m_cloudID;          //服务器上ID
     QList<VGLandPolygon*>   m_polygons;         //边界图
+    QList<VGLandDis*>       m_edgeLenths;       //边界长提示
     QList<double>           m_boundarys;
 
     //VGCoordinate      *m_APoint;

@@ -20,7 +20,7 @@ const int s_scaleLengths[] = { 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 1
 VGMapManager::VGMapManager(QObject *parent) : QObject(parent), m_bShowSR(true)
 , m_mapCenter(40.12121, 119.12121), m_mapTypeID(UrlFactory::AMapSatelliteMap)
 , m_zoomLevel(14), m_bMapChanged(false), m_pixLength(0), m_propLength(80)
-, m_mgrObj(0), m_bOnlyStreet(false)
+, m_mgrObj(0), m_bOnlyStreet(false), m_bCenterVisible(false)
 {
 	QTimer::singleShot(10, this, [=]{
 		_readConfig();
@@ -134,7 +134,6 @@ bool VGMapManager::IsWayPointEdit() const
 
 void VGMapManager::SetWayPointEdit(bool b)
 {
-    SetCenterVisible(b);
     if ((Map_WPEdit&m_mgrObj) && !b)
     {
         m_mgrObj &= ~Map_WPEdit;

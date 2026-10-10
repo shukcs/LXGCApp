@@ -44,6 +44,7 @@ static void initPlanWork()
         s_planningThread->start();
     }
 }
+
 //////////////////////////////////////////////////////////////
 VGLandManager::VGLandManager(QObject *parent)
 : QObject(parent), m_gptTimeout(10)
@@ -147,7 +148,7 @@ void VGLandManager::setError(const QString &error)
 
 QGeoCoordinate VGLandManager::GetCurCoordinate() const
 {
-    return m_coorCur;
+    return VGGlobalFunc::gpsCorrect(m_coorCur);
 }
 
 int VGLandManager::GetNumbSatlate() const
@@ -225,9 +226,9 @@ VGWayPointPlan *VGLandManager::preparePlanWayPoint()
     SetCurWPPlan(nullptr);
     if (m_wayPointPlan =  new VGWayPointPlan(this))
     {
-        connect(m_wayPointPlan, &VGWayPointPlan::wayPointFinished, this, &VGLandManager::onPlanRouteFinished);
-        connect(m_wayPointPlan, &QObject::destroyed, this, &VGLandManager::onChildDestroyed);
-        connect(m_wayPointPlan, &VGWayPointPlan::selectedChanged, this, &VGLandManager::onSelectedChanged);
+        connect(m_wayPointPlan, &VGWayPointPlan::wayPointFinished, this, &VGLandManager::onPlanFinished, Qt::UniqueConnection);
+        connect(m_wayPointPlan, &QObject::destroyed, this, &VGLandManager::onChildDestroyed, Qt::UniqueConnection);
+        connect(m_wayPointPlan, &VGWayPointPlan::selectedChanged, this, &VGLandManager::onSelectedChanged, Qt::UniqueConnection);
     }
 
     if (m_wayPointPlan)
@@ -265,9 +266,9 @@ VGLandBoundary *VGLandManager::editBoundary(MapAbstractItem *item)
     {
         if (item && item->ItemType() == MapAbstractItem::Type_LandInfo)
             m_boundaryEdit->SetBelongedLand((VGLandInformation*)item);
-        connect(m_boundaryEdit, &VGLandBoundary::editFinished, this, &VGLandManager::onEditFinished);
-        connect(m_boundaryEdit, &VGLandBoundary::destroyed, this, &VGLandManager::onChildDestroyed);
-        connect(m_boundaryEdit, &VGLandBoundary::selectedChanged, this, &VGLandManager::onSelectedChanged);
+        connect(m_boundaryEdit, &VGLandBoundary::editFinished, this, &VGLandManager::onEditFinished, Qt::UniqueConnection);
+        connect(m_boundaryEdit, &VGLandBoundary::destroyed, this, &VGLandManager::onChildDestroyed, Qt::UniqueConnection);
+        connect(m_boundaryEdit, &VGLandBoundary::selectedChanged, this, &VGLandManager::onSelectedChanged, Qt::UniqueConnection);
         m_boundaryEdit->SetVisible(true);
         m_boundaryEdit->SetShowType(MapAbstractItem::Show_LineAndPoint);
         m_boundaryEdit->SetSelected(true);
@@ -282,6 +283,32 @@ void VGLandManager::quitOperation()
     MapAbstractItem *item = mm ? mm->GetSelecedItem(MapAbstractItem::Type_MissionInfo) : NULL;
     if (VGMissionPlan *rt = dynamic_cast<VGMissionPlan*>(item))
         rt->SetSelected(false);
+    if (auto wp = dynamic_cast<VGWayPointPlan*>(item))
+        wp->SetSelected(false);
+}
+
+const QMap<QString, uint16_t> &VGLandManager::getDiscsItem()
+{
+    static QMap<QString, uint16_t> sDscs = { { VGWayPointPlan::tr("WAYPOINT"), MAV_CMD_NAV_WAYPOINT },
+        { tr("LoiterUnlim"), MAV_CMD_NAV_LOITER_UNLIM },
+        { tr("LoiterTurns"), MAV_CMD_NAV_LOITER_TURNS },
+        { tr("LoiterTime"), MAV_CMD_NAV_LOITER_TIME },
+        { tr("Ret2Lnch"), MAV_CMD_NAV_RETURN_TO_LAUNCH },
+        { tr("LAND"), MAV_CMD_NAV_LAND },
+        { tr("TAKEOFF"), MAV_CMD_NAV_TAKEOFF },
+        { tr("LAND_LOCAL"), MAV_CMD_NAV_LAND_LOCAL },
+        { tr("FOLLOW"), MAV_CMD_NAV_FOLLOW } };
+    return sDscs;
+}
+
+QStringList VGLandManager::missionTypeNames()const
+{
+    static QStringList strLs = { getDiscsItem().key(MAV_CMD_NAV_WAYPOINT), getDiscsItem().key(MAV_CMD_NAV_LOITER_UNLIM),
+        getDiscsItem().key(MAV_CMD_NAV_LOITER_TURNS), getDiscsItem().key(MAV_CMD_NAV_LOITER_TIME),
+        getDiscsItem().key(MAV_CMD_NAV_RETURN_TO_LAUNCH), getDiscsItem().key(MAV_CMD_NAV_LAND),
+        getDiscsItem().key(MAV_CMD_NAV_TAKEOFF), getDiscsItem().key(MAV_CMD_NAV_LAND_LOCAL), 
+        getDiscsItem().key(MAV_CMD_NAV_FOLLOW) };
+    return strLs;
 }
 
 void VGLandManager::onEditFinished(VGLandBoundary *bd)
@@ -312,7 +339,7 @@ void VGLandManager::onGpsPosition(double lat, double lon, double alt, int sat)
         emit curCoordValidChanged(true);
 }
 
-void VGLandManager::onPlanRouteFinished()
+void VGLandManager::onPlanFinished()
 {
     if (m_flyRoutePlan == sender())
     {
@@ -323,8 +350,8 @@ void VGLandManager::onPlanRouteFinished()
     }
     else if (m_wayPointPlan == sender())
     {
-        m_wpPlans << m_wayPointPlan;
-        m_wayPointPlan = nullptr;
+        m_wayPointPlan->SetSelected(true);
+        AddChild(m_wayPointPlan);
     }
 }
 
@@ -360,7 +387,7 @@ void VGLandManager::SetCurFlyRoute(VGMissionPlan *rt)
         return;
 
     if (m_routeCur)
-        m_routeCur->disconnect(SIGNAL(destroyed(QObject*)), this);
+        m_routeCur->SetSelected(false);
 
     m_routeCur = rt;
     emit curFlyRouteChanged(rt);
@@ -373,7 +400,7 @@ void VGLandManager::SetCurWPPlan(VGWayPointPlan *rt)
 
     if (m_wayPointPlan)
     {
-        m_wayPointPlan->disconnect(SIGNAL(destroyed(QObject*)), this);
+        m_wayPointPlan->SetSelected(false);
         if (!m_wpPlans.contains(m_wayPointPlan))
             m_wayPointPlan->deleteLater();
     }
@@ -419,33 +446,35 @@ void VGLandManager::AddChild(MapAbstractItem *item)
         m_lstBoundary << (VGLandBoundary*)item;
     else if (item->ItemType() == MapAbstractItem::Type_MissionInfo)
         m_lstRoute << (VGMissionPlan*)item;
+    else if (item->ItemType() == MapAbstractItem::Type_WayPointPlan)
+        m_wpPlans << (VGWayPointPlan*)item;
     else
         return;
 
     qvgApp->mapManager()->InsertItem(item);
-    connect(item, &MapAbstractItem::selectedChanged, this, &VGLandManager::onSelectedChanged);
-    connect(item, SIGNAL(destroyed(QObject*)), this, SLOT(onChildDestroyed()));
+    connect(item, &MapAbstractItem::selectedChanged, this, &VGLandManager::onSelectedChanged, Qt::UniqueConnection);
+    connect(item, &QObject::destroyed, this, &VGLandManager::onChildDestroyed, Qt::UniqueConnection);
 }
 
 void VGLandManager::InitialNetWork(VGNetManager *nm)
 {
-    connect(nm, &VGNetManager::sigQueryItem, this, &VGLandManager::onQueryItem);
+    connect(nm, &VGNetManager::sigQueryItem, this, &VGLandManager::onQueryItem, Qt::UniqueConnection);
 }
 
 VGLandBoundary *VGLandManager::getVGLandBoundaryById(const QString &id)
 {
-    foreach (VGLandBoundary *bdr, m_lstBoundary)
+    for (auto bdr : m_lstBoundary)
     {
         if(bdr->GetBoundaryId() == id)
             return bdr;
     }
-    return NULL;
+    return nullptr;
 }
 
 VGLandInformation * VGLandManager::Clone(VGLandInformation *item, bool bNew)
 {
     if (!item)
-        return NULL;
+        return nullptr;
 
     if (VGLandInformation *land = new VGLandInformation(*item))
     {
@@ -457,8 +486,8 @@ VGLandInformation * VGLandManager::Clone(VGLandInformation *item, bool bNew)
             land->SetSurveyTime(0);
         }
 
-        connect(land, &VGLandInformation::selectedChanged, this, &VGLandManager::onSelectedChanged);
-        connect(land, SIGNAL(destroyed(QObject*)), this, SLOT(onChildDestroyed()));
+        connect(land, &VGLandInformation::selectedChanged, this, &VGLandManager::onSelectedChanged, Qt::UniqueConnection);
+        connect(land, &QObject::destroyed, this, &VGLandManager::onChildDestroyed, Qt::UniqueConnection);
         return appedSurveyLand(land, bNew) ? land : NULL;
     }
     return NULL;
@@ -471,8 +500,8 @@ VGLandBoundary *VGLandManager::Clone(VGLandBoundary *item, VGLandInformation *pa
 
     if (VGLandBoundary *bdy = new VGLandBoundary(*(VGLandBoundary*)item))
     { 
-        connect(bdy, &VGLandBoundary::selectedChanged, this, &VGLandManager::onSelectedChanged);
-        connect(bdy, SIGNAL(destroyed(QObject*)), this, SLOT(onChildDestroyed()));
+        connect(bdy, &VGLandBoundary::selectedChanged, this, &VGLandManager::onSelectedChanged, Qt::UniqueConnection);
+        connect(bdy, &QObject::destroyed, this,  &VGLandManager::onChildDestroyed, Qt::UniqueConnection);
         bdy->SetBelongedLand(parent);
 
         return appendBoundary(bdy) ? bdy : NULL;
@@ -488,8 +517,8 @@ VGMissionPlan *VGLandManager::Clone(VGMissionPlan *item, VGLandBoundary *p)
     if (VGMissionPlan *ft = new VGMissionPlan(*(VGMissionPlan*)item))
     {
         ft->setBelongBoundary(p);
-        connect(ft, &VGMissionPlan::selectedChanged, this, &VGLandManager::onSelectedChanged);
-        connect(ft, &VGMissionPlan::destroyed, this, &VGLandManager::onChildDestroyed);       
+        connect(ft, &VGMissionPlan::selectedChanged, this, &VGLandManager::onSelectedChanged, Qt::UniqueConnection);
+        connect(ft, &VGMissionPlan::destroyed, this, &VGLandManager::onChildDestroyed, Qt::UniqueConnection);
         return appendRoute(ft) ? ft : NULL;
     }
     return NULL;
@@ -567,8 +596,8 @@ VGLandInformation *VGLandManager::_getLandInformation()
     VGLandInformation *ret = new VGLandInformation(this);
     if (ret)
     {
-        connect(ret, &VGLandInformation::selectedChanged, this, &VGLandManager::onSelectedChanged);
-        connect(ret, &VGLandInformation::destroyed, this, &VGLandManager::onChildDestroyed);
+        connect(ret, &VGLandInformation::selectedChanged, this, &VGLandManager::onSelectedChanged, Qt::UniqueConnection);
+        connect(ret, &VGLandInformation::destroyed, this, &VGLandManager::onChildDestroyed, Qt::UniqueConnection);
     }
 
     return ret;
@@ -587,21 +616,21 @@ VGLandBoundary * VGLandManager::_getBoundary()
 
 MapAbstractItem *VGLandManager::findItem(const DescribeMap &dsc) const
 {
-    foreach (VGMissionPlan *rt, m_lstRoute)
+    for (auto rt : m_lstRoute)
     {
         DescribeMap tmp;
         VGGlobalFunc::initialItemDescribe(tmp, *rt);
         if (tmp == dsc)
             return rt;
     }
-    foreach(VGLandBoundary *bdy, m_lstBoundary)
+    for (auto bdy : m_lstBoundary)
     {
         DescribeMap tmp;
         VGGlobalFunc::initialItemDescribe(tmp, *bdy);
         if (tmp == dsc)
             return bdy;
     }
-    foreach(VGLandInformation *land, m_lstLand)
+    for (auto land : m_lstLand)
     {
         DescribeMap tmp;
         VGGlobalFunc::initialItemDescribe(tmp, *land);
@@ -615,9 +644,9 @@ VGMissionPlan * VGLandManager::_getPlanFlyRoute(VGLandBoundary *bdy)
 {
     if (VGMissionPlan *tmp = new VGMissionPlan(bdy))
     {
-        connect(tmp, &VGMissionPlan::planRouteFinished, this, &VGLandManager::onPlanRouteFinished);
-        connect(tmp, &VGMissionPlan::destroyed, this, &VGLandManager::onChildDestroyed);
-        connect(tmp, &VGMissionPlan::selectedChanged, this, &VGLandManager::onSelectedChanged);
+        connect(tmp, &VGMissionPlan::planRouteFinished, this, &VGLandManager::onPlanFinished, Qt::UniqueConnection);
+        connect(tmp, &VGMissionPlan::destroyed, this, &VGLandManager::onChildDestroyed, Qt::UniqueConnection);
+        connect(tmp, &VGMissionPlan::selectedChanged, this, &VGLandManager::onSelectedChanged, Qt::UniqueConnection);
         return tmp;
     }
 
@@ -665,8 +694,8 @@ void VGLandManager::initialGPS(VGLandManager *mgr)
 
     if (!s_gpsThread->isRunning())
     {
-        connect(s_getGpsObject, &VGGetGpsLocation::errorInfoChanged, mgr, &VGLandManager::sltSurveyError);
-        connect(s_getGpsObject, &VGGetGpsLocation::sigGetGpsCoordinate, mgr, &VGLandManager::onGpsPosition);
+        connect(s_getGpsObject, &VGGetGpsLocation::errorInfoChanged, mgr, &VGLandManager::sltSurveyError, Qt::UniqueConnection);
+        connect(s_getGpsObject, &VGGetGpsLocation::sigGetGpsCoordinate, mgr, &VGLandManager::onGpsPosition, Qt::UniqueConnection);
         s_gpsThread->start();
     }
 }
@@ -764,7 +793,7 @@ void VGLandManager::PreparePlanRoute(VGMissionPlan *fr)
     if (fr)
     {
         connect(s_planningWorker, &VGPlanningWorker::planFinished, fr, &VGMissionPlan::showPlanningResult, Qt::UniqueConnection);
-        s_planningWorker->BoundaryPlan(fr, fr->m_homePoint->GetCoordinate());
+        s_planningWorker->BoundaryPlan(fr, fr->m_homePoint->GetGpsCoordinate());
     }
 }
 

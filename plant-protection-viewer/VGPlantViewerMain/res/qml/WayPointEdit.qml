@@ -10,7 +10,7 @@ Rectangle{
     clip:           true
     color:          "#F6F6F6"
     property var curItem: null
-    property var mission: landManager.curWPPlan.mission
+    onVisibleChanged:   mapManager.centVis = visible
     Flickable{
         id:                 flick
         anchors {top: parent.top; topMargin: 5; left: parent.left; leftMargin: 10; bottom: parent.bottom}
@@ -24,7 +24,7 @@ Rectangle{
             anchors.horizontalCenter: parent.horizontalCenter
             spacing:    10
             Repeater {
-                model: mission.waypoints
+                model: landManager.curWPPlan.mission.waypoints
                 Rectangle {
                     width: 30
                     height: width
@@ -54,8 +54,16 @@ Rectangle{
         }
     }
     Row {
+        id: rowPoints
         anchors {left: flick.right; leftMargin: 15; top: flick.top;}
         spacing: 10
+        VGComboBox {
+            id: cmdWPType
+            anchors.verticalCenter: parent.verticalCenter
+            model: landManager.missionTypeNames()
+            width: 120
+            onCurrentTextChanged: landManager.curWPPlan.addType = currentText
+        }
         VGToolButton {
             width: 30
             height: 30
@@ -64,7 +72,13 @@ Rectangle{
             enabled:  landManager.curWPPlan
             onBtnClicked: {
                 var c = mapManager.mapCenter
-                curItem = mission.addWayPoint(curItem?curItem.sequence-1 : -1, c)
+                var idx = -1
+                if (curItem){
+                    idx = curItem.sequence
+                    if (!cbBehind.checked)
+                        idx = idx-1
+                }
+                curItem = landManager.curWPPlan.addWayPoint(c, idx)
             }
         }
         VGToolButton {
@@ -78,6 +92,140 @@ Rectangle{
                 if (curItem)
                     curItem.releaseSafe()
                 curItem = null
+            }
+        }
+        VGCheckBox {
+            id:     cbBehind
+            anchors.verticalCenter: parent.verticalCenter
+            checked: true
+            text:   qsTr("Insert behind current waypoint")
+        }
+    }
+    Column {
+        visible: curItem
+        anchors {left: rowPoints.left; top: rowPoints.bottom; topMargin: 12; right: parent.right; rightMargin: 15}
+        spacing: 8
+        Row {
+            width: parent.width
+            spacing: 15
+            Text{
+                width: parent.width/3
+                text: qsTr("Command")
+            }
+            Text {
+                width: parent.width*2/3-10
+                text: curItem.cmdName
+            }
+        }
+        Row {
+            width: parent.width
+            spacing: 15
+            Text{
+                width: parent.width/3
+                text: qsTr("param1")
+            }
+            SpinBox {
+                width: parent.width*2/3-10
+                decimals: 7
+                maximumValue: 1e7
+                minimumValue: -1e7
+                value: curItem.param1
+                onValueChanged: curItem.param1 = value
+            }
+        }
+        Row {
+            width: parent.width
+            spacing: 15
+            Text{
+                width: parent.width/3
+                text: qsTr("param2")
+            }
+            SpinBox {
+                width: parent.width*2/3-10
+                decimals: 7
+                maximumValue: 1e7
+                minimumValue: -1e7
+                value: curItem.param2
+                onValueChanged: curItem.param2 = value
+            }
+        }
+        Row {
+            width: parent.width
+            spacing: 15
+            Text{
+                width: parent.width/3
+                text: qsTr("param3")
+            }
+            SpinBox {
+                width: parent.width*2/3-10
+                decimals: 7
+                maximumValue: 1e7
+                minimumValue: -1e7
+                value: curItem.param3
+                onValueChanged: curItem.param3 = value
+            }
+        }
+        Row {
+            width: parent.width
+            spacing: 15
+            Text{
+                width: parent.width/3
+                text: qsTr("param4")
+            }
+            SpinBox {
+                width: parent.width*2/3-10
+                decimals: 7
+                maximumValue: 1e7
+                minimumValue: -1e7
+                value: curItem.param4
+                onValueChanged: curItem.param4 = value
+            }
+        }
+        Row {
+            width: parent.width
+            spacing: 15
+            Text{
+                width: parent.width/3
+                text: qsTr("latitude")
+            }
+            SpinBox {
+                width: parent.width*2/3-10
+                decimals: 7
+                maximumValue: 90
+                minimumValue: -90
+                value: curItem.latitude
+                onValueChanged: curItem.latitude = value
+            }
+        }
+        Row {
+            width: parent.width
+            spacing: 15
+            Text{
+                width: parent.width/3
+                text: qsTr("longitude")
+            }
+            SpinBox {
+                width: parent.width*2/3-10
+                decimals: 7
+                maximumValue: 180
+                minimumValue: -180
+                value: curItem.longitude
+                onValueChanged: curItem.longitude = value
+            }
+        }
+        Row {
+            width: parent.width
+            spacing: 15
+            Text{
+                width: parent.width/3
+                text: qsTr("altitude")
+            }
+            SpinBox {
+                width: parent.width*2/3-10
+                decimals: 7
+                maximumValue: 1e7
+                value: curItem.rlAlt
+                onValueChanged: curItem.rlAlt = value
             }
         }
     }

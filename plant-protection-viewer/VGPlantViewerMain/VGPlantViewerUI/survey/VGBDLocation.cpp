@@ -312,7 +312,7 @@ void VGBDLocation::_parsePack(const QByteArray &arr)
 
 void VGBDLocation::_parseNmea(const QString &str)
 {
-    foreach(const QString &strItr, str.split("\r\n", QString::SkipEmptyParts))
+    for (auto &strItr : str.split("\r\n", QString::SkipEmptyParts))
     {
         QStringList strLs = strItr.split(',');
         QString header = strLs.size() > 0 ? strLs.first():QString();

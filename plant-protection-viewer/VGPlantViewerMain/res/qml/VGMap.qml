@@ -361,10 +361,6 @@ Map {
         onMapTypeIDChanged: {
             updateMap()
         }
-        onSigMapCenterChanged: {
-            root.center.latitude = lat;
-            root.center.longitude = lon;
-        }
         onBoundaryMissionChanged: {
             if (mapManager.showMission) {
                 var tL = QtPositioning.coordinate(n + (n - s), w)

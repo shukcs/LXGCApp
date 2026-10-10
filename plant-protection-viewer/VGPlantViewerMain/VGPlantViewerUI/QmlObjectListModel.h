@@ -51,6 +51,8 @@ public:
     bool operator!=(const QmlObjectListModel &oth)const;
     bool hasItem(const MapAbstractItem &item)const;
     QObject *lastObject()const;
+    void removeAll(QObject *obj);
+    const QList<QObject*> &AllQObject()const;
 protected:
 signals:
     void countChanged();

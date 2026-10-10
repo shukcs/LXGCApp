@@ -247,7 +247,7 @@ MapAbstractItem *MapAbstractItem::GetParentItem() const
 
 MapAbstractItem * MapAbstractItem::childAt(int)const
 {
-    return NULL;
+    return nullptr;
 }
 
 void MapAbstractItem::releaseSafe()
@@ -258,6 +258,8 @@ void MapAbstractItem::releaseSafe()
         nm->DeleteItemSafe(this);
 
     SetVisible(false);
+    if (VGMapManager *mgr = qvgApp->mapManager())
+        mgr->RemoveItem(this);
     deleteLater();
 }
 
@@ -305,6 +307,12 @@ void MapAbstractItem::processSaveReslt(const DescribeMap &)
 
 void MapAbstractItem::SetParentModel(QmlObjectListModel *model)
 {
+    if (m_modelParent == model)
+        return;
+    if (m_modelParent)
+        disconnect(SIGNAL(destroyed(QObject*)), m_modelParent);
+    if (model)
+        connect(this, &QObject::destroyed, model, &QmlObjectListModel::removeAll);
     m_modelParent = model;
 }
 

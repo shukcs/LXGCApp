@@ -22,6 +22,7 @@ VGLandBoundary::VGLandBoundary(QObject *info) : SingleTriggerItem<MapAbstractIte
 , m_area(0), m_curBlock(-1), m_bSafeEdited(false)
 {
     m_bShowBelonged = false;
+    connect(qvgApp->mapManager(), &VGMapManager::mapTypeIDChanged, this, [=] {m_boundarys.clear(); });
 }
 
 VGLandBoundary::VGLandBoundary(const VGLandBoundary &oth) : SingleTriggerItem<MapAbstractItem>(oth)
@@ -30,8 +31,7 @@ VGLandBoundary::VGLandBoundary(const VGLandBoundary &oth) : SingleTriggerItem<Ma
 , m_cloudID(oth.m_cloudID)
 {
     SetShowBelonged(oth.IsShowBelonged());
-
-    foreach(VGLandPolygon *itr, oth.m_polygons)
+    for (auto itr : oth.m_polygons)
     {
         VGLandPolygon *item = new VGLandPolygon(*itr);
         item->SetParentItem(this);
@@ -42,7 +42,7 @@ VGLandBoundary::VGLandBoundary(const VGLandBoundary &oth) : SingleTriggerItem<Ma
             m_center = VGPlanningWorker::GetPolygonCenter(*item);
     }
     _calcArea();
-    _calDistance();
+    connect(qvgApp->mapManager(), &VGMapManager::mapTypeIDChanged, this, [=] {m_boundarys.clear(); });
 }
 
 VGLandBoundary::~VGLandBoundary()
@@ -169,7 +169,11 @@ void VGLandBoundary::SetBoundaryId(const QString &str)
 
 void VGLandBoundary::showContent(bool b)
 {
-    foreach(VGLandPolygon *itr, m_polygons)
+    for (VGLandPolygon *itr : m_polygons)
+    {
+        itr->Show(b);
+    }
+    for (auto itr : m_edgeLenths)
     {
         itr->Show(b);
     }
@@ -195,16 +199,17 @@ void VGLandBoundary::addBoudaryPoint(const QGeoCoordinate &coor, VGCoordinate *c
     if (!bdr || !coor.isValid())
         return;
 
-    foreach(VGCoordinate *co, bdr->GetCoordinates())
+    auto co = VGGlobalFunc::toGps(coor);
+    for (auto itr : bdr->GetCoordinates())
     {
-        double tmp = co->DistanceToCoor(coor);
+        double tmp = itr->DistanceToCoor(co);
         if (tmp < 4 || tmp > 2000)
         {
             qvgApp->SetQmlTip(tr("boundary point 4--2000m"), true);//"边界点在4-2000米之间"
             return;
         }
     }
-    bdr->AddCoordinate(coor, VGCoordinate::Boundary, c);
+    bdr->AddCoordinate(co, VGCoordinate::Boundary, c);
 }
 
 void VGLandBoundary::addBlockPoint(const QGeoCoordinate &coor, VGCoordinate *c)
@@ -214,16 +219,17 @@ void VGLandBoundary::addBlockPoint(const QGeoCoordinate &coor, VGCoordinate *c)
 
     if (VGLandPolygon *block = _getCurBlock())
     {
-        foreach(VGCoordinate *co, block->GetCoordinates())
+        auto co = VGGlobalFunc::toGps(coor);
+        for (auto itr : block->GetCoordinates())
         {
-            double tmp = co->DistanceTo(coor);
+            double tmp = itr->DistanceTo(co);
             if (tmp < 2 || tmp > 100)
             {
                 qvgApp->SetQmlTip(tr("Block point 2-100m"), true);//"障碍物在2-100米之间"
                 return;
             }
         }
-        block->AddCoordinate(coor, VGCoordinate::BlockBoundary, c);
+        block->AddCoordinate(co, VGCoordinate::BlockBoundary, c);
         return;
     }
     qvgApp->SetQmlTip(tr("Please add block first"), true);//"请先添加障碍物"
@@ -377,7 +383,7 @@ void VGLandBoundary::releaseSafe()
 
     if (VGLandManager *mgr = qvgApp->landManager())
     {
-        foreach (VGMissionPlan *itr, mgr->GetRoutesOfBoundary(this))
+        for (VGMissionPlan *itr : mgr->GetRoutesOfBoundary(this))
         {
             itr->releaseSafe();
         }
@@ -467,12 +473,13 @@ void VGLandBoundary::SetSelected(bool b)
 
     if (VGLandManager *mgr = GetLandManager())
         mgr->BoundaryChanged(GetBoundarys());
-    _calDistance();
+    if (b && m_edgeLenths.isEmpty())
+        _calDistance();
 }
 
 QGeoCoordinate VGLandBoundary::GetCenter() const
 {
-    return m_center;
+    return VGGlobalFunc::gpsCorrect(m_center);
 }
 
 bool VGLandBoundary::IsSaveLocal() const
@@ -514,7 +521,7 @@ bool VGLandBoundary::_isBoundaryEdited() const
 
 VGLandPolygon *VGLandBoundary::GetBoundaryPolygon()const
 {
-    foreach(VGLandPolygon *itr, m_polygons)
+    for (VGLandPolygon *itr : m_polygons)
     {
         auto id = itr->GetId();
         if (VGLandPolygon::Boundary==id)
@@ -602,7 +609,7 @@ bool VGLandBoundary::save(bool bCloud)
 void VGLandBoundary::_calcArea()
 {
     double area = 0;
-    foreach(VGLandPolygon *plg, m_polygons)
+    for (VGLandPolygon *plg : m_polygons)
     {
         if (plg->GetId() == VGLandPolygon::Boundary)
             area += plg->CalculateArea();
@@ -615,7 +622,7 @@ void VGLandBoundary::_calcArea()
 
 bool VGLandBoundary::_isLastBlockValid()const
 {
-    foreach(VGLandPolygon *itr, m_polygons)
+    for (VGLandPolygon *itr : m_polygons)
     {
         if (itr->GetId() == VGLandPolygon::BlockBoundary && !itr->IsValid())
             return false;
@@ -623,14 +630,14 @@ bool VGLandBoundary::_isLastBlockValid()const
     return true;
 }
 
-const QList<double> & VGLandBoundary::GetBoundarys()
+const QList<double> &VGLandBoundary::GetBoundarys()
 {
     if (m_boundarys.count() == 4 || !GetBoundaryPolygon())
         return m_boundarys;
 
-    for(const QVariant &itr : GetBoundaryPolygon()->GetPath())
+    for (auto itr : GetBoundaryPolygon()->GetCoordinates())
     {
-        QGeoCoordinate coor = itr.value<QGeoCoordinate>();
+        QGeoCoordinate coor = itr->GetCoordinate();///地图边界使用地图位置
         if (coor.isValid())
             VGMapManager::CalcBoundaryByCoor(m_boundarys, coor);
     }
@@ -660,6 +667,8 @@ void VGLandBoundary::_calDistance()
     VGLandPolygon *bdr = GetBoundaryPolygon();
     if(bdr)
     {
+        qDeleteAll(m_edgeLenths);
+        m_edgeLenths.clear();
         QList <VGCoordinate *>coors = bdr->GetCoordinates();
         int begin = 0;
         int end = 0;
@@ -667,18 +676,20 @@ void VGLandBoundary::_calDistance()
         {
             begin = i-1;
             end = i;
-            double dis = coors[begin]->DistanceToCoor(coors[end]->GetCoordinate());
-            QGeoCoordinate  cc = VGCoordinate::getMid(coors[begin]->GetCoordinate(), coors[end]->GetCoordinate());
-            VGLandDis* landDis = new VGLandDis(cc,dis, this);
+            double dis = coors[begin]->DistanceTo(*coors.at(end));
+            QGeoCoordinate  cc = VGCoordinate::getMid(coors[begin]->GetGpsCoordinate(), coors[end]->GetGpsCoordinate());
+            VGLandDis* landDis = new VGLandDis(cc, dis, this);
             qvgApp->mapManager()->InsertItem(landDis);
+            m_edgeLenths << landDis;
             if(i == coors.count() -1 && coors.count() > 2)
             {
                 begin = i;
                 end = 0;
-                double dis = coors[begin]->DistanceToCoor(coors[end]->GetCoordinate());
-                QGeoCoordinate  cc = VGCoordinate::getMid(coors[begin]->GetCoordinate(), coors[end]->GetCoordinate());
-                VGLandDis* landDis = new VGLandDis(cc,dis, this);
+                double dis = coors[begin]->DistanceTo(*coors[end]);
+                QGeoCoordinate  cc = VGCoordinate::getMid(coors[begin]->GetGpsCoordinate(), coors[end]->GetGpsCoordinate());
+                VGLandDis* landDis = new VGLandDis(cc, dis, this);
                 qvgApp->mapManager()->InsertItem(landDis);
+                m_edgeLenths << landDis;
             }
         }
     }

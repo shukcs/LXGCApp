@@ -18,7 +18,7 @@ ComboBox {
         Timer{
             id: tmRotate
             property int indRotate: 0
-            interval:           5
+            interval:           3
             repeat:             true
             onTriggered: {
                 indRotate += root.popup.visible ? 9 : -9

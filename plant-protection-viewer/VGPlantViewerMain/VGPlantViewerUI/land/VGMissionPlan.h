@@ -79,7 +79,7 @@ public:
     double  GetBlockSafeDis()const;
     double  GetOutlineSafe()const;
     void    releaseSafe();
-    void    SetSelected(bool b);
+    void    SetSelected(bool b)override;
     VGLandPolyline *allMissionRoute()const;
     QString GetBoundaryID()const;
     QString GetActId()const;

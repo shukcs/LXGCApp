@@ -558,7 +558,7 @@ void VGMissionPlan::_genarateDefualtHome(VGLandBoundary *bdr)
     QList<VGCoordinate *>coors = ol->GetCoordinates();
     QList<VGCoordinate *>::iterator itr = coors.begin();
     if (itr != coors.end())
-        m_homePoint->SetCoordinate((*itr)->GetCoordinate());
+        m_homePoint->SetCoordinate((*itr)->GetGpsCoordinate());
 
     if (m_bUploaded)
         return;
@@ -583,7 +583,7 @@ void VGMissionPlan::_adjustSupportAttitude(double alt)
     if (!m_route)
         return;
 
-    foreach(VGCoordinate * itr, m_route->GetCoordinates())
+    for (auto itr : m_route->GetCoordinates())
     {
         if (itr->GetId() == VGCoordinate::RouteBegin || itr->GetId() == VGCoordinate::RouteBack)
             itr->SetAltitude(alt);
@@ -710,7 +710,7 @@ void VGMissionPlan::showPlanningResult(const VGRoute &result, VGMissionPlan *rt)
     m_transVoyage = result.TransVoyage() / 1000;
     m_operateVoyage = result.GetOperateVoyage() / 1000;
 
-    QGeoCoordinate homeCoor = m_homePoint->GetCoordinate();
+    QGeoCoordinate homeCoor = m_homePoint->GetGpsCoordinate();
     m_ridgeOper = 0;
     if (!m_route)
     {

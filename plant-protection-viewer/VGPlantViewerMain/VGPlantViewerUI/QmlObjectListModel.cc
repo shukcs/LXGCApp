@@ -23,7 +23,7 @@ QmlObjectListModel::~QmlObjectListModel()
     for (QObject *obj : m_lsObject)
     {
 		if (MapAbstractItem *item = dynamic_cast<MapAbstractItem *>(obj))
-			item->SetParentModel(NULL);
+			item->SetParentModel(nullptr);
     }
 }
 
@@ -155,7 +155,7 @@ void QmlObjectListModel::removeItmes(const QObjectList &objects)
                 nBeg = i;
 
             if (MapAbstractItem *item = qobject_cast<MapAbstractItem*>(*itr))
-                item->SetParentModel(NULL);
+                item->SetParentModel(nullptr);
 
             ++count;
         }
@@ -277,6 +277,16 @@ bool QmlObjectListModel::hasItem(const MapAbstractItem &item) const
 QObject *QmlObjectListModel::lastObject() const
 {
     return m_lsObject.count() > 0 ? m_lsObject.last():NULL;
+}
+
+void QmlObjectListModel::removeAll(QObject *obj)
+{
+    m_lsObject.removeAll(obj);
+}
+
+const QList<QObject*> & QmlObjectListModel::AllQObject() const
+{
+    return m_lsObject;
 }
 
 bool QmlObjectListModel::operator!=(const QmlObjectListModel &oth) const
