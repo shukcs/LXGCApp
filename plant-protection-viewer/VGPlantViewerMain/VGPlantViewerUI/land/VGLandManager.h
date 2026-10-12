@@ -57,6 +57,7 @@ public:
     const QList<VGLandBoundary*> &Boundaries()const;
     const QList<VGMissionPlan*> &FlyRoutes()const;
     const QList<VGWayPointPlan*> &WayPointPlans()const;
+    bool Contains(const MapAbstractItem *item)const;
 public:
     static void CloseGPS();
     static VGGetGpsLocation *GetGps();

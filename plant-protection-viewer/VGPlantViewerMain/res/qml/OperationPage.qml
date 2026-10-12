@@ -61,8 +61,9 @@ Page {
         WPPlanInfoEdit {
             onClickedOK:  {
                 enterMission(false)
-                planEdit = rt
-                planCtrl.initial()
+                planEdit = rt       
+                wpPlanCtrl.wplan = rt
+                wpPlanCtrl.initial()
             }
         }
     }
@@ -95,7 +96,8 @@ Page {
                 if (id === 0) {
                     if (accept && planEdit) {
                         planEdit.selected = false
-                        planEdit.releaseSafe()
+                        if (planEdit.itemType!==MapAbstractItem.Type_WayPointPlan || planEdit.newPlan)
+                            planEdit.releaseSafe()
                         planEdit = null
                     }
                     if (accept)
@@ -211,8 +213,7 @@ Page {
             }
         }
         signal shrinkEdgeSelected()
-        //飞机Home点
-        MapItemView {
+        MapItemView {//飞机Home点
             model:    mapManager.getSpecItems(MapAbstractItem.Type_Home)
             delegate: MapQuickItem{
                 anchorPoint {x: homeImg.width/2; y: homeImg.height}
@@ -228,8 +229,7 @@ Page {
                 }
             }
         }
-        //飞机中断点
-        MapItemView {
+        MapItemView {//飞机中断点
             model:    mapManager.getSpecItems(MapAbstractItem.Type_ContinueFly)
             delegate: MapQuickItem{
                 anchorPoint {x: imgCtn.width/2; y: imgCtn.height}
@@ -244,9 +244,8 @@ Page {
                     bMosEnable: false
                 }
             }
-        }
-        //AB点中断点
-        MapItemView {
+        }  
+        MapItemView {//AB点中断点
             model:    mapManager.getSpecItems(MapAbstractItem.Type_ABContinueFly)
             delegate: MapQuickItem{
                 anchorPoint {x: imgABCtn.width/2; y: imgABCtn.height}
@@ -262,8 +261,7 @@ Page {
                 }
             }
         }
-        //飞机AB点A点
-        MapItemView {
+        MapItemView {//飞机AB点A点
             model:    mapManager.getSpecItems(MapAbstractItem.Type_APoint)
             delegate: MapQuickItem{
                 anchorPoint {x: imgAtn.width/2; y: imgAtn.height}
@@ -279,8 +277,7 @@ Page {
                 }
             }
         }
-        //飞机AB点B点
-        MapItemView {
+        MapItemView {//飞机AB点B点
             model:    mapManager.getSpecItems(MapAbstractItem.Type_BPoint)
             delegate: MapQuickItem{
                 anchorPoint {x: imgBtn.width/2; y: imgBtn.height}
@@ -296,8 +293,7 @@ Page {
                 }
             }
         }
-        //实时障碍物显示
-        MapItemView {
+        MapItemView {//实时障碍物显示
             model:      mapManager.getSpecItems(MapAbstractItem.Type_Block)
             delegate: MapQuickItem {
                 anchorPoint {x: blockRec.width/2; y: blockRec.height/2}
@@ -324,9 +320,8 @@ Page {
                     }
                 }
             }
-        }
-        //单边缩放可选边
-        MapItemView {
+        }     
+        MapItemView {//单边缩放可选边
             id:         selectableEdge
             model:      mapManager.getSpecItems(MapAbstractItem.Type_SelectEdge)
             delegate: MapPolyline {
@@ -336,9 +331,8 @@ Page {
                 smooth:         true
                 z:              103
             }
-        }
-        //单边缩放点击位置
-        MapItemView {
+        }     
+        MapItemView {//单边缩放点击位置
             model:    mapManager.getSpecItems(MapAbstractItem.Type_PointSelect)
             delegate: MapQuickItem {
                 anchorPoint {x: selectablePoint.width/2; y: selectablePoint.height/2}
@@ -371,8 +365,7 @@ Page {
                 }
             }
         }
-        //辅助点
-        MapItemView {
+        MapItemView {//辅助点
             model:      mapManager.getSpecItems(MapAbstractItem.Type_SupportPoint)
             delegate:   MapQuickItem {
                 anchorPoint.x: supportPoint.width/2
@@ -391,8 +384,7 @@ Page {
                 }
             }
         }
-        //任务起终点
-        MapItemView {
+        MapItemView {//任务起终点
             model:    mapManager.getSpecItems(MapAbstractItem.Type_RouteTip)
             delegate: MapQuickItem{
                 anchorPoint.x:   tipPointImg.width/2
@@ -409,7 +401,7 @@ Page {
                 }
             }
         }      
-        MapItemView { //虚线
+        MapItemView {//虚线
             model:    mapManager.getSpecItems(MapAbstractItem.Type_DashLine)
             delegate: VGPolylineMapItem {
                 visible:        object.visible && mapManager.showMission
@@ -446,7 +438,7 @@ Page {
                     MouseArea {
                         id: idWayPointMous
                         anchors.fill: parent
-                        enabled: mapManager.wpEdit
+                        enabled: mapManager.wpEdit && mapManager.centVis
                         onClicked:  object.selected = true
                         onDoubleClicked: object.releaseSafe()
                         preventStealing:    true
@@ -543,7 +535,8 @@ Page {
                         }
                         else if (rt.itemType === MapAbstractItem.Type_WayPointPlan) {
                             planEdit = rt
-                            planCtrl.initial()
+                            wpPlanCtrl.wplan = rt
+                            wpPlanCtrl.initial()
                         }
                     }
                     onSelectRoute: routeSelected = rt
@@ -591,7 +584,6 @@ Page {
                 WPPlanEdit {
                     id:             wpPlanCtrl
                     anchors.fill:   parent
-                    wplan:          visible ? planEdit : null
                     visible:        planEdit && planEdit.itemType===MapAbstractItem.Type_WayPointPlan
                     onExitPlan:  {
                         if (planEdit) {

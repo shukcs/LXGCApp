@@ -44,6 +44,7 @@ void VGWayPointPlan::endEdit()
     m_time = QDateTime::currentMSecsSinceEpoch();
     emit timeChanged();
     emit wayPointFinished();
+    emit newPlanChanged();
 }
 
 VGMissionItem *VGWayPointPlan::addWayPoint(const QGeoCoordinate &c, int idx /*= -1*/)
@@ -102,6 +103,11 @@ void VGWayPointPlan::SetAddType(const QString &str)
         m_addType = str;
         emit addTypeChanged();
     }
+}
+
+bool VGWayPointPlan::IsNewPlan() const
+{
+    return !qvgApp->landManager()->Contains(this);
 }
 
 QString VGWayPointPlan::GetName() const

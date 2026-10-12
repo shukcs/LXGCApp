@@ -1228,6 +1228,7 @@ void VGPlantInformation::SetVihevleMisson(const QList<MissionItem*> &items)
         wpp->endEdit();
         landMgr->AddChild(wpp);
         m_uploadVm = wpp->GetMission();
+        connect(m_uploadVm, &QObject::destroyed, this, &VGPlantInformation::onContentDestroied);
     }
 }
 

@@ -847,6 +847,8 @@ void VGVehicleMission::onItemDestoyed(QObject *obj)
             emit pathChanged(m_path);
             if (m_path.count() < 1)
                 SetExecutable(false);
+
+            m_boundarys.clear();
         }
     }
 }
@@ -923,7 +925,7 @@ void VGVehicleMission::_genMissionItem(const QList<VGCoordinate*> &coors)
         ls << new VGMissionItem(item, this, coor->GetId());
     }
 
-    c = coors.last()->GetCoordinate();
+    c = coors.last()->GetGpsCoordinate();
     if (c.isValid())
     {
         MissionItem* item = new MissionItem(seqNum++,

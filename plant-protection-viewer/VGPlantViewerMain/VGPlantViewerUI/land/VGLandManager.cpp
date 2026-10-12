@@ -176,6 +176,25 @@ const QList<VGWayPointPlan*> & VGLandManager::WayPointPlans() const
     return m_wpPlans;
 }
 
+bool VGLandManager::Contains(const MapAbstractItem *item) const
+{
+    auto ttp = item ? item->ItemType() : MapAbstractItem::Type_Unknow;
+    switch (ttp)
+    {
+    case MapAbstractItem::Type_LandInfo:
+        return m_lstLand.contains(const_cast<VGLandInformation*>((const VGLandInformation*)item));
+    case MapAbstractItem::Type_LandBoundary:
+        return m_lstBoundary.contains(const_cast<VGLandBoundary*>((const VGLandBoundary*)item));
+    case MapAbstractItem::Type_MissionInfo:
+        return m_lstRoute.contains(const_cast<VGMissionPlan*>((const VGMissionPlan*)item));
+    case MapAbstractItem::Type_WayPointPlan:
+        return m_wpPlans.contains(const_cast<VGWayPointPlan*>((const VGWayPointPlan*)item));
+    default:
+        break;
+    }
+    return false;
+}
+
 bool VGLandManager::IsCurCoordValid() const
 {
     return QDateTime::currentMSecsSinceEpoch() - m_tmLastGps < GPS_ValideTm;
@@ -587,7 +606,7 @@ void VGLandManager::onSelectedChanged(bool b)
         else if (item->ItemType() == MapAbstractItem::Type_MissionInfo)
             m_routeCur = (VGMissionPlan*)item;
         else if (item->ItemType() == MapAbstractItem::Type_WayPointPlan)
-            m_wayPointPlan = (VGWayPointPlan*)item;
+            SetCurWPPlan((VGWayPointPlan*)item);
     }
 }
 
