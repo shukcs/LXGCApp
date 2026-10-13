@@ -1091,7 +1091,7 @@ void VGPlantInformation::ClearQxAccount(bool bSend)
 void VGPlantInformation::ProcessSuspend(int ridge, const QString &plan, const QGeoCoordinate &c)
 {
     if (m_prepareVm && m_prepareVm->GetFlyRouteID() == plan)
-        m_prepareVm->SetSuspend(ridge, VGGlobalFunc::gpsCorrect(c));
+        m_prepareVm->SetSuspend(ridge, c);
 }
 
 void VGPlantInformation::GetQXSdkAccount()

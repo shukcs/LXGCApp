@@ -524,10 +524,8 @@ void MissionManager::handleMessage(const mavlink_message_t& message)
         _handleMissionItem(message);
         break;
     case MAVLINK_MSG_ID_MISSION_REQUEST:
-        _handleMissionRequest(message, false /* missionItemInt */);
-        break;
     case MAVLINK_MSG_ID_MISSION_REQUEST_INT:
-        _handleMissionRequest(message, true /* missionItemInt */);
+        _handleMissionRequest(message, true);
         break;
 
     case MAVLINK_MSG_ID_MISSION_ACK:

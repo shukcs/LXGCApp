@@ -297,7 +297,7 @@ Rectangle {
             onAccept:   root.btnMissionClicked()
         }
         Row{
-            anchors{ bottom: parent.bottom; bottomMargin: 8; horizontalCenter: parent.horizontalCenter}
+            anchors{ bottom: parent.bottom; bottomMargin: 8; right: parent.right; rightMargin: 15}
             visible: !plantManager.oneKeyArm
             spacing: 15
             VGTextButton {

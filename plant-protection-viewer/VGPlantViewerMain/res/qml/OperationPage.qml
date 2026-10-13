@@ -63,7 +63,7 @@ Page {
                 enterMission(false)
                 planEdit = rt       
                 wpPlanCtrl.wplan = rt
-                wpPlanCtrl.initial()
+                wpPlanCtrl.initial(false)
             }
         }
     }
@@ -72,6 +72,7 @@ Page {
         LandRouteOption {
             contendWidth:   root.width/2
             onOpration:  {
+                routeSelected = flyRoute
                 enterMission(true)
             }
         }
@@ -96,7 +97,7 @@ Page {
                 if (id === 0) {
                     if (accept && planEdit) {
                         planEdit.selected = false
-                        if (planEdit.itemType!==MapAbstractItem.Type_WayPointPlan || planEdit.newPlan)
+                        if (planEdit.itemType!==MapAbstractItem.Type_WayPointPlan)
                             planEdit.releaseSafe()
                         planEdit = null
                     }
@@ -536,7 +537,7 @@ Page {
                         else if (rt.itemType === MapAbstractItem.Type_WayPointPlan) {
                             planEdit = rt
                             wpPlanCtrl.wplan = rt
-                            wpPlanCtrl.initial()
+                            wpPlanCtrl.initial(true)
                         }
                     }
                     onSelectRoute: routeSelected = rt
@@ -586,11 +587,14 @@ Page {
                     anchors.fill:   parent
                     visible:        planEdit && planEdit.itemType===MapAbstractItem.Type_WayPointPlan
                     onExitPlan:  {
-                        if (planEdit) {
+                        if (planEdit && planEdit.newPlan) {
                             var page = vgTipCom.createObject(root)
                             page.strTip = qsTr("Do you drop current plan？")//"确认取消创建任务？"
                             page.idTip = 0
                             vgMainPage.curQmlPage = page
+                        }
+                        else {
+                            planEdit = null
                         }
                     }
                     onEditRouteInfo:    {

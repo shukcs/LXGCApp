@@ -19,6 +19,7 @@ VGWayPointPlan::VGWayPointPlan(QObject *p, const QString &n) : SingleTriggerItem
 {
     connect(m_route->GetWayPoints(), &QmlObjectListModel::countChanged, this, &VGWayPointPlan::wpCountChanged);
     SetAddType(VGLandManager::getDiscsItem().key(MAV_CMD_NAV_WAYPOINT));
+    connect(m_route, &QObject::destroyed, this, [=] { m_route = nullptr;  deleteLater(); });
 }
 
 VGWayPointPlan::~VGWayPointPlan()

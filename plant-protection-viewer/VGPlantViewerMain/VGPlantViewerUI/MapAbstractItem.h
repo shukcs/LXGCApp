@@ -110,7 +110,7 @@ public:
     virtual QColor GetItemColor()const;
 
     void SetVisible(bool b);
-    bool GetVisible()const;
+    virtual bool GetVisible()const;
 
     int GetId()const;
     void SetId(int id);

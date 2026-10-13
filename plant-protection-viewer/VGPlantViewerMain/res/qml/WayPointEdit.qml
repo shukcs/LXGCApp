@@ -10,21 +10,23 @@ Rectangle{
     clip:           true
     color:          "#F6F6F6"
     property var curItem: null
+    property var curMission: null
     onVisibleChanged:   mapManager.centVis = visible
     Flickable{
         id:                 flick
-        anchors {top: parent.top; topMargin: 5; left: parent.left; leftMargin: 10; bottom: parent.bottom}
-        width:              30
+        anchors {top: rowPoints.bottom; topMargin: 12; left: rowPoints.left; bottom: parent.bottom; bottomMargin: 12}
+        width:              70
         clip:               true
         flickableDirection: Flickable.VerticalFlick
         contentHeight:      colContent.height
-        contentWidth:       30
-        Column {
+        contentWidth:       70
+        Grid {
             id:         colContent
             anchors.horizontalCenter: parent.horizontalCenter
+            columns: 2
             spacing:    10
             Repeater {
-                model: landManager.curWPPlan.mission.waypoints
+                model: curMission.waypoints
                 Rectangle {
                     width: 30
                     height: width
@@ -55,7 +57,7 @@ Rectangle{
     }
     Row {
         id: rowPoints
-        anchors {left: flick.right; leftMargin: 15; top: flick.top;}
+        anchors {left: parent.left; leftMargin: 15; top: parent.top; topMargin: 5}
         spacing: 10
         VGComboBox {
             id: cmdWPType
@@ -103,11 +105,11 @@ Rectangle{
     }
     Column {
         visible: curItem
-        anchors {left: rowPoints.left; top: rowPoints.bottom; topMargin: 12; right: parent.right; rightMargin: 15}
+        anchors {left: flick.right; leftMargin: 15; top: flick.top; right: parent.right; rightMargin: 15}
         spacing: 8
         Row {
             width: parent.width
-            spacing: 15
+            spacing: 10
             Text{
                 width: parent.width/3
                 text: qsTr("Command")
@@ -227,6 +229,24 @@ Rectangle{
                 value: curItem.rlAlt
                 onValueChanged: curItem.rlAlt = value
             }
+        }
+    }
+    Row{
+        anchors{ bottom: flick.bottom; right: parent.right; rightMargin: 15}
+        visible: !plantManager.oneKeyArm
+        spacing: 15
+        VGTextButton {
+            enabled: curPlant && curPlant.status===VGPlantInformation.Connected
+            strText:qsTr("Send route")//发送航线
+            onBtnClicked: {
+                if (curMission!==null)
+                    curMission.sync2Vehicle()
+            }
+        }
+        VGTextButton {
+            enabled: curPlant && curPlant.missionValible
+            strText:qsTr("Operation start")//启动作业
+            onBtnClicked: root.btnMissionClicked()
         }
     }
 }

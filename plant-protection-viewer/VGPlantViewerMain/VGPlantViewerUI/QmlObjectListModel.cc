@@ -112,9 +112,13 @@ void QmlObjectListModel::clear(bool bDelObj)
     beginRemoveRows(QModelIndex(), 0, m_lsObject.count()-1);
     while (!m_lsObject.isEmpty())
     {
-        QObject *removedObject = m_lsObject.takeFirst();
+        QObject *obj = m_lsObject.takeFirst();
         if (bDelObj)
-            removedObject->deleteLater();
+        {
+            if (auto it = qobject_cast<MapAbstractItem*>(obj))
+                it->SetParentModel(nullptr);
+            obj->deleteLater();
+        }
     }
     endRemoveRows();
     emit countChanged();

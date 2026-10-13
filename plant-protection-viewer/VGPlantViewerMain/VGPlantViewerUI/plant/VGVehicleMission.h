@@ -68,6 +68,7 @@ public:
     bool operator==(const MapAbstractItem &item)const;
     MissionItem *GetMissionItem()const;
     bool IsValid()const;
+    bool GetVisible()const override;
 private:
 signals :
     void commandChanged();
@@ -154,7 +155,7 @@ public:
 public:
     static VGVehicleMission *fromInfo(const QString &info);
 protected:
-    Q_INVOKABLE bool canSync2Vehicle()const;
+    bool canSync2Vehicle()const;
     Q_INVOKABLE void sync2Vehicle();
 
     void SetBegin(int beg);

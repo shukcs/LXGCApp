@@ -32,7 +32,6 @@ Rectangle{
             text: qsTr("Survey mission")//qsTr("规划任务")
             ftText: vgMainPage.font()
             exclusiveGroup: groupTp
-            checked: true
             onCheckedChanged: {
                 colBoundary.visible = checked
                 landManager.curWPPlan = null
@@ -42,6 +41,7 @@ Rectangle{
             text: qsTr("WayPoint mission")//qsTr("航点任务")
             ftText: vgMainPage.font()
             exclusiveGroup: groupTp
+            checked: true
             onCheckedChanged: {
                 colRouteM.visible = checked
                 landManager.curFlyRoute = null
@@ -65,7 +65,7 @@ Rectangle{
    }
     Flickable {
         id:                     routeCol
-        clip:                   true
+        clip:                   false
         anchors {top: btnCreate.bottom; topMargin: 2; left: parent.left; right: parent.right; bottom: parent.bottom}
         contentHeight:          colBoundary.height
         contentWidth:           width
@@ -136,7 +136,6 @@ Rectangle{
                         iconName:	"detail"
                         onImgClicked: {
                             object.selected = true
-                            emit:selectRoute(object)
                             emit:detailRout(object)
                         }
                     }
@@ -145,7 +144,7 @@ Rectangle{
         }
         Column{
             id: colRouteM
-            visible:                    false
+            visible:                    true
             spacing:                    4
             Rectangle{
                 color:      "transparent"

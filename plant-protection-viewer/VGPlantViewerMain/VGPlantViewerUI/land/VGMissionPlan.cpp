@@ -96,7 +96,7 @@ VGLandInformation *VGMissionPlan::GetBelongedLand() const
     if (VGLandBoundary *bd = GetBelongedBoundary())
         return bd->GetBelongedLand();
 
-    return NULL;
+    return nullptr;
 }
 
 MapAbstractItem::MapItemType VGMissionPlan::ItemType() const
@@ -107,7 +107,7 @@ MapAbstractItem::MapItemType VGMissionPlan::ItemType() const
 void VGMissionPlan::onChildDestroied(QObject *obj)
 {
     if (obj == m_olMission)
-        m_olMission = NULL;
+        m_olMission = nullptr;
 }
 
 void VGMissionPlan::onSingleShrinkChanged(bool b)
@@ -115,7 +115,7 @@ void VGMissionPlan::onSingleShrinkChanged(bool b)
     if (b && m_lsSelectEdge.size() < 1)
     {
         VGLandBoundary *bdrCur = GetBelongedBoundary();
-        VGLandPolygon *plg = bdrCur ? bdrCur->GetBoundaryPolygon() : NULL;
+        VGLandPolygon *plg = bdrCur ? bdrCur->GetBoundaryPolygon() : nullptr;
         if (plg)
         {
             QList<VGCoordinate *> ls = plg->GetCoordinates();
@@ -444,7 +444,7 @@ bool VGMissionPlan::canPlanRoute()const
 VGVehicleMission *VGMissionPlan::beginOperation()
 {
     if (!IsValide())
-        return NULL;
+        return nullptr;
 
     if (!m_olMission)
     {

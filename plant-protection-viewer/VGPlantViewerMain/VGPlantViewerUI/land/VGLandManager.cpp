@@ -563,17 +563,14 @@ void VGLandManager::onChildDestroyed()
         m_landSurvey = nullptr;
     if (m_landCur == obj)
         m_landCur = nullptr;
-
     if (m_boundaryEdit == obj)
         m_boundaryEdit = nullptr;
-
     if (m_routeCur == obj)
-        SetCurFlyRoute(nullptr);
+        m_routeCur = nullptr;
     if (m_flyRoutePlan == obj)
         m_flyRoutePlan = nullptr;
-
     if (m_wayPointPlan == obj)
-        SetCurWPPlan(nullptr);
+        m_wayPointPlan = nullptr;
 
 	m_lstLand.removeAll((VGLandInformation*)obj);
     m_lstBoundary.removeAll((VGLandBoundary*)obj);

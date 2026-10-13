@@ -15,13 +15,14 @@ Rectangle{
     signal exitPlan()
     color: "#F6F6F6"
 
-    function initial() {
+    function initial(bEdit) {
+        idWpEd.curMission = wplan.mission
+        bEditValue = bEdit
     }
     Rectangle{
         id: rectHeader
         anchors     {left: parent.left; right: parent.right; top: parent.top}
         height:     tabFunc.height+seperator.height
-        visible:    !bEditValue
         color:      "transparent"
         VGImage {
             id: backImg
@@ -77,7 +78,6 @@ Rectangle{
         flickableDirection: Flickable.HorizontalFlick
         contentHeight:      height
         contentWidth:       rowContent.width
-        visible:            !bEditValue
         contentX:           tabFunc.currentIndex*parent.width
         Row {
             id:     rowContent
@@ -86,6 +86,7 @@ Rectangle{
                 height:             parent.height
                 width:              flickable.width
                 color:              "transparent"
+                enabled:            !bEditValue
                 VGValueItem{
                     id:             valPesticide
                     strKey:         qsTr("Name")//qsTr("名称")
