@@ -302,7 +302,7 @@ void VGLandInformation::_addOneBoundaryPoint(const QGeoCoordinate &coor, int nSa
     if (!coor.isValid())
         return;
 
-    foreach(VGCoordinate *co, m_coorsSurvey)
+    for (VGCoordinate *co : m_coorsSurvey)
     {
         if (co->DistanceTo(coor) < 1)
             return;

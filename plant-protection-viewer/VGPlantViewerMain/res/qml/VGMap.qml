@@ -106,8 +106,8 @@ Map {
         id: markerCenter
         anchorPoint.x:   markPointImg.width/2
         anchorPoint.y:   markPointImg.height/2
-        coordinate :     landManager.curCoordinate
-        visible:         landManager.curCoordinate.isValid
+        coordinate :     landManager.curGPS
+        visible:         landManager.curGPS.isValid
         z:               120
         sourceItem: VGImage {
             id:			markPointImg
@@ -271,7 +271,7 @@ Map {
                 enabled:    landManager.curCoordValid
                 colNormal:  "transparent"
                 iconName:	"position"
-                onBtnClicked: { root.center = landManager.curCoordinate }
+                onBtnClicked: { root.center = landManager.curGPS }
             }
             Repeater {
                 model:btnModel

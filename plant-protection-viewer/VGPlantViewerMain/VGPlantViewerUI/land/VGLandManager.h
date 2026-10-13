@@ -16,7 +16,7 @@ class VGLandManager : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QGeoCoordinate curCoordinate READ GetCurCoordinate NOTIFY curCoordinateChanged)
+    Q_PROPERTY(QGeoCoordinate curGPS READ GetCurCoordinate NOTIFY curCoordinateChanged)
     Q_PROPERTY(bool curCoordValid READ IsCurCoordValid NOTIFY curCoordValidChanged)
     Q_PROPERTY(bool isGPSOpened READ isGPSOpened CONSTANT)
     Q_PROPERTY(int landCount READ landCount CONSTANT)

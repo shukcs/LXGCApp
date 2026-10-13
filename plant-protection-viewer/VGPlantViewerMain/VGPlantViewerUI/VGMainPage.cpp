@@ -14,6 +14,25 @@
 #define TipShowTime 3000
 #define DeskTopBGCol "#182750"
 
+class VGQmlViewItem : public QObject
+{
+public:
+    VGQmlViewItem(QObject *item, VGQmlViewItem *parent = NULL);
+    ~VGQmlViewItem();
+    void AddChild(QObject *qmlObj);
+    QObject *QmlObject()const;
+    VGQmlViewItem *FindQmlObjectItem(const QObject *item);
+    QString GetName()const;
+    VGQmlViewItem *GetParent()const;
+    void RemoveItem(QObject *qmlObj);
+private:
+    VGQmlViewItem *findQmlObjectItem(const QObject *item)const;
+    void onQmldestroyed();
+private:
+    QObject                 *m_qmlObject;
+    QList<VGQmlViewItem*>   m_children;
+};
+
 VGQmlViewItem::VGQmlViewItem(QObject *item, VGQmlViewItem *parent) : QObject(parent), m_qmlObject(item)
 {
     if (item)
@@ -71,7 +90,7 @@ QString VGQmlViewItem::GetName()const
 
 VGQmlViewItem *VGQmlViewItem::GetParent() const
 {
-    return qobject_cast<VGQmlViewItem*>(parent());
+    return dynamic_cast<VGQmlViewItem*>(parent());
 }
 
 void VGQmlViewItem::RemoveItem(QObject *qmlObj)

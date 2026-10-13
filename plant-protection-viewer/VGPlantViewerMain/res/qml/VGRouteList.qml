@@ -29,6 +29,7 @@ Rectangle{
         anchors {verticalCenter: btnCreate.verticalCenter; left: txtInf.right; leftMargin: 10}
         spacing: 6
         VGRadioButton {
+            id: rbRP
             text: qsTr("Survey mission")//qsTr("规划任务")
             ftText: vgMainPage.font()
             exclusiveGroup: groupTp
@@ -53,7 +54,7 @@ Rectangle{
         id:                     btnCreate
         anchors{right:imgFold.left; rightMargin: 10; top: parent.top; topMargin: 6}
         strText:                qsTr("Create mission")//创建任务
-        onBtnClicked:           {emit:createClick(colBoundary.visible ? MapAbstractItem.Type_MissionInfo:MapAbstractItem.Type_WayPointPlan)}
+        onBtnClicked:           {emit:createClick(rbRP.checked ? MapAbstractItem.Type_MissionInfo:MapAbstractItem.Type_WayPointPlan)}
     }
     VGImage{
         id: imgFold

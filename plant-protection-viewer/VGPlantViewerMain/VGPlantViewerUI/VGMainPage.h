@@ -1,32 +1,11 @@
 ﻿#ifndef VGMAINPAGE_H
 #define VGMAINPAGE_H
-
 #include <QObject>
 #include <QList>
 #include <QColor>
 #include <QFont>
 
-class VGQmlViewItem : public QObject
-{
-    Q_OBJECT
-public:
-    VGQmlViewItem(QObject *item, VGQmlViewItem *parent = NULL);
-    ~VGQmlViewItem();
-    void AddChild(QObject *qmlObj);
-    QObject *QmlObject()const;
-    VGQmlViewItem *FindQmlObjectItem(const QObject *item);
-    QString GetName()const;
-    VGQmlViewItem *GetParent()const;
-    void RemoveItem(QObject *qmlObj);
-private:
-    VGQmlViewItem *findQmlObjectItem(const QObject *item)const;
-private slots:
-    void onQmldestroyed();
-private:
-    QObject                 *m_qmlObject;
-    QList<VGQmlViewItem*>   m_children;
-};
-
+class VGQmlViewItem;
 class VGMainPage : public QObject
 {
     Q_OBJECT
@@ -37,8 +16,7 @@ class VGMainPage : public QObject
 	Q_PROPERTY(QString messgeTip READ GetMessgeTip NOTIFY messgeTipChanged)
     Q_PROPERTY(bool tipVisible READ IsTipVisible NOTIFY tipVisibleChanged)
     Q_PROPERTY(bool tipWarn READ IsTipWarn NOTIFY tipWarnChanged)
-    //是否横屏
-    Q_PROPERTY(bool scrHoriz READ GetScreenHoriz WRITE SetScreenHoriz NOTIFY scrHorizChanged)
+    Q_PROPERTY(bool scrHoriz READ GetScreenHoriz WRITE SetScreenHoriz NOTIFY scrHorizChanged)//是否横屏
     Q_PROPERTY(bool titleVisible READ GetTitleVisible WRITE SetTitleVisible NOTIFY titleVisibleChanged)
     Q_PROPERTY(QString headerName READ headerName WRITE setHeaderName NOTIFY headerNameChanged)
     Q_PROPERTY(QObject* curQmlPage READ GetCurQmlPage WRITE SetCurrentQmlPage NOTIFY sigShowPage)

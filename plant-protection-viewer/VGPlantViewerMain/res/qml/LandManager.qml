@@ -100,7 +100,7 @@ Page {
             }
             MapQuickItem {
                 visible:        selectObj && selectObj.selected
-                coordinate :    selectObj ? selectObj.center : landManager.curCoordinate
+                coordinate :    selectObj ? selectObj.center : landManager.curGPS
                 anchorPoint.x:  rctArea.width/2
                 anchorPoint.y:  rctArea.height/2
                 sourceItem: Rectangle {
