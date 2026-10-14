@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //VGLandBoundary
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-VGLandBoundary::VGLandBoundary(QObject *info) : SingleTriggerItem<MapAbstractItem>(qobject_cast<VGLandInformation *>(info))
+VGLandBoundary::VGLandBoundary(QObject *info) : SingleTriggerItem(qobject_cast<VGLandInformation *>(info))
 , m_bSaveLocal(false), m_bUploaded(false), m_time(0)
 , m_area(0), m_curBlock(-1), m_bSafeEdited(false)
 {
@@ -25,7 +25,7 @@ VGLandBoundary::VGLandBoundary(QObject *info) : SingleTriggerItem<MapAbstractIte
     connect(qvgApp->mapManager(), &VGMapManager::mapTypeIDChanged, this, [=] {m_boundarys.clear(); });
 }
 
-VGLandBoundary::VGLandBoundary(const VGLandBoundary &oth) : SingleTriggerItem<MapAbstractItem>(oth)
+VGLandBoundary::VGLandBoundary(const VGLandBoundary &oth) : SingleTriggerItem(oth)
 , m_bSaveLocal(oth.m_bSaveLocal), m_bUploaded(oth.m_bUploaded), m_bSafeEdited(true)
 , m_curBlock(-1), m_area(oth.m_area), m_time(oth.m_time), m_strDescribe(oth.m_strDescribe)
 , m_cloudID(oth.m_cloudID)
@@ -467,7 +467,7 @@ void VGLandBoundary::SetStatDescribe(const QString &str)
 
 void VGLandBoundary::SetSelected(bool b)
 {
-    SingleTriggerItem<MapAbstractItem>::SetSelected(b);
+    SingleTriggerItem::SetSelected(b);
     if (!b)
         return;
 

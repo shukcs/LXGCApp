@@ -130,7 +130,7 @@ Rectangle{
             homeRoot.visible = vgMainPage.isVisible(homeRoot)
             if (homeRoot.visible) {
                 vgMainPage.titleVisible = true
-                vgMainPage.headerName = qsTr("Vigua app")//qsTr("农飞宝")
+                vgMainPage.headerName = qsTr("ground constrol app")//qsTr("农飞宝")
                 mapPage.center = mapManager.mapCenter
                 mapManager.mgrObj = 0
             }

@@ -9,7 +9,7 @@ class VGVehicleMission;
 class VGMissionItem;
 class MissionItem;
 
-class VGWayPointPlan : public SingleTriggerItem<MapAbstractItem>
+class VGWayPointPlan : public SingleTriggerItem
 {
     Q_OBJECT
 

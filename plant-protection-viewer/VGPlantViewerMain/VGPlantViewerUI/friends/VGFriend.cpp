@@ -111,7 +111,7 @@ bool VGGSMessage::IsRecv() const
 //VGFriend
 ///////////////////////////////////////////////////////////////////////////////////
 VGFriend::VGFriend(const QString &name, QObject *parent)
-: SingleTriggerItem<MapAbstractItem>(parent, 1)
+: SingleTriggerItem(parent, 1)
 , m_msgs(new QmlObjectListModel(this))
 , m_bOnline(true), m_strFriend(name)
 {

@@ -7,6 +7,7 @@
 
 class MissionItem;
 class VGMissionPlan;
+class VGWayPointPlan;
 class VGLandBoundary;
 class VGCoordinate;
 class VGLandPolyline;
@@ -111,7 +112,7 @@ class VGVehicleMission : public MapAbstractItem
     Q_PROPERTY(QmlObjectListModel* waypoints READ GetWayPoints CONSTANT)
 public:
     VGVehicleMission(const VGVehicleMission &oth);
-    explicit VGVehicleMission(QObject *parent = NULL, const QList<MissionItem*> &items = QList<MissionItem*>());
+    explicit VGVehicleMission(VGWayPointPlan *wpp);
     explicit VGVehicleMission(VGMissionPlan *fr);
     ~VGVehicleMission();
 
@@ -129,6 +130,7 @@ public:
     bool operator==(const MapAbstractItem &item)const;
     MapItemType ItemType()const;
     VGMissionPlan *GetMissionPlan()const;
+    VGWayPointPlan *GetWayPointPlan()const;
     void SetCurrentExecuteItem(int idx);
     void showSquences(bool b);
     void AtachByPlant();

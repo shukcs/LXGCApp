@@ -62,7 +62,7 @@ private:
     QString         m_strToID;
 };
 
-class VGFriend : public SingleTriggerItem<MapAbstractItem>
+class VGFriend : public SingleTriggerItem
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ GetFriendName CONSTANT)

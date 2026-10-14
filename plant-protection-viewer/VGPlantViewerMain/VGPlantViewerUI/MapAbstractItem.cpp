@@ -278,12 +278,21 @@ void MapAbstractItem::_show(bool b)
                 --idx;
             mgr->InsertItem(this, idx);
         }
-        else
+        else if (m_modelParent)
         {
-            mgr->RemoveItem(this);
-            m_modelParent = NULL;
+            m_modelParent->removeOne(this);
+            m_modelParent = nullptr;
         }
     }
+}
+
+void MapAbstractItem::InsertTo(QmlObjectListModel *model, int idx /*= -1*/)
+{
+    if (m_modelParent)
+        m_modelParent->removeOne(this);
+    m_modelParent = model;
+    if (m_modelParent && !m_modelParent->contains(this))
+        m_modelParent->insert(idx, this);
 }
 
 MapAbstractItem &MapAbstractItem::operator=(const MapAbstractItem &item)
@@ -365,145 +374,26 @@ bool MapAbstractItem::IsSaveLocal() const
 void MapAbstractItem::onSelectedChanged(bool)
 {
 }
-///////////////////////////////////////////////////////////////////////////////
-//MapAbstractItem
-///////////////////////////////////////////////////////////////////////////////
-MapListItem::MapListItem(QObject *parent, int id) : MapAbstractItem(parent, id)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//SingleTriggerItem
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+SingleTriggerItem::SingleTriggerItem(QObject *parent, int id /*= -1*/) : MapAbstractItem(parent, id)
+, m_colorNormal(246, 246, 246), m_colorSelected(205, 230, 255)
 {
 }
 
-MapListItem::MapListItem(const MapListItem &oth) : MapAbstractItem(oth)
+SingleTriggerItem::SingleTriggerItem(const SingleTriggerItem &oth) : MapAbstractItem(oth)
+, m_colorNormal(oth.m_colorNormal), m_colorSelected(oth.m_colorSelected)
 {
 }
 
-MapListItem::~MapListItem()
+void SingleTriggerItem::SetItemColor(const QColor &nor, const QColor sel)
 {
+    m_colorNormal = nor;
+    m_colorSelected = sel;
 }
 
-int MapListItem::CountChildren() const
+QColor SingleTriggerItem::GetItemColor() const
 {
-    return m_children.count();
-}
-
-MapAbstractItem * MapListItem::childAt(int i)const
-{
-    if (i < 0 || i >= m_children.count())
-        return NULL;
-
-    return m_children.at(i);
-}
-
-MapAbstractItem *MapListItem::TakeAt(int idex)
-{
-    if (idex >= m_children.count() || idex < 0)
-        return NULL;
-
-    MapAbstractItem *ret = m_children.takeAt(idex);
-    ret->m_parentItem = NULL;
-    return ret;
-}
-
-void MapListItem::Insert(MapAbstractItem *item, int idex)
-{
-    if (!item)
-        return;
-
-    if (idex > m_children.count() || idex < 0)
-        m_children.append(item);
-    else
-        m_children.insert(idex, item);
-
-    item->SetParentItem(this);
-    connect(item, SIGNAL(destroyed(QObject *)), this, SLOT(onChildDestroyed(QObject *)));
-}
-
-void MapListItem::Remove(int idex)
-{
-    if (idex >= m_children.count() || idex < 0)
-        return;
-    if (MapAbstractItem *item = m_children.takeAt(idex))
-        disconnect(item, SIGNAL(destroyed(QObject *)), this, SLOT(onChildDestroyed(QObject *)));
-}
-
-void MapListItem::Remove(MapAbstractItem *item)
-{
-    if (m_children.contains(item))
-    {
-        m_children.removeAll(item);
-        disconnect(item, SIGNAL(destroyed(QObject *)), this, SLOT(onChildDestroyed(QObject *)));
-    }
-}
-
-int MapListItem::Indexof(MapAbstractItem *item) const
-{
-    return m_children.indexOf(item);
-}
-
-void MapListItem::foldChildren(bool b)
-{
-    if (VGMapManager *mgr = qvgApp->mapManager())
-    {
-        foreach(MapAbstractItem *itr, m_children)
-        {
-            if (b)
-                mgr->InsertItem(itr);
-            else
-                itr->Show(false);
-        }
-    }
-}
-
-MapAbstractItem *MapListItem::findChildItem(const DescribeMap &)const
-{
-    return NULL;
-}
-
-void MapListItem::releaseSafe()
-{
-    foreach(MapAbstractItem *itr, m_children)
-    {
-        itr->releaseSafe();
-    }
-
-    MapAbstractItem::releaseSafe();
-}
-
-bool MapListItem::operator==(const MapAbstractItem &item) const
-{
-    const MapListItem *ls = dynamic_cast<const MapListItem*>(&item);
-    if (!ls)
-        return false;
-    if (!ls || CountChildren() != ls->CountChildren())
-        return false;
-    return CompareItemList(m_children, ls->m_children);
-}
-
-MapAbstractItem *MapListItem::Clone(QObject *parent) const
-{
-    const QMetaObject *mo = metaObject();
-    MapListItem *ret = (MapListItem *)MapItemFactory::CreateItem(mo->className(), parent);
-    if (!ret)
-        return ret;
-
-    for (int i = 0; i < mo->propertyCount(); ++i)
-    {
-        QMetaProperty p = mo->property(i);
-        if (!p.isWritable())
-            continue;
-
-        ret->setProperty(p.name(), p.read(this));
-    }
-
-    foreach(MapAbstractItem *itr, m_children)
-    {
-        ret->m_children.push_back(itr->Clone());
-    }
-
-    return ret;
-}
-
-void MapListItem::onChildDestroyed(QObject *obj)
-{
-    if (obj)
-        Remove((MapAbstractItem*)obj);
+    return GetSelected() ? m_colorSelected : m_colorNormal;
 }

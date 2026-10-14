@@ -93,13 +93,13 @@ void VGVehicleManager::onHeartbeat(LinkInterface *link, int vehicleId, int, int 
 
 VGVehicle* VGVehicleManager::getVehicleById(int vehicleId)
 {
-    foreach(VGVehicle* vehicle, _vehicles)
+    for(VGVehicle* vehicle : _vehicles)
     {
         if (vehicle->sysID() == vehicleId)
             return vehicle;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 VGVehicle *VGVehicleManager::activeVehicle() const
@@ -109,13 +109,13 @@ VGVehicle *VGVehicleManager::activeVehicle() const
 
 VGVehicle *VGVehicleManager::surveyVehicle() const
 {
-    foreach(VGVehicle* vehicle, _vehicles)
+    for (VGVehicle* vehicle : _vehicles)
     {
         if (vehicle->vehicleType() == MAVTYPESURVEY)//测绘
             return vehicle;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void VGVehicleManager::setActiveVehicle(VGVehicle* vehicle)
@@ -155,7 +155,7 @@ void VGVehicleManager::sltSetActiveVehiclePhase2(void)
     if (_activeVehicle->vehicleType() != MAVTYPESURVEY)
     {
         if (VGPlantManager *mgr = qvgApp->plantManager())
-            mgr->ViaDrectPlantCreate(_activeVehicle->flightMode());
+            mgr->ViaDrectPlantCreate(_activeVehicle);
 
         _activeVehicleAvailable = true;
         emit sigActiveVehicleAvailableChanged(true);
@@ -188,11 +188,11 @@ void VGVehicleManager::sltSendVGHeartbeat()
 void VGVehicleManager::onConnectionLostChanged(bool b)
 {
     VGVehicle *v = qobject_cast<VGVehicle *>(sender());
-    if (_activeVehicle == v && v)
+    if (v && v->vehicleType() != MAVTYPESURVEY)
     {
         qvgApp->SetQmlTip(b ? tr("Link timeout,communicate break") : tr("Device linked"), b);//"链接超时，断开通信"
 
-        if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect())
+        if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect(v))
             plant->SetStatus(!b ? VGPlantInformation::Connected : VGPlantInformation::UnConnect);
 
         if (b)
@@ -213,11 +213,10 @@ void VGVehicleManager::onConnectionLostChanged(bool b)
 void VGVehicleManager::onNewMissionItemsAvailable(bool, MAV_MISSION_TYPE tp)
 {
     MissionManager *mm = qobject_cast<MissionManager*>(sender());
-
-    if (!mm || _activeVehicle != mm->vehicle())
+    if (!mm || !mm->vehicle())
         return;
 
-    if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect())
+    if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect(mm->vehicle()))
     {
         plant->SetMissionValible(true, tp);
         if (mm && MAV_MISSION_TYPE_MISSION == tp && mm->hasValidMissionItems())
@@ -231,18 +230,19 @@ void VGVehicleManager::onSysAvalibleChange(bool)
 
 void VGVehicleManager::onModeChanged(const QString &mode)
 {
-    if (_activeVehicle != qobject_cast<VGVehicle*>(sender()))
+    auto v = qobject_cast<VGVehicle*>(sender());
+    if (v)
         return;
 
-    if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect())
+    if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect(v))
         plant->ChangeFlightMode(mode);
 }
 
 void VGVehicleManager::onMavCommandResult(MAV_CMD cmd, bool res)
 {
-    if (_activeVehicle == sender())
+    if (auto v = qobject_cast<VGVehicle*>(sender()))
     {
-        if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect())
+        if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect(v))
             plant->PrcsCommandRes(cmd, res);
     }
 }
@@ -261,28 +261,30 @@ void VGVehicleManager::onMissionPrcs(double par, bool bs)
 
 void VGVehicleManager::onVehicleUavIdChanged(VGVehicle *v, const QString &uavid)
 {
-    if (v == activeVehicle() && !uavid.isEmpty())
+    if (v && !uavid.isEmpty())
     {
-        if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect())
+        if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect(v))
             plant->setPlaneId(uavid);
     }
 }
 
 void VGVehicleManager::onSyschFinish(bool error)
 {
-    if (VGPlantManager *mgr = qvgApp->plantManager())
-    {
-        if (VGPlantInformation *plant = mgr->GetPlantViaDrect())
-            plant->SychFinish(!error);
-    }
+    MissionManager *mm = qobject_cast<MissionManager*>(sender());
+    VGPlantManager *mgr = qvgApp->plantManager();
+    if (!mgr || !mm || !mm->vehicle())
+        return;
+    if (VGPlantInformation *plant = mgr->GetPlantViaDrect(mm->vehicle()))
+        plant->SychFinish(!error);
 }
 
 void VGVehicleManager::onSysStatus(uint8_t st)
 {
-    if (sender() != _activeVehicle)
+    auto v = qobject_cast<VGVehicle*>(sender());
+    if (!v)
         return;
 
-    VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect();
+    VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect(v);
     if (plant)
     {
         plant->SetSysStatus(st);
@@ -293,21 +295,22 @@ void VGVehicleManager::onSysStatus(uint8_t st)
 
 void VGVehicleManager::onRecvSuspend(const QGeoCoordinate &c, int type)
 {
-    if (sender() != _activeVehicle)
+    auto v = qobject_cast<VGVehicle*>(sender());
+    if (!v)
         return;
 
-    if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect())
+    if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect(v))
         plant->SetContinueCoor(c, type);
 }
 
 void VGVehicleManager::OnRecvMavlink(VGVehicle *v, const mavlink_message_t &msg)
 {
-    if (!v || v != _activeVehicle)
+    if (!v)
         return;
 
     if (v->vehicleType() == MAVTYPESURVEY)
         processSurveysMavLink(msg);
-    else if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect())
+    else if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect(v))
         qvgApp->plantManager()->prcsUavMavlink(plant, msg, true);
 }
 
@@ -328,9 +331,6 @@ void VGVehicleManager::onVehicelAltitudeChanged(VGVehicle *vehicle, double altit
     if (!vehicle)
         return;
 
-    if (vehicle != _activeVehicle && vehicle->vehicleType() != MAVTYPESURVEY)
-        return;
-
     if (altitude + 1 == altitude)
         altitude = 0.0;
 
@@ -339,21 +339,20 @@ void VGVehicleManager::onVehicelAltitudeChanged(VGVehicle *vehicle, double altit
         if (VGSurveyMonitor *mnt = qvgApp->surveyMonitor())
             mnt->SetAltitude(altitude);
     }
-    else
+    else if (VGPlantManager *mgr = qvgApp->plantManager())
     {
-        VGPlantManager *mgr = qvgApp->plantManager();
-        if (VGPlantInformation *plant = mgr ? mgr->GetPlantViaDrect() : NULL)
+        if (VGPlantInformation *plant = mgr->GetPlantViaDrect(vehicle))
             plant->SetAltitude(altitude);
     }
 }
 
 void VGVehicleManager::onGndHeightChanged(VGVehicle* vehicle, double height)
 {
-    if (!vehicle || vehicle != _activeVehicle)
+    if (!vehicle)
         return;
 
     VGPlantManager *mgr = qvgApp->plantManager();
-    if (VGPlantInformation *plant = mgr ? mgr->GetPlantViaDrect() : NULL)
+    if (VGPlantInformation *plant = mgr ? mgr->GetPlantViaDrect(vehicle) : NULL)
         plant->SetGndHeight(height);
 }
 
@@ -361,9 +360,6 @@ void VGVehicleManager::onVehicelGpsChanged(double lat, double lon, double alt, i
 {
     VGVehicle *vehicle = qobject_cast<VGVehicle*>(sender());
     if (!vehicle)
-        return;
-
-    if (vehicle != _activeVehicle && vehicle->vehicleType() != MAVTYPESURVEY)
         return;
 
     //判断是否有效
@@ -383,10 +379,9 @@ void VGVehicleManager::onVehicelGpsChanged(double lat, double lon, double alt, i
             mnt->SetLatAndLon(lat, lon, vehicle->vehicleType() < 1);
         }
     }
-    else
+    else if (VGPlantManager *mgr = qvgApp->plantManager())
     {
-        VGPlantManager *mgr = qvgApp->plantManager();
-        if (VGPlantInformation *plant = mgr ? mgr->GetPlantViaDrect() : NULL)
+        if (VGPlantInformation *plant = mgr ? mgr->GetPlantViaDrect(vehicle) : NULL)
         {
             plant->SetSatlateNumb(nSatNum);
             plant->setCoordinate(QGeoCoordinate(lat, lon));
@@ -404,18 +399,18 @@ void VGVehicleManager::onPosTypeChanged(VGVehicle *vehicle, int fix)
     }
     else if(VGPlantManager *mgr = qvgApp->plantManager())
     {
-        if (VGPlantInformation *plant = mgr->GetPlantViaDrect())
+        if (VGPlantInformation *plant = mgr->GetPlantViaDrect(vehicle))
             plant->SetFixType(fix);
     }
 }
 
 void VGVehicleManager::onVehicelSpeedChanged(VGVehicle *vehicle, double speedX, double speedY)
 {
-    if(vehicle != _activeVehicle)
+    if(!vehicle)
         return;
 
     VGPlantManager *mgr = qvgApp->plantManager();
-    if (VGPlantInformation *plant = mgr ? mgr->GetPlantViaDrect() : NULL)
+    if (VGPlantInformation *plant = mgr ? mgr->GetPlantViaDrect(vehicle) : NULL)
     {
         plant->SetSpeedHor(speedX);
         plant->SetSpeedVer(speedY);
@@ -435,19 +430,16 @@ void VGVehicleManager::onVehicelBatteryStatus(VGVehicle *vehicle, int batterry, 
         if (VGSurveyMonitor *mnt = qvgApp->surveyMonitor())
             mnt->SetPowerPercent(batterry);
     }
-    else if (VGPlantManager *mgr = qvgApp->plantManager())
+    else if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect(vehicle))
     {
-        if (VGPlantInformation *plant = mgr->GetPlantViaDrect())
-        {
-            plant->SetPowerPercent(batterry, batterry<=m_nBatteryAlarm && m_bAlarmFirst);
-            if (batterry <= m_nBatteryAlarm)
-                m_bAlarmFirst = false;
+        plant->SetPowerPercent(batterry, batterry<=m_nBatteryAlarm && m_bAlarmFirst);
+        if (batterry <= m_nBatteryAlarm)
+            m_bAlarmFirst = false;
 
-            if (warn<=16)
-                plant->SetVoltErr(warn);
+        if (warn<=16)
+            plant->SetVoltErr(warn);
 
-            plant->SetVoltage(mv);
-        }
+        plant->SetVoltage(mv);
     }
 }
 
@@ -460,7 +452,7 @@ void VGVehicleManager::onPrecisionChanged(VGVehicle* vehicle, double pre)
     }
     else if (VGPlantManager *mgr = qvgApp->plantManager())
     {
-        if (VGPlantInformation *plant = mgr->GetPlantViaDrect())
+        if (VGPlantInformation *plant = mgr->GetPlantViaDrect(vehicle))
             plant->SetPrecision(pre);
     }
 }

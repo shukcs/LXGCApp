@@ -15,7 +15,7 @@ class VGLandDis;
 class VGDbManager;
 class VGLandManager;
 
-class VGLandBoundary : public SingleTriggerItem<MapAbstractItem>
+class VGLandBoundary : public SingleTriggerItem
 {
     Q_OBJECT
 

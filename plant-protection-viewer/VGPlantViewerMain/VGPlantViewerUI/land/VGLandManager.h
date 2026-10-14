@@ -38,7 +38,7 @@ public:
 
     int landCount() const; //我的地块中地块数
     QString GetUserId()const;
-    void uploadLandInfo(MapAbstractItem::MapItemType tp, const MapListItem *parent=NULL);
+    void uploadLandInfo(MapAbstractItem::MapItemType tp, const MapAbstractItem *parent=NULL);
     void SetCurFlyRoute(VGMissionPlan *rt);
     void SetCurWPPlan(VGWayPointPlan *rt);
     QList<VGMissionPlan*> GetRoutesOfBoundary(VGLandBoundary *bdr);

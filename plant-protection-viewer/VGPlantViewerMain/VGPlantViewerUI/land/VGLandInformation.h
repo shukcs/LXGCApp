@@ -18,7 +18,7 @@ class VGNetManager;
 class VGGetGpsLocation;
 class VGCoordinate;
 
-class VGLandInformation : public SingleTriggerItem<MapAbstractItem>
+class VGLandInformation : public SingleTriggerItem
 {
     Q_OBJECT
 

@@ -13,6 +13,7 @@
 
 class QmlObjectListModel;
 class MapListItem;
+class VGMapManager;
 typedef QMap<QString, QVariant> DescribeMap;
 
 //地图上显示对象的抽象
@@ -155,6 +156,8 @@ protected:
     Q_INVOKABLE virtual MapAbstractItem *childAt(int)const;
     Q_INVOKABLE virtual void foldChildren(bool b);
     void _show(bool b);
+
+    void InsertTo(QmlObjectListModel *model, int idx = -1);
 signals:
 	void colorChanged(const QColor&);
 	void borderColorChanged(const QColor&);
@@ -169,8 +172,9 @@ signals:
 protected slots:
     virtual void onSelectedChanged(bool b);
 protected:
-    friend  QmlObjectListModel;
-    friend  MapListItem;
+    friend MapListItem;
+    friend QmlObjectListModel;
+    friend VGMapManager;
 
     int     m_id;
     bool    m_bVisible;
@@ -181,52 +185,14 @@ protected:
     QmlObjectListModel  *m_modelParent;
 };
 
-class MapListItem : public MapAbstractItem
-{
-    Q_OBJECT
-public:
-    explicit MapListItem(QObject *parent = NULL, int = -1);
-    explicit MapListItem(const MapListItem &oth);
-    ~MapListItem();
-
-    int CountChildren()const;
-    MapAbstractItem *childAt(int i)const;
-    MapAbstractItem *TakeAt(int i);
-    void Insert(MapAbstractItem *item, int idex=-1);
-    void Remove(int idex);
-    void Remove(MapAbstractItem *item);
-    int Indexof(MapAbstractItem *)const;
-    bool operator==(const MapAbstractItem &item)const;
-
-    void foldChildren(bool b);
-    virtual MapAbstractItem *findChildItem(const DescribeMap &dsc)const;
-    void releaseSafe();
-protected:
-    virtual MapAbstractItem *Clone(QObject *parent = NULL)const;
-protected slots:
-    virtual void onChildDestroyed(QObject *obj);
-protected:
-    QList<MapAbstractItem *>    m_children;
-};
-
-template<class T = MapAbstractItem>
-class SingleTriggerItem : public T
+class SingleTriggerItem : public MapAbstractItem
 {
 public:
-	SingleTriggerItem(QObject *parent = NULL, int id = -1) :T(parent, id)
-        , m_colorNormal(246, 246, 246), m_colorSelected(205, 230, 255){}
-    SingleTriggerItem(const SingleTriggerItem<T> &oth) :T(oth)
-        , m_colorNormal(oth.m_colorNormal), m_colorSelected(oth.m_colorSelected){}
+    SingleTriggerItem(QObject *parent = NULL, int id = -1);
+    SingleTriggerItem(const SingleTriggerItem &oth);
 
-	void SetItemColor(const QColor &nor, const QColor sel)
-	{
-		m_colorNormal = nor;
-		m_colorSelected = sel;
-	}
-	QColor GetItemColor() const
-	{
-        return T::GetSelected() ? m_colorSelected : m_colorNormal;
-	}
+    void SetItemColor(const QColor &nor, const QColor sel);
+    QColor GetItemColor() const;
 protected:
 	QColor		m_colorNormal;        //作为listItem颜色
 	QColor		m_colorSelected;      //作为listItem选中颜色

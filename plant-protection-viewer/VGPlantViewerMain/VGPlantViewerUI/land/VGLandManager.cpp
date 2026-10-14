@@ -308,7 +308,7 @@ void VGLandManager::quitOperation()
 
 const QMap<QString, uint16_t> &VGLandManager::getDiscsItem()
 {
-    static QMap<QString, uint16_t> sDscs = { { VGWayPointPlan::tr("WAYPOINT"), MAV_CMD_NAV_WAYPOINT },
+    static QMap<QString, uint16_t> sDscs = { { tr("WAYPOINT"), MAV_CMD_NAV_WAYPOINT },
         { tr("LoiterUnlim"), MAV_CMD_NAV_LOITER_UNLIM },
         { tr("LoiterTurns"), MAV_CMD_NAV_LOITER_TURNS },
         { tr("LoiterTime"), MAV_CMD_NAV_LOITER_TIME },
@@ -384,7 +384,7 @@ QString VGLandManager::GetUserId() const
 	return qvgApp->GetUserId();
 }
 
-void VGLandManager::uploadLandInfo(MapAbstractItem::MapItemType tp, const MapListItem *parent)
+void VGLandManager::uploadLandInfo(MapAbstractItem::MapItemType tp, const MapAbstractItem *parent)
 {
     if (VGDbManager *db = qvgApp->dbManager())
         db->QueryItems(tp, parent);

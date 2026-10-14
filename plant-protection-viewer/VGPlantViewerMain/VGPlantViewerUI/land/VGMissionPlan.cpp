@@ -35,32 +35,25 @@ static bool ComparePolyLineList(const QList<VGLandPolyline*> &ls1, const QList<V
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //VGMissionPlan
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-VGMissionPlan::VGMissionPlan(QObject *parent) : SingleTriggerItem<MapAbstractItem>(qobject_cast<VGLandBoundary*>(parent))
-, m_sprinkleWidth(6), m_maxRoute(5), m_sprinkleCover(0)
-, m_totalVoyage(0), m_transVoyage(0), m_operationHeight(3)
-, m_operateVoyage(0), m_bErrorPlan(false), m_bSaveLocal(false)
-, m_stPlan(St_Idle), m_homePoint(new VGCoordinate()), m_time(0)
-, m_bUploaded(false), m_route(NULL), m_fBlockSafeDis(.5)
-, m_fAngle(0), m_fPrise(10), m_olMission(NULL),m_ridgeOper(0)
-, m_medPerAcre(1), m_bAnti(false), m_nCurEdge(-1)
+VGMissionPlan::VGMissionPlan(QObject *parent) : SingleTriggerItem(qobject_cast<VGLandBoundary*>(parent))
+, m_sprinkleWidth(6), m_maxRoute(5), m_sprinkleCover(0), m_totalVoyage(0), m_transVoyage(0)
+, m_operationHeight(3), m_operateVoyage(0), m_bErrorPlan(false), m_bSaveLocal(false), m_stPlan(St_Idle)
+, m_homePoint(new VGCoordinate()), m_time(0), m_bUploaded(false), m_route(NULL), m_fBlockSafeDis(.5)
+, m_fAngle(0), m_fPrise(10), m_olMission(NULL),m_ridgeOper(0), m_medPerAcre(1), m_bAnti(false), m_nCurEdge(-1)
 , m_bSingleShrink(false), m_fSafeDis(.5)
 {
     setBelongBoundary(qobject_cast<VGLandBoundary*>(parent));
     connect(this, &VGMissionPlan::singleShrinkChanged, this, &VGMissionPlan::onSingleShrinkChanged);
 }
 
-VGMissionPlan::VGMissionPlan(const VGMissionPlan &oth) : SingleTriggerItem<MapAbstractItem>(oth)
-, m_sprinkleWidth(oth.m_sprinkleWidth), m_maxRoute(oth.m_maxRoute)
-, m_operationHeight(oth.m_operationHeight), m_sprinkleCover(oth.m_sprinkleCover)
-, m_totalVoyage(oth.m_totalVoyage), m_homePoint(new VGCoordinate(*oth.m_homePoint))
-, m_transVoyage(oth.m_transVoyage), m_operateVoyage(oth.m_operateVoyage)
-, m_bUploaded(oth.m_bUploaded), m_strDescribe(oth.m_strDescribe), m_ridgeOper(0)
-, m_stPlan(oth.m_stPlan), m_bSaveLocal(oth.m_bSaveLocal), m_bAnti(oth.m_bAnti)
-, m_time(oth.m_time), m_fBlockSafeDis(oth.m_fBlockSafeDis), m_route(NULL)
-, m_strCropper(oth.m_strCropper), m_bErrorPlan(false), m_fPrise(oth.m_fPrise)
-, m_strPesticide(oth.m_strPesticide), m_fAngle(oth.m_fAngle)
-, m_strActId(oth.m_strActId), m_olMission(NULL), m_medPerAcre(1)
-, m_nCurEdge(oth.m_nCurEdge), m_lsOutlineSafe(oth.m_lsOutlineSafe)
+VGMissionPlan::VGMissionPlan(const VGMissionPlan &oth) : SingleTriggerItem(oth), m_sprinkleWidth(oth.m_sprinkleWidth)
+, m_maxRoute(oth.m_maxRoute), m_operationHeight(oth.m_operationHeight), m_sprinkleCover(oth.m_sprinkleCover)
+, m_totalVoyage(oth.m_totalVoyage), m_homePoint(new VGCoordinate(*oth.m_homePoint)), m_transVoyage(oth.m_transVoyage)
+, m_operateVoyage(oth.m_operateVoyage), m_bUploaded(oth.m_bUploaded), m_strDescribe(oth.m_strDescribe), m_ridgeOper(0)
+, m_stPlan(oth.m_stPlan), m_bSaveLocal(oth.m_bSaveLocal), m_bAnti(oth.m_bAnti), m_time(oth.m_time)
+, m_fBlockSafeDis(oth.m_fBlockSafeDis), m_route(NULL), m_strCropper(oth.m_strCropper), m_bErrorPlan(false)
+, m_fPrise(oth.m_fPrise), m_strPesticide(oth.m_strPesticide), m_fAngle(oth.m_fAngle), m_strActId(oth.m_strActId)
+, m_olMission(NULL), m_medPerAcre(1), m_nCurEdge(oth.m_nCurEdge), m_lsOutlineSafe(oth.m_lsOutlineSafe)
 , m_fSafeDis(oth.m_fSafeDis), m_bSingleShrink(oth.m_bSingleShrink)
 {
     if (oth.m_route && (m_route = new VGLandPolyline(*oth.m_route)))
@@ -431,6 +424,8 @@ void VGMissionPlan::showContent(bool b)
 
     if (m_route)
         m_route->Show(b);
+    if (m_olMission)
+        m_olMission->Show(b);
 }
 
 bool VGMissionPlan::canPlanRoute()const
@@ -936,7 +931,10 @@ double VGMissionPlan::GetOperateVoyage() const
 void VGMissionPlan::DetachVm(VGVehicleMission *vm)
 {
     if (vm == m_olMission)
+    {
+        disconnect(m_olMission, &QObject::destroyed, this, &VGMissionPlan::onChildDestroied);
         m_olMission = nullptr;
+    }
 }
 
 int VGMissionPlan::GetVoyageNum() const

@@ -17,6 +17,9 @@ Rectangle{
     signal operationClick()
     signal detailRout(var rt)
     signal listFold();
+    function initail() {
+        mapManager.wpEdit = !rbRP.checked
+    }
     Text {
         id: txtInf
         anchors {verticalCenter: btnCreate.verticalCenter; left: parent.left; leftMargin: 15}
@@ -34,8 +37,8 @@ Rectangle{
             ftText: vgMainPage.font()
             exclusiveGroup: groupTp
             onCheckedChanged: {
-                colBoundary.visible = checked
                 landManager.curWPPlan = null
+                initail()
             }
         }
         VGRadioButton {
@@ -44,9 +47,8 @@ Rectangle{
             exclusiveGroup: groupTp
             checked: true
             onCheckedChanged: {
-                colRouteM.visible = checked
                 landManager.curFlyRoute = null
-                mapManager.wpEdit = checked
+                initail()
             }
         }
     }
@@ -73,7 +75,7 @@ Rectangle{
         flickableDirection:     Flickable.VerticalFlick
         Column{
             id: colBoundary
-            visible:                    true
+            visible:                    rbRP.checked
             spacing:                    4
             Rectangle{
                 color:      "transparent"
@@ -145,7 +147,7 @@ Rectangle{
         }
         Column{
             id: colRouteM
-            visible:                    true
+            visible:                    !rbRP.checked
             spacing:                    4
             Rectangle{
                 color:      "transparent"
@@ -163,6 +165,7 @@ Rectangle{
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            mapManager.wpEdit = true
                             object.selected = true
                             emit:selectRoute(object)
                         }

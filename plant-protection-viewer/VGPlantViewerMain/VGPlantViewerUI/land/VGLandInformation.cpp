@@ -19,14 +19,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //VGLandInformation
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-VGLandInformation::VGLandInformation(QObject *parent) : SingleTriggerItem<MapAbstractItem>(parent, 1)
+VGLandInformation::VGLandInformation(QObject *parent) : SingleTriggerItem(parent, 1)
 , m_typeSurvey(Survey_DrawMap), m_bUploaded(false), m_bSaveLocal(false), m_bRemoveDB(false)
 , m_time(0), m_precision(1)
 {
     setUserId(qvgApp->GetUserId());
 }
 
-VGLandInformation::VGLandInformation(const VGLandInformation &info) : SingleTriggerItem<MapAbstractItem>(info.parent(), 1)
+VGLandInformation::VGLandInformation(const VGLandInformation &info) : SingleTriggerItem(info.parent(), 1)
 , m_time(info.m_time), m_precision(info.m_precision), m_typeSurvey(info.m_typeSurvey)
 , m_bUploaded(info.m_bUploaded), m_bSaveLocal(info.m_bSaveLocal), m_userId(info.m_userId)
 , m_actualSurveyId(info.m_actualSurveyId), m_owner(info.m_owner)
@@ -318,7 +318,7 @@ void VGLandInformation::_addOneBoundaryPoint(const QGeoCoordinate &coor, int nSa
 
 void VGLandInformation::releaseSafe()
 {
-    SingleTriggerItem<MapAbstractItem>::releaseSafe();
+    SingleTriggerItem::releaseSafe();
     for (auto itr : m_boundarys)
     {
         itr->releaseSafe();

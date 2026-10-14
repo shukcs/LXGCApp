@@ -1,7 +1,7 @@
 ﻿#include "VGSelectEdge.h"
 #include "VGCoordinate.h"
 
-VGSelectEdge::VGSelectEdge(QObject *parent) : SingleTriggerItem<MapAbstractItem>(parent, 0)
+VGSelectEdge::VGSelectEdge(QObject *parent) : SingleTriggerItem(parent, 0)
 , m_coorMid(NULL)
 {
     SetItemColor(UnselectedEdgeCol, SelectedEdgeCol);

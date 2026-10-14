@@ -186,10 +186,6 @@ void VGMavLinkCode::EncodeMissionItem(mavlink_message_t &msg, const MissionItem 
 {
     mavlink_mission_item_t missionItem;
     memset(&missionItem, 0, sizeof(missionItem));
-	
-    double x = item.param5().toDouble();
-    double y = item.param6().toDouble();
-    ShareFunction::toGps(x, y, qvgApp->mapManager()->mapTypeID());
 
     missionItem.target_system = sysId;
     missionItem.target_component = MAV_COMP_ID_MISSIONPLANNER;
@@ -200,8 +196,8 @@ void VGMavLinkCode::EncodeMissionItem(mavlink_message_t &msg, const MissionItem 
     missionItem.param3 = item.param3().toDouble();
     missionItem.param4 = item.param4().toDouble();
 
-    missionItem.x = x;
-    missionItem.y = y;
+    missionItem.x = item.param5().toDouble();
+    missionItem.y = item.param6().toDouble();
     missionItem.z = item.param7().toDouble();
     missionItem.frame = item.frame();
     missionItem.current = cur;
@@ -220,10 +216,6 @@ void VGMavLinkCode::EncodeMissionItemInt(mavlink_message_t &msg, const MissionIt
     mavlink_mission_item_int_t missionItem;
     memset(&missionItem, 0, sizeof(missionItem));
 
-    double x = item.param5().toDouble();
-    double y = item.param6().toDouble();
-    ShareFunction::toGps(x, y, qvgApp->mapManager()->mapTypeID());
-
     missionItem.target_system = sysId;
     missionItem.target_component = MAV_COMP_ID_MISSIONPLANNER;
     missionItem.seq = item.sequenceNumber();
@@ -233,8 +225,8 @@ void VGMavLinkCode::EncodeMissionItemInt(mavlink_message_t &msg, const MissionIt
     missionItem.param3 = item.param3().toDouble();
     missionItem.param4 = item.param4().toDouble();
 
-    missionItem.x = x * 1e7;
-    missionItem.y = y  * 1e7;
+    missionItem.x = item.param5().toDouble() * 1e7;
+    missionItem.y = item.param6().toDouble()  * 1e7;
     missionItem.z = item.param7().toDouble();
     missionItem.frame = item.frame();
     missionItem.current = cur;

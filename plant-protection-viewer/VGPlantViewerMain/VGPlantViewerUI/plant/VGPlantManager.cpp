@@ -125,7 +125,7 @@ void VGPlantManager::clearTmpPlant()
 {
     foreach(VGPlantInformation *planeInfo, m_plants)
     {
-        if (planeInfo->isDirectLink() || m_mntPants.contains(planeInfo->planeId()))
+        if (planeInfo->DirectLink() || m_mntPants.contains(planeInfo->planeId()))
             continue;
 
         planeInfo->deleteLater();
@@ -144,7 +144,7 @@ void VGPlantManager::remove(VGPlantInformation *pl)
     if (!pl)
         return;
 
-    if (!pl->isDirectLink())
+    if (!pl->DirectLink())
     {
         m_plants.removeAll(pl);
         m_mntPants.removeAll(pl->planeId());
@@ -498,32 +498,34 @@ void VGPlantManager::startQueryMyPlaneStatus()
      {
          killTimer(m_idTimerQureryPlant);
          m_idTimerQureryPlant = -1;
-         foreach(VGPlantInformation *planeInfo, m_plants)
+         for(auto planeInfo : m_plants)
          {
-             if (!planeInfo->isDirectLink())
+             if (!planeInfo->DirectLink())
                  planeInfo->SetStatus(VGPlantInformation::UnConnect);
          }
      }
  }
 
- VGPlantInformation *VGPlantManager::GetPlantViaDrect() const
+ VGPlantInformation *VGPlantManager::GetPlantViaDrect(VGVehicle *v) const
  {
-     if (m_plants.count() && m_plants.first()->isDirectLink())
-         return m_plants.first();
+     for (auto itr : m_plants)
+     {
+         if (itr->DirectLink() == v)
+             return itr;
+     }
 
-     return NULL;
+     return nullptr;
  }
 
- void VGPlantManager::ViaDrectPlantCreate(const QString &mode)
+ void VGPlantManager::ViaDrectPlantCreate(VGVehicle *v)
  {
-     if (GetPlantViaDrect())
+     if (GetPlantViaDrect(v))
          return;
 
      if (VGPlantInformation *pl = new VGPlantInformation(this))
      {
          pl->SetStatus(VGPlantInformation::Connected);
-         pl->setDirectLink(true);
-         pl->ChangeFlightMode(mode);
+         pl->SetDirectLink(v);
          Insert(pl, 0);
          if (!m_plantCur)
              SetCurrentPlant(pl);
@@ -532,9 +534,9 @@ void VGPlantManager::startQueryMyPlaneStatus()
 
  void VGPlantManager::RemoveViaCloudPlant(const QString &planeId)
  {
-     foreach(VGPlantInformation *itr, m_plants)
+     for (VGPlantInformation *itr : m_plants)
      {
-         if (itr->isDirectLink())
+         if (itr->DirectLink())
              continue;
 
          if (itr->planeId() == planeId)
@@ -550,7 +552,7 @@ void VGPlantManager::startQueryMyPlaneStatus()
      if (id.isEmpty())
          return NULL;
 
-     foreach(VGPlantInformation *itr, m_plants)
+     for(VGPlantInformation *itr : m_plants)
      {
          if (id.compare(itr->planeId(), Qt::CaseInsensitive) == 0)
              return itr;
@@ -740,6 +742,7 @@ void VGPlantManager::prcsUavMavlink(VGPlantInformation *info, const mavlink_mess
     case MAVLINK_MSG_ID_MISSION_COUNT:
         _prcsMissionCount(*info, msg, finish); break;
     case MAVLINK_MSG_ID_MISSION_ITEM_INT:
+    case MAVLINK_MSG_ID_MISSION_ITEM:
         _prcsMissionItem(*info, msg, finish); break;
     case MAVLINK_MSG_ID_HOME_POSITION:
         _prcsHome(*info, msg); break;
@@ -793,9 +796,9 @@ void VGPlantManager::timerEvent(QTimerEvent *event)
         return QObject::timerEvent(event);
 
     qint64 curMs = QDateTime::currentMSecsSinceEpoch();
-    foreach(VGPlantInformation *planeInfo, m_plants)
+    for (VGPlantInformation *planeInfo : m_plants)
     {
-        if (!planeInfo->isDirectLink())
+        if (!planeInfo->DirectLink())
             planeInfo->CheckConnect(curMs);
     }
 }
@@ -1183,8 +1186,8 @@ void VGPlantManager::_prcsAttitude(VGPlantInformation &p, const mavlink_message_
     else
     {
         activeCompass = attitude.yaw * (180.0 / M_PI);
-        if (activeCompass < 0)
-            activeCompass += 360;
+        if (activeCompass > 180)
+            activeCompass -= 360;
     }
 
     p.SetCompassAngle(activeCompass);

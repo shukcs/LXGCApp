@@ -14,7 +14,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //VGWayPointPlangetDiscsItem
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-VGWayPointPlan::VGWayPointPlan(QObject *p, const QString &n) : SingleTriggerItem<MapAbstractItem>(p)
+VGWayPointPlan::VGWayPointPlan(QObject *p, const QString &n) : SingleTriggerItem(p)
 , m_name(n), m_time(0), m_route(new VGVehicleMission(this))
 {
     connect(m_route->GetWayPoints(), &QmlObjectListModel::countChanged, this, &VGWayPointPlan::wpCountChanged);
@@ -80,6 +80,8 @@ void VGWayPointPlan::SetMissionItems(const QList<MissionItem *> &items)
 {
     if (m_route)
         m_route->SetMissionItems(items);
+    if (m_time < 1)
+        m_time = QDateTime::currentMSecsSinceEpoch();
 }
 
 VGVehicleMission * VGWayPointPlan::GetMission() const

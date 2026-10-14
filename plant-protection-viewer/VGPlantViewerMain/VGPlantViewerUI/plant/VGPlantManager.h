@@ -9,6 +9,7 @@
 class VGNetManager;
 class QGeoCoordinate;
 class VGVehicleMission;
+class VGVehicle;
 
 namespace google {
     namespace protobuf {
@@ -70,8 +71,8 @@ public:
 
     void    startQueryMyPlaneStatus();
     void    stopQueryMyPlaneStatus();
-    VGPlantInformation *GetPlantViaDrect()const;
-    void    ViaDrectPlantCreate(const QString &mode);
+    VGPlantInformation *GetPlantViaDrect(VGVehicle *v)const;
+    void    ViaDrectPlantCreate(VGVehicle *v);
     void    RemoveViaCloudPlant(const QString &planeId);
     VGPlantInformation *GetPlantById(const QString &id);
     void  Insert(VGPlantInformation *info, int i=-1);

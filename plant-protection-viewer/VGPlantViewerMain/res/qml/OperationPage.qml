@@ -426,7 +426,7 @@ Page {
                     width:      sequece.contentHeight>sequece.contentWidth ? sequece.contentHeight:sequece.contentWidth
                     height:     width
                     radius:     width / 2
-                    color:      (mapManager.wpEdit&&object.selected) ? "#10c010":object.color
+                    color:      (mapManager.wpEdit&&object.selected) ? "#ff8000":object.color
                     Text{
                         id: sequece
                         anchors.horizontalCenter:   parent.horizontalCenter
@@ -610,6 +610,10 @@ Page {
                         planEdit.save(true)
                         planEdit = null
                         enterMission(false)
+                    }
+                    onListFold: {
+                        rctRoute.width= 0
+                        btnShowRctRoute.visible = true
                     }
                 }
                 VGMission {

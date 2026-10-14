@@ -17,7 +17,6 @@
 #include "VGMapManager.h"
 #include "VGToolBox.h"
 #include "VGVehicle.h"
-#include "VGVehicleManager.h"
 #include "MAVLinkProtocol.h"
 #include "VGBlock.h"
 #include "VGWayPointPlan.h"
@@ -102,7 +101,7 @@ float VGPlantInformation::BlockInfo::GetDistance() const
 //VGPlantInformation
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 VGPlantInformation::VGPlantInformation(QObject *parent) : MapAbstractItem(parent), m_status(UnConnect)
-, m_bBind(0), m_distance(0), m_bDirectLink(false), m_bLanded(true), m_satNum(0), m_horSpeed(0)
+, m_bBind(0), m_distance(0), m_directLink(nullptr), m_bLanded(true), m_satNum(0), m_horSpeed(0)
 , m_verSpeed(0), m_relativeAltitude(0), m_compassAngle(0), m_rollAngle(0), m_pitchAngle(0)
 , m_powerPercent(0), m_medicineSpeed(0), m_medicineVol(0), m_precision(0), m_uploadVm(NULL)
 , m_bMonitor(false), m_lastTime(0), m_lastLacalTime(QDateTime::currentMSecsSinceEpoch())
@@ -117,7 +116,7 @@ VGPlantInformation::VGPlantInformation(QObject *parent) : MapAbstractItem(parent
 VGPlantInformation::VGPlantInformation(const VGPlantInformation &oth) : MapAbstractItem(oth)
 , m_medicineVol(oth.m_medicineVol), m_uploadVm(NULL), m_bBind(oth.m_bBind), m_distance(oth.m_distance)
 , m_lastTime(oth.m_lastTime), m_master(oth.m_master), m_lastPosition(oth.m_lastPosition)
-, m_bindTime(oth.m_bindTime), m_bDirectLink(oth.m_bDirectLink), m_bLanded(oth.m_bLanded)
+, m_bindTime(oth.m_bindTime), m_directLink(oth.m_directLink), m_bLanded(oth.m_bLanded)
 , m_satNum(oth.m_satNum), m_horSpeed(oth.m_horSpeed), m_verSpeed(oth.m_verSpeed)
 , m_relativeAltitude(oth.m_relativeAltitude), m_compassAngle(oth.m_compassAngle)
 , m_rollAngle(oth.m_rollAngle), m_pitchAngle(oth.m_pitchAngle), m_powerPercent(oth.m_powerPercent)
@@ -159,7 +158,7 @@ void VGPlantInformation::setPlaneId(const QString &id)
     if (id == m_planeId)
         return;
 
-    if(m_bDirectLink)
+    if(m_directLink)
     {
         if (VGPlantManager *mgr = qvgApp->plantManager())
             mgr->RemoveViaCloudPlant(id);
@@ -514,18 +513,19 @@ void VGPlantInformation::SetMonitor(bool b, bool bCur)
     emit monitorChanged(b);
 }
 
-bool VGPlantInformation::isDirectLink() const
+VGVehicle *VGPlantInformation::DirectLink() const
 {
-    return m_bDirectLink;
+    return m_directLink;
 }
 
-void VGPlantInformation::setDirectLink(bool b)
+void VGPlantInformation::SetDirectLink(VGVehicle *v)
 {
-    if (m_bDirectLink == b)
+    if (m_directLink == v)
         return;
 
-    m_bDirectLink = b;
-    emit directLinkChanged(b);
+    if (v)
+        ChangeFlightMode(v->flightMode());
+    m_directLink = v;
     emit posTipChanged();
 }
 
@@ -544,7 +544,7 @@ bool VGPlantInformation::operator==(const MapAbstractItem &item)const
 
 void VGPlantInformation::CheckConnect(qint64 curMs)
 {
-    if (!isDirectLink() && curMs - m_lastLacalTime > TMOUT_CONNECT)
+    if (!m_directLink && curMs - m_lastLacalTime > TMOUT_CONNECT)
     {
         SetStatus(UnConnect);
         return;
@@ -588,14 +588,10 @@ void VGPlantInformation::syncPlanFlight(VGVehicleMission *vm)
     m_bMissionValible = false;
     SetFlightMode(QString());
     SetArm(false);
-    if (m_bDirectLink)
+    if (m_directLink && m_directLink->isMissionIdle())
     {
-        VGVehicle *vk = qvgApp->vehicleManager()->activeVehicle();
-        if (vk && vk->isMissionIdle())
-        {
-            vk->syncPlanFlight(vm);
-            SetSychBegin();
-        }
+        m_directLink->syncPlanFlight(vm);
+        SetSychBegin();
     }
     else if (VGNetManager *nm = qvgApp->netManager())
     {
@@ -849,10 +845,9 @@ void VGPlantInformation::SendSupport(bool bEnter, VGCoordinate *spt)
         alt = coor.altitude();
     }
     float cl = spt ? 1 : 0;
-    if (m_bDirectLink)
+    if (m_directLink)
     {
-        if (VGVehicle *v = qvgApp->toolbox()->activeVehicle())
-            v->sendMavCommandInt(cmd, 0, 0, 0, cl, lat, lon, alt);
+        m_directLink->sendMavCommandInt(cmd, 0, 0, 0, cl, lat, lon, alt);
     }
     else if (VGNetManager *nm = qvgApp->netManager())
     {
@@ -1014,10 +1009,9 @@ void VGPlantInformation::SetQxAccount(const QString &acc, const QString &pswd, b
 {
     if (bSend)
     {
-        if (m_bDirectLink)
+        if (m_directLink)
         {
-            if (VGVehicle *v = qvgApp->toolbox()->activeVehicle())
-                v->setQxAccount(acc, pswd);
+            m_directLink->setQxAccount(acc, pswd);
         }
         else if (VGNetManager *nm = qvgApp->netManager())
         {
@@ -1038,15 +1032,13 @@ void VGPlantInformation::SetQxAccount(const QString &acc, const QString &pswd, b
 
 void VGPlantInformation::GetQxAccount()
 {
-    if (m_bDirectLink)
+    if (m_directLink)
     {
-        VGVehicle *v = qvgApp->toolbox()->activeVehicle();
-        MAVLinkProtocol *p = qvgApp->mavLink();
-        if (v && p)
+        if (MAVLinkProtocol *p = qvgApp->mavLink())
         {
             mavlink_message_t message;
             mavlink_msg_qx_acc_cmd_pack(p->getSystemId(), p->getComponentId(), &message, MAV_QX_ACC_CMD_READ);
-            v->sendMessage(message);
+            m_directLink->sendMessage(message);
         }
     }
     else if (VGNetManager *nm = qvgApp->netManager())
@@ -1061,15 +1053,13 @@ void VGPlantInformation::ClearQxAccount(bool bSend)
 {
     if (bSend)
     {
-        if (m_bDirectLink)
+        if (m_directLink)
         {
-            VGVehicle *v = qvgApp->toolbox()->activeVehicle();
-            MAVLinkProtocol *p = qvgApp->mavLink();
-            if (v && p)
+            if (MAVLinkProtocol *p = qvgApp->mavLink())
             {
                 mavlink_message_t message;
                 mavlink_msg_qx_acc_cmd_pack(p->getSystemId(), p->getComponentId(), &message, MAV_QX_ACC_CMD_CLEAR);
-                v->sendMessage(message);
+                m_directLink->sendMessage(message);
             }
         }
         else if (VGNetManager *nm = qvgApp->netManager())
@@ -1096,15 +1086,13 @@ void VGPlantInformation::ProcessSuspend(int ridge, const QString &plan, const QG
 
 void VGPlantInformation::GetQXSdkAccount()
 {
-    if (m_bDirectLink)
+    if (m_directLink)
     {
-        VGVehicle *v = qvgApp->toolbox()->activeVehicle();
-        MAVLinkProtocol *p = qvgApp->mavLink();
-        if (v && p)
+        if (MAVLinkProtocol *p = qvgApp->mavLink())
         {
             mavlink_message_t message;
             mavlink_msg_qxsdk_acc_cmd_pack(p->getSystemId(), p->getComponentId(), &message, MAV_QX_ACC_CMD_READ);
-            v->sendMessage(message);
+            m_directLink->sendMessage(message);
         }
     }
     else if (VGNetManager *nm = qvgApp->netManager())
@@ -1128,10 +1116,9 @@ void VGPlantInformation::SetQxSdkAccount(const QString &key, const QString &secr
 
     if (bSend)
     {
-        if (m_bDirectLink)
+        if (m_directLink)
         {
-            if (VGVehicle *v = qvgApp->toolbox()->activeVehicle())
-                v->setQxSdkAccount(key, secret, devid, QString::number(type + 1));
+             m_directLink->setQxSdkAccount(key, secret, devid, QString::number(type + 1));
         }
         else if (VGNetManager *nm = qvgApp->netManager())
         {
@@ -1146,15 +1133,13 @@ void VGPlantInformation::ClearQxSdkAccount(bool bSend)
 {
     if (bSend)
     {
-        if (m_bDirectLink)
+        if (m_directLink)
         {
-            VGVehicle *v = qvgApp->toolbox()->activeVehicle();
-            MAVLinkProtocol *p = qvgApp->mavLink();
-            if (v && p)
+            if (MAVLinkProtocol *p = qvgApp->mavLink())
             {
                 mavlink_message_t message;
                 mavlink_msg_qxsdk_acc_cmd_pack(p->getSystemId(), p->getComponentId(), &message, MAV_QXSDK_ACC_CMD_CLEAR);
-                v->sendMessage(message);
+                m_directLink->sendMessage(message);
             }
         }
         else if (VGNetManager *nm = qvgApp->netManager())
@@ -1225,7 +1210,6 @@ void VGPlantInformation::SetVihevleMisson(const QList<MissionItem*> &items)
     {
         auto wpp = new VGWayPointPlan(landMgr, tr("%1 download waypoints").arg(planeId()));
         wpp->SetMissionItems(items);
-        wpp->endEdit();
         landMgr->AddChild(wpp);
         m_uploadVm = wpp->GetMission();
         connect(m_uploadVm, &QObject::destroyed, this, &VGPlantInformation::onContentDestroied);
@@ -1234,7 +1218,7 @@ void VGPlantInformation::SetVihevleMisson(const QList<MissionItem*> &items)
 
 void VGPlantInformation::reqMissionFromNet(int idx)
 {
-    if (idx >= 0 && !m_bDirectLink && m_missionCount>0)
+    if (idx >= 0 && !m_directLink && m_missionCount>0)
     {
         mavlink_message_t msg = {0};
         if (idx == m_missionCount)
@@ -1367,7 +1351,7 @@ double VGPlantInformation::GetLon() const
 
 VGVehicleMission *VGPlantInformation::beginOperation(VGMissionPlan *fr)
 {
-    m_prepareVm = NULL;
+    m_prepareVm = nullptr;
     if (fr)
     {
         qvgApp->netManager()->QuerySuspend(m_planeId, fr->GetActId());
@@ -1507,10 +1491,9 @@ void VGPlantInformation::onMissionChange()
 
 void VGPlantInformation::LoadFromVehicle()
 {
-    if (m_bDirectLink)
+    if (m_directLink)
     {
-        if (VGVehicle *v = qvgApp->toolbox()->activeVehicle())
-            v->loadFromVehicle();
+        m_directLink->loadFromVehicle();
     }
     else
     {
@@ -1671,10 +1654,9 @@ void VGPlantInformation::showContent(bool b)
 
 void VGPlantInformation::_arm(bool bArm)
 {
-    if (m_bDirectLink)
+    if (m_directLink)
     {
-        if (VGVehicle *v = qvgApp->toolbox()->activeVehicle())
-            v->setArmed(bArm);
+        m_directLink->setArmed(bArm);
     }
     else if (VGNetManager *nm = qvgApp->netManager())
     {
@@ -1692,10 +1674,9 @@ void VGPlantInformation::_sysFlightMode()
 {
     if ((m_flightModeSet!=MissionMod || IsMissionValible()) && !m_flightModeSet.isEmpty())
     {
-        if (m_bDirectLink)
+        if (m_directLink)
         {
-            if (VGVehicle *v = qvgApp->toolbox()->activeVehicle())
-                v->SetFlightMode(m_flightModeSet);
+            m_directLink->SetFlightMode(m_flightModeSet);
         }
         else if (VGNetManager *nm = qvgApp->netManager())
         {
@@ -1739,7 +1720,7 @@ void VGPlantInformation::setMissionRun()
 
 void VGPlantInformation::setParameter(const QString &str, const QVariant &var, bool doAnyway)
 {
-    if (!m_bDirectLink)
+    if (!m_directLink)
     {
         bool bSend = m_strLsReqParams.size() == 0 || doAnyway;
         m_strLsReqParams[str] = var;
@@ -1750,9 +1731,9 @@ void VGPlantInformation::setParameter(const QString &str, const QVariant &var, b
         if (bSend)
             qvgApp->netManager()->SendControlUav(m_planeId, m_strLsReqParams);
     }
-    else if (VGVehicle *v = qvgApp->toolbox()->activeVehicle())
+    else
     {
-        v->prcsVehicleParameter(str, var);
+        m_directLink->prcsVehicleParameter(str, var);
     }
 }
 
@@ -1788,10 +1769,9 @@ void VGPlantInformation::loadMission()
 
 void VGPlantInformation::sendCommand(int cmd, float f1, float f2, float f3, float f4, float f5, float f6, float f7)
 {
-    if (m_bDirectLink)
+    if (m_directLink)
     {
-        if (VGVehicle *v = qvgApp->toolbox()->activeVehicle())
-            v->sendMavCommand((MAV_CMD)cmd, f1, f2, f3, f4, f5, f6, f7);
+        m_directLink->sendMavCommand((MAV_CMD)cmd, f1, f2, f3, f4, f5, f6, f7);
     }
     else if (VGNetManager *nm = qvgApp->netManager())
     {
@@ -1803,10 +1783,9 @@ void VGPlantInformation::sendCommand(int cmd, float f1, float f2, float f3, floa
 
 void VGPlantInformation::sendCommandInt(int cmd, float f1, float f2, float f3, float f4, int x, int y, float z)
 {
-    if (m_bDirectLink)
+    if (m_directLink)
     {
-        if (VGVehicle *v = qvgApp->toolbox()->activeVehicle())
-            v->sendMavCommand((MAV_CMD)cmd, f1, f2, f3, f4, x, y, z);
+        m_directLink->sendMavCommand((MAV_CMD)cmd, f1, f2, f3, f4, x, y, z);
     }
     else if (VGNetManager *nm = qvgApp->netManager())
     {
@@ -1821,10 +1800,9 @@ void VGPlantInformation::sendSetHome(bool uav, const QGeoCoordinate &c)
     int lat = uav ? 0 : c.latitude()*1e7;
     int lon = uav ? 0 : c.longitude()*1e7;
     float alt = uav ? 0 : c.altitude();
-    if (m_bDirectLink)
+    if (m_directLink)
     {
-        if (VGVehicle *v = qvgApp->toolbox()->activeVehicle())
-            v->sendMavCommandInt(MAV_CMD_DO_SET_HOME, uav?1:0, 0, 0, 0, lat, lon, alt);
+        m_directLink->sendMavCommandInt(MAV_CMD_DO_SET_HOME, uav?1:0, 0, 0, 0, lat, lon, alt);
     }
     else if (VGNetManager *nm = qvgApp->netManager())
     {
@@ -1861,12 +1839,11 @@ void VGPlantInformation::prcsSupportAndHome()
 
 void VGPlantInformation::requestFromUav(uint32_t mavType)
 {
-    if (m_bDirectLink)
+    if (m_directLink)
     {
         if (mavType >= MAV_CMD_ENUM_END)
             return;
-        if (VGVehicle *v = qvgApp->toolbox()->activeVehicle())
-            v->sendMavCommandInt(MAV_CMD_GET_START_POINT);
+        m_directLink->sendMavCommandInt(MAV_CMD_GET_START_POINT);
     }
     else if (VGNetManager *nm = qvgApp->netManager())
     {

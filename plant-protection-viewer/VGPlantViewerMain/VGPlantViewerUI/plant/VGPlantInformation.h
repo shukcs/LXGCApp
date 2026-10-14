@@ -38,7 +38,6 @@ class VGPlantInformation : public MapAbstractItem
     Q_PROPERTY(bool binded READ IsBinded NOTIFY bindedChanged)
     Q_PROPERTY(QString master READ master  NOTIFY masterChanged)
     Q_PROPERTY(QString posTip READ GetPosTip NOTIFY posTipChanged)
-    Q_PROPERTY(bool directLink READ isDirectLink WRITE setDirectLink NOTIFY directLinkChanged)
     Q_PROPERTY(bool landed READ IsLanded NOTIFY landedChanged)
     Q_PROPERTY(double compass READ GetCompassAngle  NOTIFY compassAngleChanged)
     Q_PROPERTY(double roll READ GetRollAngle  NOTIFY rollAngleChanged)
@@ -131,8 +130,8 @@ public:
     qint64 bindTime()const;
     void setBindTime(qint64 time);
 
-    bool isDirectLink()const;
-    void setDirectLink(bool isDirectLink);
+    VGVehicle *DirectLink()const;
+    void SetDirectLink(VGVehicle *v);
 
     bool IsLanded()const;
     void SetLanded(bool isLanded);
@@ -269,7 +268,6 @@ signals:
     void bindedChanged(bool bBind);
     void statusChanged();
     void masterChanged(const QString &master);
-    void directLinkChanged(bool isDirectLink);
     void landedChanged();
     void powPercentChanged(double per);
     void medSpeedChanged(double per);
@@ -317,7 +315,7 @@ private:
     void _showContinue(bool b = true);
     void _showBlocks(bool b);
 private:
-    bool            m_bDirectLink;  //是否直连
+    VGVehicle       *m_directLink;  //直连设备
     bool            m_bLanded;      //是否降落
     PlantStatus     m_status;
     bool            m_bBind;        //0 未绑定 1 绑定

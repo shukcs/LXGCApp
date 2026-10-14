@@ -29,7 +29,7 @@ QmlObjectListModel::~QmlObjectListModel()
 
 QObject *QmlObjectListModel::get(int index) const
 {
-    if (index<0 || index>m_lsObject.count())
+    if (index<0 || index>=m_lsObject.count())
         return nullptr;
 
     return m_lsObject.at(index);
@@ -198,9 +198,6 @@ void QmlObjectListModel::insert(int i, QObject *object)
     m_lsObject.insert(i, object);
     endInsertRows();
     emit countChanged();
-
-    if (MapAbstractItem *item = qobject_cast<MapAbstractItem*>(object))
-        item->SetParentModel(this);
 }
 
 
@@ -216,8 +213,6 @@ void QmlObjectListModel::insertList(const QObjectList &objects, int i)
 	for (QObject *itr : objects)
 	{
 		m_lsObject.insert(i++, itr);
-        if (MapAbstractItem *item = dynamic_cast<MapAbstractItem *>(itr))
-		    item->SetParentModel(this);
 	}
     endInsertRows();
     emit countChanged();

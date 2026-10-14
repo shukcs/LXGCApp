@@ -14,7 +14,7 @@ class VGVehicleMission;
 class MissionItem;
 class VGSelectEdge;
 
-class VGMissionPlan : public SingleTriggerItem<MapAbstractItem>
+class VGMissionPlan : public SingleTriggerItem
 {
     Q_OBJECT
     Q_PROPERTY(bool planning READ isPlanning NOTIFY planningChanged)

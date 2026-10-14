@@ -32,7 +32,7 @@ Rectangle{
                     height: width
                     radius:                 width/2
                     border {width:1; color: "#600000"}
-                    color: object.selected ? "#008000" : "#FFFFFF"
+                    color: object.selected ? "#ff8000" : "#FFFFFF"
                     Text{
                         anchors.fill: parent
                         text: object.sequence
@@ -71,7 +71,6 @@ Rectangle{
             height: 30
             iconName: "add"
             colNormal: transparent
-            enabled:  landManager.curWPPlan
             onBtnClicked: {
                 var c = mapManager.mapCenter
                 var idx = -1
@@ -186,6 +185,7 @@ Rectangle{
         Row {
             width: parent.width
             spacing: 15
+            visible: curItem.cmdName===qsTr("WAYPOINT")
             Text{
                 width: parent.width/3
                 text: qsTr("latitude")
@@ -202,6 +202,7 @@ Rectangle{
         Row {
             width: parent.width
             spacing: 15
+            visible: curItem.cmdName===qsTr("WAYPOINT")
             Text{
                 width: parent.width/3
                 text: qsTr("longitude")
@@ -218,6 +219,7 @@ Rectangle{
         Row {
             width: parent.width
             spacing: 15
+            visible: curItem.cmdName===qsTr("WAYPOINT")
             Text{
                 width: parent.width/3
                 text: qsTr("altitude")

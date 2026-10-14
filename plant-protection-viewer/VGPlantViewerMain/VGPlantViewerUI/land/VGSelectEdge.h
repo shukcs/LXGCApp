@@ -5,7 +5,7 @@
 class QGeoCoordinate;
 class VGCoordinate;
 //地图上显示的轮廓线
-class VGSelectEdge : public SingleTriggerItem<MapAbstractItem>
+class VGSelectEdge : public SingleTriggerItem
 {
     Q_OBJECT
 

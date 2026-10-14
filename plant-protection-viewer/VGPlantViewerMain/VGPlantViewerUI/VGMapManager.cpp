@@ -441,6 +441,7 @@ bool VGMapManager::InsertItem(MapAbstractItem *item, int index)
             return false;
 
         model->insert(index, item);
+        item->SetParentModel(model);
 		connect(item, &MapAbstractItem::destroyed, this, &VGMapManager::_checkSelected, Qt::UniqueConnection);
         item->SetVisible(true);
         return true;
@@ -460,6 +461,7 @@ bool VGMapManager::InsertItems(MapAbstractItem::MapItemType tp, const QList<MapA
             if  (!itr || itr->ItemType() != tp || model->contains(itr))
                 continue;
             itr->SetVisible(true);
+            itr->SetParentModel(model);
             lsObj << itr;
 		}
 		model->insertList(lsObj, index);
@@ -478,6 +480,7 @@ bool VGMapManager::RemoveItem(MapAbstractItem *item)
         return false;
 
     item->SetVisible(false);
+    item->SetParentModel(nullptr);
     return itr.value()->removeOne(item) != NULL;
 }
 
@@ -497,7 +500,8 @@ void VGMapManager::RemoveItems(MapAbstractItem::MapItemType tp, const QList<MapA
         if (!item || item->ItemType()!= tp || !itr.value()->contains(item))
             continue;
 
-		objects << item;
+        objects << item;
+        item->SetParentModel(nullptr);
 	}
 	if (objects.size() > 0)
 		itr.value()->removeItmes(objects);

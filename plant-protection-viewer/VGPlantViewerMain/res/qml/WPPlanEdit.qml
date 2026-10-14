@@ -13,6 +13,7 @@ Rectangle{
     signal editRouteInfo(var rt)
     signal finishPlan()
     signal exitPlan()
+    signal listFold()
     color: "#F6F6F6"
 
     function initial(bEdit) {
@@ -45,12 +46,22 @@ Rectangle{
                 flickable.contentX = idx*flickable.width
             }
         }
+        VGImage{
+            id: imgFold
+            width:      30
+            height:     width
+            iconName: "fold"
+            anchors {right: parent.right; rightMargin: 10; verticalCenter: tabFunc.verticalCenter}
+            onImgClicked:       {emit:listFold()}
+            visible:            !wplan.newPlan
+        }
         Text {
             id: txtSave
             anchors {right: parent.right; rightMargin: 15; verticalCenter: tabFunc.verticalCenter}
             enabled:   tabFunc.getCurrentIndex()!==1 || (wplan && wplan.valide)
             color:     enabled ? "black":"gray"
             text:      tabFunc.currentIndex===1 ? qsTr("Save") : qsTr("Next")//qsTr("保存") : qsTr("下一步")
+            visible:   !imgFold.visible
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
