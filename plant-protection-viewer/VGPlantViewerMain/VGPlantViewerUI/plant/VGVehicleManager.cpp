@@ -141,7 +141,7 @@ void VGVehicleManager::processSurveysMavLink(const mavlink_message_t &msg)
     if (msg.msgid == MAVLINK_MSG_ID_PARAM_VALUE)
     {
         QVariant v;
-        QString id = VGMavLinkCode::DecodeParameter(msg, v);
+        QString id = VGMavLinkCode::DecodeParameter(msg, v, nullptr);
         qvgApp->surveyMonitor()->DealParam(id, v);
     }
 }

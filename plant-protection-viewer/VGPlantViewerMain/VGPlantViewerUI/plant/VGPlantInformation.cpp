@@ -852,7 +852,7 @@ void VGPlantInformation::SendSupport(bool bEnter, VGCoordinate *spt)
     else if (VGNetManager *nm = qvgApp->netManager())
     {
         mavlink_message_t msg;
-        VGMavLinkCode::EncodeCommandInt(msg, 0, cmd, NULL, 0, 0, 0, 0, 0, cl, lat, lon, alt);
+        VGMavLinkCode::EncodeCommandInt(msg, 0, cmd, 0, 0, 0, 0, 0, cl, lat, lon, alt);
         nm->SendControlUav(m_planeId, msg);
     }
 
@@ -1433,8 +1433,13 @@ QString VGPlantInformation::GetQxStatDscb(int stat)
     return strStat;
 }
 
-bool VGPlantInformation::DealPlantParameter(const QString &key, const QVariant &v)
+bool VGPlantInformation::DealPlantParameter(const QString &key, const QVariant &v, int count)
 {
+    if (count > m_paramsCount)
+        m_paramsCount = count;
+    else if (count < m_paramsCount)
+        count++;
+
     m_strLsReqParams.remove(key);
     if (qvgApp->parameters()->hasParam(key))
     {
@@ -1507,9 +1512,8 @@ void VGPlantInformation::TestPump()
 
 void VGPlantInformation::TestMotor(int idx, int s, int pcn, int count)
 {
-	if (idx >= 8)
+	if (idx > 8)
 		return;
-
     sendCommandInt(MAV_CMD_DO_MOTOR_TEST, idx, MOTOR_TEST_THROTTLE_PERCENT, pcn, s, count);
 }
 
@@ -1776,7 +1780,7 @@ void VGPlantInformation::sendCommand(int cmd, float f1, float f2, float f3, floa
     else if (VGNetManager *nm = qvgApp->netManager())
     {
         mavlink_message_t msg;
-        VGMavLinkCode::EncodeCommandSt(msg, 0, (MAV_CMD)cmd, NULL, 0, 0, f1, f2, f3, f4, f5, f6, f7);
+        VGMavLinkCode::EncodeCommandSt(msg, 0, (MAV_CMD)cmd, 0, 0, f1, f2, f3, f4, f5, f6, f7);
         nm->SendControlUav(m_planeId, msg);
     }
 }
@@ -1785,12 +1789,12 @@ void VGPlantInformation::sendCommandInt(int cmd, float f1, float f2, float f3, f
 {
     if (m_directLink)
     {
-        m_directLink->sendMavCommand((MAV_CMD)cmd, f1, f2, f3, f4, x, y, z);
+        m_directLink->sendMavCommandInt((MAV_CMD)cmd, f1, f2, f3, f4, x, y, z);
     }
     else if (VGNetManager *nm = qvgApp->netManager())
     {
         mavlink_message_t msg;
-        VGMavLinkCode::EncodeCommandInt(msg, 0, (MAV_CMD)cmd, NULL, 0, 0, f1, f2, f3, f4, x, y, z);
+        VGMavLinkCode::EncodeCommandInt(msg, 0, (MAV_CMD)cmd, 0, 0, f1, f2, f3, f4, x, y, z);
         nm->SendControlUav(m_planeId, msg);
     }
 }
@@ -1807,7 +1811,7 @@ void VGPlantInformation::sendSetHome(bool uav, const QGeoCoordinate &c)
     else if (VGNetManager *nm = qvgApp->netManager())
     {
         mavlink_message_t msg;
-        VGMavLinkCode::EncodeCommandInt(msg, 0, MAV_CMD_DO_SET_HOME, NULL, 0, 0, uav ? 1 : 0, 0, 0, 0, lat, lon, alt);
+        VGMavLinkCode::EncodeCommandInt(msg, 0, MAV_CMD_DO_SET_HOME, 0, 0, uav ? 1 : 0, 0, 0, 0, lat, lon, alt);
         nm->SendControlUav(m_planeId, msg);
     }
 }

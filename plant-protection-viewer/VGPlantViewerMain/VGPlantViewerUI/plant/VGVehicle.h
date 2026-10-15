@@ -71,7 +71,6 @@ public:
     void setQxSdkAccount(const QString &, const QString &, const QString &, const QString &);
     bool isMissionIdle()const;
     void loadFromVehicle(MAV_MISSION_TYPE tp=MAV_MISSION_TYPE_MISSION);
-    const QList<MissionItem*> &missionItems()const;
     bool hasValidMissionItems()const;
     MissionManager *missionManager()const;
     void setArmed(bool armed);
@@ -80,6 +79,7 @@ public:
     void sendMavCommandInt(MAV_CMD command, float param1 = 0.0f, float param2 = 0.0f, float param3 = 0.0f
         , float param4 = 0.0f, int param5 = 0, int param6 = 0, float param7 = 0);
     void prcsVehicleParameter(const QString &strParam, const QVariant &param=QVariant());
+    void getParameter(int idx);
 	QString flightMode()const;
 public:
     static QStringList	GetFlightModes();

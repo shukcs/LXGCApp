@@ -309,8 +309,6 @@ void VGLandManager::quitOperation()
 const QMap<QString, uint16_t> &VGLandManager::getDiscsItem()
 {
     static QMap<QString, uint16_t> sDscs = { { tr("WAYPOINT"), MAV_CMD_NAV_WAYPOINT },
-        { tr("LoiterUnlim"), MAV_CMD_NAV_LOITER_UNLIM },
-        { tr("LoiterTurns"), MAV_CMD_NAV_LOITER_TURNS },
         { tr("LoiterTime"), MAV_CMD_NAV_LOITER_TIME },
         { tr("Ret2Lnch"), MAV_CMD_NAV_RETURN_TO_LAUNCH },
         { tr("LAND"), MAV_CMD_NAV_LAND },
@@ -322,8 +320,7 @@ const QMap<QString, uint16_t> &VGLandManager::getDiscsItem()
 
 QStringList VGLandManager::missionTypeNames()const
 {
-    static QStringList strLs = { getDiscsItem().key(MAV_CMD_NAV_WAYPOINT), getDiscsItem().key(MAV_CMD_NAV_LOITER_UNLIM),
-        getDiscsItem().key(MAV_CMD_NAV_LOITER_TURNS), getDiscsItem().key(MAV_CMD_NAV_LOITER_TIME),
+    static QStringList strLs = { getDiscsItem().key(MAV_CMD_NAV_WAYPOINT), getDiscsItem().key(MAV_CMD_NAV_LOITER_TIME),
         getDiscsItem().key(MAV_CMD_NAV_RETURN_TO_LAUNCH), getDiscsItem().key(MAV_CMD_NAV_LAND),
         getDiscsItem().key(MAV_CMD_NAV_TAKEOFF), getDiscsItem().key(MAV_CMD_NAV_LAND_LOCAL), 
         getDiscsItem().key(MAV_CMD_NAV_FOLLOW) };

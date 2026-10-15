@@ -436,7 +436,7 @@ VGMissionItem *VGVehicleMission::AddWayPoint(int pos, const QGeoCoordinate &c, u
 
     m_beg = 0;
     pos = 0<=pos && pos<m_missionItems->count() ? pos : m_missionItems->count();
-    auto item = new VGMissionItem(nullptr, this);
+    auto item = new VGMissionItem(MissionItem(), this);
     m_missionItems->insert(pos, item);
     if (tp==MAV_CMD_NAV_WAYPOINT)
         item->SetCoordinate(c);

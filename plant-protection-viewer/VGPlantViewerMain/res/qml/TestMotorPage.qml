@@ -287,7 +287,7 @@ Rectangle
 				count = 8
 			else if (kg10.checked)
 				count = 6
-			plantManager.testMotor(0, txtTime.text, sldPercent.value, count);
+			plantManager.testMotor(1, txtTime.text, sldPercent.value, count);
 		}
     }
     Connections {

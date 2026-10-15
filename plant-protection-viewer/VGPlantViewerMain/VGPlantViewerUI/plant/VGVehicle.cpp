@@ -209,7 +209,7 @@ void VGVehicle::sendRTCM(const QList<uint16_t> idxs, const QList<QByteArray> &rt
     for (; itr1 != idxs.end(); ++itr1, ++itr2)
     {
         mavlink_message_t msg = { 0 };
-        VGMavLinkCode::EncodeRTCM(msg, *itr2, flag++, qvgApp->mavLink(), priorityLink()->getMavlinkChannel(), sysID());
+        VGMavLinkCode::EncodeRTCM(msg, *itr2, flag++, priorityLink()->getMavlinkChannel(), sysID());
         sendMessageOnLink(priorityLink(), msg);
     }
 
@@ -329,7 +329,7 @@ QString VGVehicle::uavid() const
 void VGVehicle::SetFlightMode(const QString &fm)
 {
     mavlink_message_t msg;
-	if (VGMavLinkCode::EncodeSetMode(msg, fm, m_baseMode, qvgApp->mavLink(), priorityLink()->getMavlinkChannel(), sysID()))
+	if (VGMavLinkCode::EncodeSetMode(msg, fm, m_baseMode, priorityLink()->getMavlinkChannel(), sysID()))
 		sendMessageOnLink(priorityLink(), msg);
 }
 
@@ -393,11 +393,11 @@ void VGVehicle::_sendMavCommandAgain()
     float *p = cmd.rgParam;
     if (cmd.bInt)
         VGMavLinkCode::EncodeCommandInt(msg, cmd.component, cmd.command,
-            qvgApp->mavLink(), priorityLink()->getMavlinkChannel(), m_sysID,
+            priorityLink()->getMavlinkChannel(), m_sysID,
             p[0], p[1], p[2], p[3], cmd.x, cmd.y, cmd.z);
     else
         VGMavLinkCode::EncodeCommandSt(msg, cmd.component, cmd.command,
-            qvgApp->mavLink(), priorityLink()->getMavlinkChannel(), m_sysID,
+            priorityLink()->getMavlinkChannel(), m_sysID,
             p[0], p[1], p[2], p[3], p[4], p[5], p[6]);
     sendMessageOnLink(priorityLink(), msg);
 }
@@ -461,14 +461,14 @@ bool VGVehicle::syncPlanFlight(VGVehicleMission *ms, bool bBd)
 void VGVehicle::setQxAccount(const QString &acc, const QString &pswd)
 {
     mavlink_message_t msg = { 0 };
-    VGMavLinkCode::EncodeQXAccount(msg, acc, pswd, qvgApp->mavLink(), priorityLink()->getMavlinkChannel());
+    VGMavLinkCode::EncodeQXAccount(msg, acc, pswd, priorityLink()->getMavlinkChannel());
     sendMessageOnLink(priorityLink(), msg);
 }
 
 void VGVehicle::setQxSdkAccount(const QString &key, const QString &secret, const QString &id, const QString &type)
 {
     mavlink_message_t msg = { 0 };
-    VGMavLinkCode::EncodeQXSdkAccount(msg, key, secret, id, type, qvgApp->mavLink(), priorityLink()->getMavlinkChannel());
+    VGMavLinkCode::EncodeQXSdkAccount(msg, key, secret, id, type, priorityLink()->getMavlinkChannel());
     sendMessageOnLink(priorityLink(), msg);
 }
 
@@ -511,12 +511,12 @@ void VGVehicle::_prcsParameters()
     mavlink_message_t msg;
     if (p.second.first.isValid())
     {
-        if (VGMavLinkCode::EncodeSetParameter(msg, p.first, p.second.first, qvgApp->mavLink(), link->getMavlinkChannel(), sysID()))
+        if (VGMavLinkCode::EncodeSetParameter(msg, p.first, p.second.first, link->getMavlinkChannel(), sysID()))
             sendMessageOnLink(link, msg);
     }
-    else if (VGMavLinkCode::EncodeGetParameter(msg, p.first, qvgApp->mavLink(), BASE::defaultComponentId, sysID()))
+    else if (VGMavLinkCode::EncodeGetParameter(msg, p.first, BASE::defaultComponentId, sysID()))
     {
-        sendMessageOnLink(priorityLink(), msg);
+        sendMessageOnLink(link, msg);
     }
     m_mavParameterQue.append(p);
 }
@@ -585,17 +585,12 @@ void VGVehicle::loadFromVehicle(MAV_MISSION_TYPE tp)
         m_mgrMission->loadFromVehicle(tp);
 }
 
-const QList<MissionItem*> & VGVehicle::missionItems() const
-{
-    return m_mgrMission->missionItems();
-}
-
 bool VGVehicle::hasValidMissionItems() const
 {
     return m_mgrMission->hasValidMissionItems();
 }
 
-MissionManager * VGVehicle::missionManager() const
+MissionManager *VGVehicle::missionManager() const
 {
     return m_mgrMission;
 }
@@ -695,6 +690,16 @@ void VGVehicle::prcsVehicleParameter(const QString &strParam, const QVariant &pa
         return;
 
     _prcsParameters();
+}
+
+void VGVehicle::getParameter(int idx)
+{
+    if (LinkInterface *link = priorityLink())
+    {
+        mavlink_message_t msg;
+        if (VGMavLinkCode::EncodeGetParameter(msg, QString(), link->getMavlinkChannel(), sysID(), idx))
+            sendMessageOnLink(link, msg);
+    }
 }
 
 QString VGVehicle::flightMode() const
@@ -849,7 +854,7 @@ void VGVehicle::_handleLogData(const mavlink_message_t& message)
 void VGVehicle::_handleParameter(const mavlink_message_t& message)
 {
     QVariant val;
-    QString key = VGMavLinkCode::DecodeParameter(message, val);
+    QString key = VGMavLinkCode::DecodeParameter(message, val, nullptr);
     if (!key.isEmpty())
     {
         if (key == PARAM_UAV_ID)

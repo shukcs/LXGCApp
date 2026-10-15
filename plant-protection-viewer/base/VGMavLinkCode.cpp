@@ -106,8 +106,9 @@ bool VGMavLinkCode::InitMavMessage(mavlink_message_t &msg, uint8_t id, const voi
     return false;
 }
 
-void VGMavLinkCode::EncodeRTCM(mavlink_message_t &msg, const QByteArray arr, int flag, const MAVLinkProtocol *p, int ch, int)
+void VGMavLinkCode::EncodeRTCM(mavlink_message_t &msg, const QByteArray arr, int flag, int ch, int)
 {
+    auto p = qvgApp->mavLink();
     mavlink_gps_rtcm_data_t packet_in;
     packet_in.flags = flag;
     packet_in.len = arr.size();
@@ -128,7 +129,7 @@ void VGMavLinkCode::EncodeHartbeat(mavlink_message_t &msg, int cpnt, int sysId, 
     mavlink_msg_heartbeat_encode(sysId, cpnt, &msg, h);
 }
 
-void VGMavLinkCode::EncodeCommandSt(mavlink_message_t &msg, int cpnt, MAV_CMD cmd, const MAVLinkProtocol *p,
+void VGMavLinkCode::EncodeCommandSt(mavlink_message_t &msg, int cpnt, MAV_CMD cmd,
     int ch /*= 0*/, int sysId, float p1 /*= 0*/, float p2 /*= 0*/, float p3 /*= 0*/,
     float p4 /*= 0*/, float p5 /*= 0*/, float p6 /*= 0*/, float p7 /*= 0*/ )
 {
@@ -146,12 +147,13 @@ void VGMavLinkCode::EncodeCommandSt(mavlink_message_t &msg, int cpnt, MAV_CMD cm
     cmdMav.param7 = p7;
     cmdMav.target_system = sysId;
     cmdMav.target_component = cpnt;
+    auto p = qvgApp->mavLink();
     mavlink_msg_command_long_encode_chan(p?p->getSystemId():0,
         p ? p->getComponentId():0,
         ch, &msg, &cmdMav);
 }
 
-void VGMavLinkCode::EncodeCommandInt(mavlink_message_t &msg, int cpnt, MAV_CMD cmd, const MAVLinkProtocol *p,
+void VGMavLinkCode::EncodeCommandInt(mavlink_message_t &msg, int cpnt, MAV_CMD cmd,
     int ch, int sysId, float p1, float p2, float p3,
     float p4, int p5, int p6, float p7)
 {
@@ -170,19 +172,21 @@ void VGMavLinkCode::EncodeCommandInt(mavlink_message_t &msg, int cpnt, MAV_CMD c
     cmdMav.z = p7;
     cmdMav.target_system = sysId;
     cmdMav.target_component = cpnt;
+    auto p = qvgApp->mavLink();
     mavlink_msg_command_int_encode_chan(p ? p->getSystemId() : 0,
         p ? p->getComponentId() : 0,
         ch, &msg, &cmdMav);
 }
 
-void VGMavLinkCode::EncodeMissionCount(mavlink_message_t &msg, uint32_t count, MAV_MISSION_TYPE tp, MAVLinkProtocol *p, int ch, int cmp, int sysId)
+void VGMavLinkCode::EncodeMissionCount(mavlink_message_t &msg, uint32_t count, MAV_MISSION_TYPE tp, int ch, int cmp, int sysId)
 {
+    auto p = qvgApp->mavLink();
     uint8_t locSys = p ? p->getSystemId() : 0;
     uint8_t locCmp = p ? p->getComponentId() : 0;
     mavlink_msg_mission_count_pack_chan(locSys, locCmp, ch, &msg, sysId, cmp, count, tp);
 }
 
-void VGMavLinkCode::EncodeMissionItem(mavlink_message_t &msg, const MissionItem &item, bool cur, MAVLinkProtocol *p, int ch, int sysId)
+void VGMavLinkCode::EncodeMissionItem(mavlink_message_t &msg, const MissionItem &item, bool cur, int ch, int sysId)
 {
     mavlink_mission_item_t missionItem;
     memset(&missionItem, 0, sizeof(missionItem));
@@ -204,6 +208,7 @@ void VGMavLinkCode::EncodeMissionItem(mavlink_message_t &msg, const MissionItem 
     missionItem.autocontinue = item.autoContinue();
     missionItem.mission_type = item.missionType();
 
+    auto p = qvgApp->mavLink();
     mavlink_msg_mission_item_encode_chan(p ? p->getSystemId() : 0,
         p ? p->getComponentId() : 0,
         ch,
@@ -211,7 +216,7 @@ void VGMavLinkCode::EncodeMissionItem(mavlink_message_t &msg, const MissionItem 
         &missionItem);
 }
 
-void VGMavLinkCode::EncodeMissionItemInt(mavlink_message_t &msg, const MissionItem &item, bool cur, const MAVLinkProtocol *p, int ch, int sysId)
+void VGMavLinkCode::EncodeMissionItemInt(mavlink_message_t &msg, const MissionItem &item, bool cur, int ch, int sysId)
 {
     mavlink_mission_item_int_t missionItem;
     memset(&missionItem, 0, sizeof(missionItem));
@@ -233,6 +238,7 @@ void VGMavLinkCode::EncodeMissionItemInt(mavlink_message_t &msg, const MissionIt
     missionItem.autocontinue = item.autoContinue();
     missionItem.mission_type = item.missionType();
 
+    auto p = qvgApp->mavLink();
     mavlink_msg_mission_item_int_encode_chan(p ? p->getSystemId() : 0,
         p ? p->getComponentId() : 0,
         ch,
@@ -240,7 +246,7 @@ void VGMavLinkCode::EncodeMissionItemInt(mavlink_message_t &msg, const MissionIt
         &missionItem);
 }
 
-bool VGMavLinkCode::EncodeSetParameter(mavlink_message_t &msg, const QString &key, const QVariant &v, const MAVLinkProtocol *p, int ch, int sysId)
+bool VGMavLinkCode::EncodeSetParameter(mavlink_message_t &msg, const QString &key, const QVariant &v, int ch, int sysId)
 {
     if (key.isEmpty() || v.isNull())
         return false;
@@ -273,6 +279,7 @@ bool VGMavLinkCode::EncodeSetParameter(mavlink_message_t &msg, const QString &ke
     default:
         return false;
     }
+    auto p = qvgApp->mavLink();
     mavlink_msg_param_set_pack_chan(p ? p->getSystemId() : 0,
         p ? p->getComponentId() : 0,
         ch, &msg, sysId, BASE::defaultComponentId,
@@ -281,19 +288,21 @@ bool VGMavLinkCode::EncodeSetParameter(mavlink_message_t &msg, const QString &ke
     return true;
 }
 
-bool VGMavLinkCode::EncodeGetParameter(mavlink_message_t &msg, const QString &key, const MAVLinkProtocol *p, int c, int sysId)
+bool VGMavLinkCode::EncodeGetParameter(mavlink_message_t &msg, const QString &key, int c, int sysId, int idx)
 {
     if (key.isEmpty())
         return false;
+
+    auto p = qvgApp->mavLink();
     mavlink_msg_param_request_read_pack(p?p->getSystemId():0,		// Our system id
         p?p->getComponentId():0,	                                // Our component id
         &msg, sysId, c,
-        key.toUtf8().data(), -1);
+        key.toUtf8().data(), idx);
 
     return true;
 }
 
-bool VGMavLinkCode::EncodeSetMode(mavlink_message_t &msg, const QString &mod, uint8_t baseMod, const MAVLinkProtocol *p, int ch, int sysId)
+bool VGMavLinkCode::EncodeSetMode(mavlink_message_t &msg, const QString &mod, uint8_t baseMod, int ch, int sysId)
 {
     if (uint32_t cstmMode = VGMavLinkCode::GetFlightModeByString(mod))
     {
@@ -303,13 +312,13 @@ bool VGMavLinkCode::EncodeSetMode(mavlink_message_t &msg, const QString &mod, ui
         if (mod == MissionMod)
             baseMode |= MAV_MODE_FLAG_GUIDED_ENABLED;
 
-        EncodeCommandInt(msg, 0, MAV_CMD_DO_SET_MODE, p, ch, sysId, baseMod, cstmMode);
+        EncodeCommandInt(msg, 0, MAV_CMD_DO_SET_MODE, ch, sysId, baseMod, cstmMode);
         return true;
     }
     return false;
 }
 
-void VGMavLinkCode::EncodeReadItem(mavlink_message_t &msg, int seq, bool bInt, MAV_MISSION_TYPE tp, MAVLinkProtocol *p, int ch, int sysId)
+void VGMavLinkCode::EncodeReadItem(mavlink_message_t &msg, int seq, bool bInt, MAV_MISSION_TYPE tp, int ch, int sysId)
 {
     if (bInt)
     {
@@ -319,6 +328,7 @@ void VGMavLinkCode::EncodeReadItem(mavlink_message_t &msg, int seq, bool bInt, M
         missionRequest.seq = seq;
         missionRequest.mission_type = tp;
 
+        auto p = qvgApp->mavLink();
         mavlink_msg_mission_request_int_encode_chan(p?p->getSystemId():0,
             p ? p->getComponentId():0,
             ch,
@@ -333,6 +343,7 @@ void VGMavLinkCode::EncodeReadItem(mavlink_message_t &msg, int seq, bool bInt, M
         missionRequest.seq = seq;
         missionRequest.mission_type = tp;
 
+        auto p = qvgApp->mavLink();
         mavlink_msg_mission_request_encode_chan(p ? p->getSystemId() : 0,
             p ? p->getComponentId() : 0,
             ch,
@@ -341,14 +352,23 @@ void VGMavLinkCode::EncodeReadItem(mavlink_message_t &msg, int seq, bool bInt, M
     }
 }
 
-void VGMavLinkCode::EncodeQXAccount(mavlink_message_t &msg, const QString &acc, const QString &pswd, MAVLinkProtocol *p /*= NULL*/, int ch /*= 0*/)
+void VGMavLinkCode::EncodeQXAccount(mavlink_message_t &msg, const QString &acc, const QString &pswd, int ch /*= 0*/)
 {
+    auto p = qvgApp->mavLink();
     mavlink_msg_qx_account_pack_chan(p ? p->getSystemId() : 0,
         p ? p->getComponentId() : 0, ch, &msg, (uint8_t*)acc.toUtf8().data()
         , (uint8_t*)pswd.toUtf8().data(), 0);
 }
 
-QString VGMavLinkCode::DecodeParameter(const mavlink_message_t &msg, QVariant &v)
+void VGMavLinkCode::EncodeQXSdkAccount(mavlink_message_t &msg, const QString &key, const QString &secret, const QString &id, const QString &type, int ch /*= 0*/)
+{
+    auto p = qvgApp->mavLink();
+    mavlink_msg_qxsdk_account_pack_chan(p ? p->getSystemId() : 0,
+        p ? p->getComponentId() : 0, ch, &msg, key.toUtf8().data()
+        , secret.toUtf8().data(), id.toUtf8().data(), type.toUtf8().data(), 0);
+}
+
+QString VGMavLinkCode::DecodeParameter(const mavlink_message_t &msg, QVariant &v, int *count)
 {
     if (msg.msgid != MAVLINK_MSG_ID_PARAM_VALUE)
         return QString();
@@ -358,7 +378,8 @@ QString VGMavLinkCode::DecodeParameter(const mavlink_message_t &msg, QVariant &v
     mavlink_param_union_t paramVal;
     paramVal.param_float = param.param_value;
     paramVal.type = param.param_type;
-
+    if (count)
+        *count = param.param_count;
     switch (param.param_type)
     {
     case MAV_PARAM_TYPE_REAL32:
@@ -390,12 +411,22 @@ QString VGMavLinkCode::DecodeParameter(const mavlink_message_t &msg, QVariant &v
     return QString::fromUtf8(bytes);
 }
 
-int VGMavLinkCode::DecodeMissionRequest(const mavlink_message_t &msg)
+int VGMavLinkCode::DecodeMissionRequest(const mavlink_message_t &msg, uint16_t *type)
 {
-    if (msg.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_INT || msg.msgid == MAVLINK_MSG_ID_MISSION_REQUEST)
+    if (msg.msgid == MAVLINK_MSG_ID_MISSION_REQUEST)
     {
         mavlink_mission_request_t missionRequest;
         mavlink_msg_mission_request_decode(&msg, &missionRequest);
+        if (type)
+            *type = missionRequest.mission_type;
+        return missionRequest.seq;
+    }
+    else if (msg.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_INT)
+    {
+        mavlink_mission_request_int_t missionRequest;
+        mavlink_msg_mission_request_int_decode(&msg, &missionRequest);
+        if (type)
+            *type = missionRequest.mission_type;
         return missionRequest.seq;
     }
     return -1;
@@ -553,13 +584,6 @@ QString VGMavLinkCode::DecodeQXAccount(const mavlink_message_t &msg, QString &ps
     mavlink_msg_qx_account_decode(&msg, &qxacc);
     pswd = (char*)qxacc.pswd;
     return QString((char*)qxacc.acc);
-}
-
-void VGMavLinkCode::EncodeQXSdkAccount(mavlink_message_t &msg, const QString &key, const QString &secret, const QString &id,const QString &type, MAVLinkProtocol *p, int ch)
-{
-    mavlink_msg_qxsdk_account_pack_chan(p ? p->getSystemId() : 0,
-        p ? p->getComponentId() : 0, ch, &msg,key.toUtf8().data()
-        , secret.toUtf8().data(),id.toUtf8().data(),type.toUtf8().data(), 0);
 }
 
 bool VGMavLinkCode::DecodeQXSDKAccount(const mavlink_message_t &msg, QString &key, QString &secret, QString &id, QString &type)

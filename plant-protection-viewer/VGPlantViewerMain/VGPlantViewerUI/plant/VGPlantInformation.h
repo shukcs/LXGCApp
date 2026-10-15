@@ -192,7 +192,7 @@ public:
     void SetSychBegin();
 	void SetMedicineGrade(int t);
 	void SetVoltErr(int t);
-    bool DealPlantParameter(const QString &key, const QVariant &v);
+    bool DealPlantParameter(const QString &key, const QVariant &v, int count);
     void SetGndHeight(double height);
     QVariant GetParamValue(const QString &key);
     bool IsImitateGround();
@@ -379,6 +379,8 @@ private:
     QMap<QString, QVariant> m_params;
     QMap<QString, QVariant> m_strLsReqParams;
     QList<VGBlock *>        m_blocks;
+    int16_t                 m_paramsCount=1;
+    int16_t                 m_indexRead=0;
 };
 
 #endif // VGMYPLANEINFORMATION_H

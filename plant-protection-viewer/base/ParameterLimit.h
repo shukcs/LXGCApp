@@ -8,8 +8,21 @@
 #include <QMetaType>
 
 class QDomElement;
-class ParaLimitAbstract {
+class ParaLimitAbs {
+    Q_GADGET
+    Q_ENUMS(ParamType)
+    Q_PROPERTY(QString name READ GetName WRITE SetName)
+    Q_PROPERTY(bool readOnly READ IsReadOnly WRITE SetReadOnly)
+    Q_PROPERTY(QStringList describe READ GetDescribes)
+    Q_PROPERTY(QVariant value READ GetValue)
 public:
+    enum ParamType {
+        ParamUnknow = QVariant::Invalid,
+        ParamBool = QVariant::Bool,
+        ParamInt = QVariant::Int,
+        ParamUInt = QVariant::UInt,
+        ParamFloat = QVariant::Double,
+    };
     enum ParamStat{
         Normal,
         Base16,
@@ -20,8 +33,8 @@ public:
     };
     typedef QPair<QVariant, QString> ValuePair;
 public:
-    ParaLimitAbstract();
-    virtual~ParaLimitAbstract() {}
+    ParaLimitAbs();
+    virtual~ParaLimitAbs() {}
 
     QString GetId()const;
     void SetId(const QString &id);
@@ -61,9 +74,9 @@ protected:
 };
 
 template<class T>
-class ParameterLimit : public ParaLimitAbstract {
+class ParameterLimit : public ParaLimitAbs {
 public:
-    ParameterLimit() : ParaLimitAbstract(){ }
+    ParameterLimit() : ParaLimitAbs(){ }
     int GetType()const
     {
         return qMetaTypeId<T>();
@@ -93,5 +106,11 @@ public:
         return m_vCanValues.size() - 1;
     }
 };
+typedef ParameterLimit<float> ParameterFloat;
+typedef ParameterLimit<int> ParameterInt;
+typedef ParameterLimit<uint32_t> ParameterU32;
 
+Q_DECLARE_METATYPE(ParameterFloat)
+Q_DECLARE_METATYPE(ParameterInt)
+Q_DECLARE_METATYPE(ParameterU32)
 #endif // __PARAMETER_LIMIT_H__

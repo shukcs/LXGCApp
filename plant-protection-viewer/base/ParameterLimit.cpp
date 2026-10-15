@@ -31,11 +31,11 @@ static QString intVarientToStr(const QVariant &val, int tp)
         return QString();
 
     QString ret;
-    if (tp == ParaLimitAbstract::Normal)
+    if (tp == ParaLimitAbs::Normal)
         ret =  val.type() == QVariant::Int ? QString::number(val.toInt()) : QString::number(val.toUInt());
-    else if (tp == ParaLimitAbstract::Base16)
+    else if (tp == ParaLimitAbs::Base16)
         ret = val.type() == QVariant::Int ? QString("%1").arg(val.toInt(), 8, 16, QChar('0')) : QString("%1").arg(val.toUInt(), 8, 16, QChar('0'));
-    else if (tp == ParaLimitAbstract::IPType)
+    else if (tp == ParaLimitAbs::IPType)
         ret = uint2Ip(val.toUInt());
 
     return ret;
@@ -44,43 +44,43 @@ static QString intVarientToStr(const QVariant &val, int tp)
 static QVariant intVarientFromStr(const QString &val, int tp, bool bUint=false)
 {
     QVariant ret;
-    if (tp == ParaLimitAbstract::Normal)
+    if (tp == ParaLimitAbs::Normal)
         bUint ? ret.setValue<uint>(val.toUInt()) : ret.setValue<int>(val.toInt());
-    else if (tp == ParaLimitAbstract::Base16)
+    else if (tp == ParaLimitAbs::Base16)
         bUint ? ret.setValue<uint>(val.toUInt(NULL, 16)) : ret.setValue<int>(val.toInt(NULL, 16));
-    else if (tp == ParaLimitAbstract::IPType)
+    else if (tp == ParaLimitAbs::IPType)
         bUint ? ret.setValue<uint>(ip2UInt(val)) : ret.setValue<int>(ip2UInt(val));
 
     return ret;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////
-//ParaLimitAbstract
+//ParaLimitAbs
 /////////////////////////////////////////////////////////////////////////////////////////////
-ParaLimitAbstract::ParaLimitAbstract():m_stat(Normal)
+ParaLimitAbs::ParaLimitAbs():m_stat(Normal)
 {
 }
 
-QString ParaLimitAbstract::GetId() const
+QString ParaLimitAbs::GetId() const
 {
     return m_id;
 }
 
-void ParaLimitAbstract::SetId(const QString &id)
+void ParaLimitAbs::SetId(const QString &id)
 {
     m_id = id;
 }
 
-QString ParaLimitAbstract::GetName() const
+QString ParaLimitAbs::GetName() const
 {
     return m_name;
 }
 
-void ParaLimitAbstract::SetName(const QString &str)
+void ParaLimitAbs::SetName(const QString &str)
 {
     m_name = str;
 }
 
-void ParaLimitAbstract::SetScope(bool b)
+void ParaLimitAbs::SetScope(bool b)
 {
     if (b)
         m_stat &= ~ListVal;
@@ -88,12 +88,12 @@ void ParaLimitAbstract::SetScope(bool b)
         m_stat |= ListVal;
 }
 
-bool ParaLimitAbstract::IsScope() const
+bool ParaLimitAbs::IsScope() const
 {
     return 0==(m_stat & ListVal);
 }
 
-void ParaLimitAbstract::SetReadOnly(bool b)
+void ParaLimitAbs::SetReadOnly(bool b)
 {
     if (!b)
         m_stat &= ~Readonly;
@@ -101,12 +101,12 @@ void ParaLimitAbstract::SetReadOnly(bool b)
         m_stat |= Readonly;
 }
 
-bool ParaLimitAbstract::IsReadOnly() const
+bool ParaLimitAbs::IsReadOnly() const
 {
     return m_stat & Readonly;
 }
 
-void ParaLimitAbstract::SetStrict(bool b)
+void ParaLimitAbs::SetStrict(bool b)
 {
     if (!b)
         m_stat &= ~Stict;
@@ -114,12 +114,12 @@ void ParaLimitAbstract::SetStrict(bool b)
         m_stat |= Stict;
 }
 
-bool ParaLimitAbstract::IsStrict() const
+bool ParaLimitAbs::IsStrict() const
 {
     return m_stat & Stict;
 }
 
-void ParaLimitAbstract::setShowType(int tp)
+void ParaLimitAbs::setShowType(int tp)
 {
     int tmp = GetType();
     if ((tmp == QMetaType::Int || tmp == QMetaType::UInt) && tp<= IPType)
@@ -129,7 +129,7 @@ void ParaLimitAbstract::setShowType(int tp)
     }
 }
 
-void ParaLimitAbstract::parseShowType(const QString &s)
+void ParaLimitAbs::parseShowType(const QString &s)
 {
     if (s == "base16")
         setShowType(Base16);
@@ -139,7 +139,7 @@ void ParaLimitAbstract::parseShowType(const QString &s)
         setShowType(Normal);
 }
 
-int ParaLimitAbstract::GetShowType() const
+int ParaLimitAbs::GetShowType() const
 {
     int tp = GetType();
     if (tp == QMetaType::Int || tp == QMetaType::UInt)
@@ -148,7 +148,7 @@ int ParaLimitAbstract::GetShowType() const
     return 0;
 }
 
-void ParaLimitAbstract::AddValue(const QVariant &val, const QString &describe /*= QString()*/)
+void ParaLimitAbs::AddValue(const QVariant &val, const QString &describe /*= QString()*/)
 {
     if (IsScope() || val.type()!= GetType())
         return;
@@ -157,7 +157,7 @@ void ParaLimitAbstract::AddValue(const QVariant &val, const QString &describe /*
         m_vCanValues << ValuePair(val, describe);
 }
 
-void ParaLimitAbstract::SetBiggest(const QVariant &val)
+void ParaLimitAbs::SetBiggest(const QVariant &val)
 {
     if (IsScope())
     {
@@ -167,7 +167,7 @@ void ParaLimitAbstract::SetBiggest(const QVariant &val)
     }
 }
 
-QVariant ParaLimitAbstract::GetBiggest() const
+QVariant ParaLimitAbs::GetBiggest() const
 {
     if (IsScope() && m_vCanValues.size())
         return m_vCanValues.last().first;
@@ -175,7 +175,7 @@ QVariant ParaLimitAbstract::GetBiggest() const
     return QVariant();
 }
 
-void ParaLimitAbstract::SetLeast(const QVariant &v)
+void ParaLimitAbs::SetLeast(const QVariant &v)
 {
     if (IsScope())
     {
@@ -186,7 +186,7 @@ void ParaLimitAbstract::SetLeast(const QVariant &v)
     }
 }
 
-QVariant ParaLimitAbstract::Getleast() const
+QVariant ParaLimitAbs::Getleast() const
 {
     if (IsScope() && m_vCanValues.size())
         return m_vCanValues.first().first;
@@ -194,7 +194,7 @@ QVariant ParaLimitAbstract::Getleast() const
     return QVariant();
 }
 
-QStringList ParaLimitAbstract::GetDescribes() const
+QStringList ParaLimitAbs::GetDescribes() const
 {
     QStringList ret;
     if (IsScope())
@@ -207,7 +207,7 @@ QStringList ParaLimitAbstract::GetDescribes() const
     return ret;
 }
 
-bool ParaLimitAbstract::IsInScope(const QVariant &val) const
+bool ParaLimitAbs::IsInScope(const QVariant &val) const
 {
     if (val.type() == GetType())
         return val >= Getleast() && val <= GetBiggest();
@@ -215,7 +215,7 @@ bool ParaLimitAbstract::IsInScope(const QVariant &val) const
     return false;
 }
 
-QVariant ParaLimitAbstract::GetValue(int idx) const
+QVariant ParaLimitAbs::GetValue(int idx) const
 {
     if (IsScope() || idx < 0 || idx >= m_vCanValues.count())
         return QVariant();
@@ -223,7 +223,7 @@ QVariant ParaLimitAbstract::GetValue(int idx) const
     return m_vCanValues.at(idx).first;
 }
 
-void ParaLimitAbstract::ParseContent(const QDomElement &e)
+void ParaLimitAbs::ParseContent(const QDomElement &e)
 {
     SetId(e.attribute("id"));
     SetName(e.attribute("name"));
@@ -251,7 +251,7 @@ void ParaLimitAbstract::ParseContent(const QDomElement &e)
     }
 }
 
-QString ParaLimitAbstract::ValueToString(const QVariant &val)
+QString ParaLimitAbs::ValueToString(const QVariant &val)
 {
     int idx = GetIndexOf(val);
     if (idx >= 0)
@@ -278,7 +278,7 @@ QString ParaLimitAbstract::ValueToString(const QVariant &val)
     return QString();
 }
 
-QVariant ParaLimitAbstract::ValueFromString(const QString &str)
+QVariant ParaLimitAbs::ValueFromString(const QString &str)
 {
     bool b = true;
     QVariant ret;
@@ -305,7 +305,7 @@ QVariant ParaLimitAbstract::ValueFromString(const QString &str)
     return b ? ret : QVariant();
 }
 
-int ParaLimitAbstract::GetIndexOf(const QVariant &val)const
+int ParaLimitAbs::GetIndexOf(const QVariant &val)const
 {
     QList<ValuePair>::const_iterator itr = m_vCanValues.begin();
     for (int i = 0; itr!=m_vCanValues.end(); ++i,++itr)

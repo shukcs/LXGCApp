@@ -84,7 +84,7 @@ void MissionManager::_writeMissionCount(void)
     {
         mavlink_message_t message;
         VGMavLinkCode::EncodeMissionCount(message, m_writeMissionItems.count(), (MAV_MISSION_TYPE)m_typeMissionWrite,
-            qvgApp->toolbox()->mavlinkProtocol(), m_dedicatedLink->getMavlinkChannel(), MAV_COMP_ID_MISSIONPLANNER, m_vehicle->sysID());
+            m_dedicatedLink->getMavlinkChannel(), MAV_COMP_ID_MISSIONPLANNER, m_vehicle->sysID());
         m_vehicle->sendMessage(message);
         _startAckTimeout(AckMissionRequest);
     }
@@ -351,14 +351,14 @@ void MissionManager::_requestNextMissionItem(void)
 
     mavlink_message_t message;
     VGMavLinkCode::EncodeReadItem(message, m_itemIndicesToRead[0], m_vehicle->supportsMissionItemInt(), m_typeMissionRead
-        , qvgApp->mavLink(), m_dedicatedLink->getMavlinkChannel(), m_vehicle->sysID());
+        , m_dedicatedLink->getMavlinkChannel(), m_vehicle->sysID());
     m_vehicle->sendMessage(message);
     _startAckTimeout(AckMissionItem);
 }
 
 void MissionManager::_handleMissionItem(const mavlink_message_t& message)
 {
-    MissionItem* item = new MissionItem(this);
+    auto item = new MissionItem(this);
     if (!item)
         return;
 
@@ -382,7 +382,6 @@ void MissionManager::_handleMissionItem(const mavlink_message_t& message)
         if (m_itemIndicesToRead.contains(item->sequenceNumber()))
         {
             m_itemIndicesToRead.removeOne(item->sequenceNumber());
-            item->setCoordinate(VGGlobalFunc::gpsCorrect(item->coordinate()));
             m_missionItems.append(item);
         }
         else
@@ -433,11 +432,11 @@ void MissionManager::_handleMissionRequest(const mavlink_message_t& message, boo
     mavlink_message_t   messageOut;
     if (missionItemInt)
         VGMavLinkCode::EncodeMissionItemInt(messageOut, *item, seq==0,
-            qvgApp->mavLink(), m_dedicatedLink->getMavlinkChannel(),
+             m_dedicatedLink->getMavlinkChannel(),
             m_vehicle->sysID());
     else
         VGMavLinkCode::EncodeMissionItem(messageOut, *item, seq == 0,
-            qvgApp->mavLink(), m_dedicatedLink->getMavlinkChannel(),
+            m_dedicatedLink->getMavlinkChannel(),
             m_vehicle->sysID());
     
     m_vehicle->sendMessage(messageOut);
@@ -768,22 +767,21 @@ void MissionManager::generateResumeMission(int resumeIndex)
     int seqNum = 0;
     QList<MissionItem*> resumeMission;
 
-    QList<MAV_CMD> includedResumeCommands;
-
     // If any command in this list occurs before the resumeIndex it will be added to the front of the mission
-    includedResumeCommands << MAV_CMD_DO_CONTROL_VIDEO
-                           << MAV_CMD_DO_SET_ROI
-                           << MAV_CMD_DO_DIGICAM_CONFIGURE
-                           << MAV_CMD_DO_DIGICAM_CONTROL
-                           << MAV_CMD_DO_MOUNT_CONFIGURE
-                           << MAV_CMD_DO_MOUNT_CONTROL
-                           << MAV_CMD_DO_SET_CAM_TRIGG_DIST
-                           << MAV_CMD_DO_FENCE_ENABLE
-                           << MAV_CMD_IMAGE_START_CAPTURE
-                           << MAV_CMD_IMAGE_STOP_CAPTURE
-                           << MAV_CMD_VIDEO_START_CAPTURE
-                           << MAV_CMD_VIDEO_STOP_CAPTURE
-                           << MAV_CMD_DO_CHANGE_SPEED;
+    static const QList<MAV_CMD> includedResumeCommands = { MAV_CMD_DO_CONTROL_VIDEO
+        , MAV_CMD_DO_SET_ROI
+        , MAV_CMD_DO_DIGICAM_CONFIGURE
+        , MAV_CMD_DO_DIGICAM_CONTROL
+        , MAV_CMD_DO_MOUNT_CONFIGURE
+        , MAV_CMD_DO_MOUNT_CONTROL
+        , MAV_CMD_DO_SET_CAM_TRIGG_DIST
+        , MAV_CMD_DO_FENCE_ENABLE
+        , MAV_CMD_IMAGE_START_CAPTURE
+        , MAV_CMD_IMAGE_STOP_CAPTURE
+        , MAV_CMD_VIDEO_START_CAPTURE
+        , MAV_CMD_VIDEO_STOP_CAPTURE
+        , MAV_CMD_DO_CHANGE_SPEED
+    };
 
     bool addHomePosition = m_bSendHomePosition;
     int setCurrentIndex = addHomePosition ? 1 : 0;

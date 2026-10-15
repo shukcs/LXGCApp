@@ -885,12 +885,12 @@ bool VGPlantManager::IsOneKeyArm() const
     return m_bOneKeyArm;
 }
 
-void VGPlantManager::DealParam(VGPlantInformation *info, const QString &id, const QVariant &var)
+void VGPlantManager::DealParam(VGPlantInformation *info, const QString &id, const QVariant &var, int count)
 {
     if (!info)
         return;
 
-    if (info->DealPlantParameter(id, var) && GetCurrentPlant()==info)
+    if (info->DealPlantParameter(id, var, count) && GetCurrentPlant()==info)
     {
         emit paramChanged(id);
         if (Imitation_Mode == id)
@@ -1198,8 +1198,9 @@ void VGPlantManager::_prcsAttitude(VGPlantInformation &p, const mavlink_message_
 void VGPlantManager::_prcsParamVal(VGPlantInformation &p, const mavlink_message_t &m)
 {
     QVariant v;
-    QString key = VGMavLinkCode::DecodeParameter(m, v);
-    DealParam(&p, key, v);
+    int count;
+    QString key = VGMavLinkCode::DecodeParameter(m, v, &count);
+    DealParam(&p, key, v, count);
 }
 
 void VGPlantManager::_prcsMissionCount(VGPlantInformation &p, const mavlink_message_t &msg, bool b)

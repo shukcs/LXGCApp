@@ -85,7 +85,7 @@ public:
     bool IsVoiceVS()const;
     bool IsVoiceSat()const;
     bool IsOneKeyArm()const;
-    void DealParam(VGPlantInformation *info, const QString &id, const QVariant &var);
+    void DealParam(VGPlantInformation *info, const QString &id, const QVariant &var, int count);
     bool IsImitateGround()const;
     bool IsSpsPermission()const;
     bool IsQXUseSdk()const;
