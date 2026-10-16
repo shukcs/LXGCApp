@@ -15,7 +15,6 @@
 #include "MAVLinkProtocol.h"
 #include "LinkManager.h"
 
-#define PARAM_UAV_ID "SYS_UAV_ID"
 #define PARAM_MAXSPEED_ID "MAX_SPEED_ID"
 #define PARAM_MAXACC_ID "MAX_ACC_ID"
 #define MaxRetry 3
@@ -209,7 +208,7 @@ void VGVehicle::sendRTCM(const QList<uint16_t> idxs, const QList<QByteArray> &rt
     for (; itr1 != idxs.end(); ++itr1, ++itr2)
     {
         mavlink_message_t msg = { 0 };
-        VGMavLinkCode::EncodeRTCM(msg, *itr2, flag++, priorityLink()->getMavlinkChannel(), sysID());
+        VGMavLinkCode::EncodeRTCM(msg, *itr2, flag++, priorityLink()->targetComponentId(), sysID());
         sendMessageOnLink(priorityLink(), msg);
     }
 
@@ -262,9 +261,6 @@ void VGVehicle::_handleHeartbeat(const mavlink_message_t &message)
 {
     if (MAVTYPESURVEY == m_vehicleType)
         return;
-
-    if (m_uavID.isEmpty())
-        prcsVehicleParameter(PARAM_UAV_ID);
 
     mavlink_heartbeat_t heartbeat;
 	mavlink_msg_heartbeat_decode(&message, &heartbeat);
@@ -329,7 +325,7 @@ QString VGVehicle::uavid() const
 void VGVehicle::SetFlightMode(const QString &fm)
 {
     mavlink_message_t msg;
-	if (VGMavLinkCode::EncodeSetMode(msg, fm, m_baseMode, priorityLink()->getMavlinkChannel(), sysID()))
+	if (VGMavLinkCode::EncodeSetMode(msg, fm, m_baseMode, priorityLink()->targetComponentId(), sysID()))
 		sendMessageOnLink(priorityLink(), msg);
 }
 
@@ -393,11 +389,11 @@ void VGVehicle::_sendMavCommandAgain()
     float *p = cmd.rgParam;
     if (cmd.bInt)
         VGMavLinkCode::EncodeCommandInt(msg, cmd.component, cmd.command,
-            priorityLink()->getMavlinkChannel(), m_sysID,
+            priorityLink()->targetComponentId(), m_sysID,
             p[0], p[1], p[2], p[3], cmd.x, cmd.y, cmd.z);
     else
         VGMavLinkCode::EncodeCommandSt(msg, cmd.component, cmd.command,
-            priorityLink()->getMavlinkChannel(), m_sysID,
+            priorityLink()->targetComponentId(), m_sysID,
             p[0], p[1], p[2], p[3], p[4], p[5], p[6]);
     sendMessageOnLink(priorityLink(), msg);
 }
@@ -697,7 +693,7 @@ void VGVehicle::getParameter(int idx)
     if (LinkInterface *link = priorityLink())
     {
         mavlink_message_t msg;
-        if (VGMavLinkCode::EncodeGetParameter(msg, QString(), link->getMavlinkChannel(), sysID(), idx))
+        if (VGMavLinkCode::EncodeGetParameter(msg, QString(), link->targetComponentId(), sysID(), idx))
             sendMessageOnLink(link, msg);
     }
 }
@@ -705,6 +701,23 @@ void VGVehicle::getParameter(int idx)
 QString VGVehicle::flightMode() const
 {
 	return VGMavLinkCode::GetFlightModeName(m_customMode);
+}
+
+void VGVehicle::getParametesList()
+{
+    if (LinkInterface *link = priorityLink())
+    {
+        mavlink_message_t msg;
+        auto p = qvgApp->mavLink();
+        mavlink_msg_param_request_list_pack_chan(p?p->getSystemId() : 0,
+            p ? p->getComponentId() : 0,
+            link->getMavlinkChannel(),
+            &msg,
+            sysID(),
+            link->targetComponentId());
+
+        sendMessageOnLink(link, msg);
+    }
 }
 
 void VGVehicle::_handleAttitudeQuaternion(const mavlink_message_t& message)

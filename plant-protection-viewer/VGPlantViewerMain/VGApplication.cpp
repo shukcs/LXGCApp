@@ -18,7 +18,7 @@
 #include "VGUIInstance.h"
 #include "VGBluetoothManager.h"
 #include "VGQXManager.h"
-#include "ParametersLimit.h"
+#include "ParametersMgr.h"
 #include "VGPlantEvents.h"
 #include "VGMainPage.h"
 #include "VGController.h"
@@ -195,7 +195,7 @@ VGBluetoothManager *VGApplication::bluetoothManager() const
     return NULL;
 }
 
-ParametersLimit * VGApplication::parameters() const
+ParametersMgr * VGApplication::parameters() const
 {
     return m_paramsLimit;
 }
@@ -353,7 +353,7 @@ void VGApplication::_initMember()
     m_qxMgr = new VGQXManager(this);
     m_pMainUIInterface = new VGUIInstance;
 
-    m_paramsLimit = new ParametersLimit(this);
+    m_paramsLimit = new ParametersMgr(this);
     m_plantEvents = new VGPlantEvents(this);
     m_toolBox = new VGToolBox(this);
     if (m_controller = new VGController(this))

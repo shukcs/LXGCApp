@@ -14,7 +14,7 @@ class VGBDLocation;
 class LinkManager;
 class VGVehicleManager;
 class VGQXManager;
-class ParametersLimit;
+class ParametersMgr;
 class VGPlantEvents;
 class VGMapManager;
 class VGSurveyMonitor;
@@ -49,7 +49,7 @@ public:
     VGVehicleManager        *vehicleManager()const;
     VGQXManager             *qxManager()const;
     VGBluetoothManager      *bluetoothManager()const;
-    ParametersLimit         *parameters()const;
+    ParametersMgr         *parameters()const;
     VGPlantEvents           *plantEvents()const;
     VGController            *controller()const;
     VGFriendsManager        *friendsManager() const;
@@ -86,7 +86,7 @@ private:
 	QThread         *m_threadDb;
     QSettings       *m_setting;
     VGQXManager     *m_qxMgr;
-    ParametersLimit *m_paramsLimit;
+    ParametersMgr *m_paramsLimit;
     VGPlantEvents   *m_plantEvents;
     VGController    *m_controller;
 	QString         m_defualtPath;

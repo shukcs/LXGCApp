@@ -1,6 +1,6 @@
 ﻿#include "ParameterLimit.h"
 #include <QDomElement>
-#include "ParametersLimit.h"
+#include "ParametersMgr.h"
 
 static uint ip2UInt(QString ip)
 {
@@ -264,8 +264,8 @@ QString ParaLimitAbs::ValueToString(const QVariant &val)
     switch (val.type())
     {
     case QVariant::Bool:
-        return val.toBool() ? ParametersLimit::tr("Yes")//"是"
-            : ParametersLimit::tr("No");//"否"
+        return val.toBool() ? ParametersMgr::tr("Yes")//"是"
+            : ParametersMgr::tr("No");//"否"
     case QVariant::Int:
     case QVariant::UInt:
         return intVarientToStr(val, GetShowType());

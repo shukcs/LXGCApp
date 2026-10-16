@@ -183,7 +183,7 @@
     <ClCompile Include="..\..\..\LXGCApp\plant-protection-viewer\base\ParameterLimit.cpp">
       <Filter>VGPlantViewerMain\base</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\LXGCApp\plant-protection-viewer\base\ParametersLimit.cpp">
+    <ClCompile Include="..\..\..\LXGCApp\plant-protection-viewer\base\ParametersMgr.cpp">
       <Filter>VGPlantViewerMain\base</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\LXGCApp\plant-protection-viewer\base\VGGlobalFun.cpp">
@@ -380,7 +380,7 @@
     <ClCompile Include="moc\moc_MissionManager.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="moc\moc_ParametersLimit.cpp">
+    <ClCompile Include="moc\moc_ParametersMgr.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
     <ClCompile Include="moc\moc_QmlObjectListModel.cpp">
@@ -920,7 +920,7 @@
     <CustomBuild Include="..\..\..\LXGCApp\plant-protection-viewer\base\logHelper.h">
       <Filter>VGPlantViewerMain\base</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\..\LXGCApp\plant-protection-viewer\base\ParametersLimit.h">
+    <CustomBuild Include="..\..\..\LXGCApp\plant-protection-viewer\base\ParametersMgr.h">
       <Filter>VGPlantViewerMain\base</Filter>
     </CustomBuild>
   </ItemGroup>

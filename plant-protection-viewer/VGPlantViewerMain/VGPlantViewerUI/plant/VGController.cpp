@@ -3,7 +3,7 @@
 #include "VGPlantManager.h"
 #include "VGPlantInformation.h"
 #include "VGApplication.h"
-#include "ParametersLimit.h"
+#include "ParametersMgr.h"
 #include "ParameterLimit.h"
 #include <math.h>
 

@@ -68,7 +68,7 @@ SOURCES += main.cpp \
     ../base/VGGlobalFun.cpp \
     ../base/VGMavLinkCode.cpp \
     ../base/ParameterLimit.cpp \
-    ../base/ParametersLimit.cpp
+    ../base/ParametersMgr.cpp
 
 RESOURCES += VGPlantViewer.qrc
 
@@ -85,7 +85,7 @@ HEADERS += \
     ../base/QLog.h \
     ../base/VGGlobalFun.h \
     ../base/ParameterLimit.h \
-    ../base/ParametersLimit.h
+    ../base/ParametersMgr.h
     
 AndroidBuild {
     OTHER_FILES += \

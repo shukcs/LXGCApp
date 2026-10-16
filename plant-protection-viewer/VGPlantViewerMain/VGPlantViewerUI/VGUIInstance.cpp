@@ -27,7 +27,8 @@
 #include "SerialLink.h"
 #include "UdpLink.h"
 #include "TCPLink.h"
-#include "ParametersLimit.h"
+#include "ParametersMgr.h"
+#include "ParameterLimit.h"
 #include "srcload/VGImageProvider.h"
 #include "VGPlantEvents.h"
 #include "VGMainPage.h"
@@ -76,7 +77,8 @@ VGUIInstance::VGUIInstance(QObject* parent) : QObject(parent)
     qmlRegisterUncreatableType<VGVehicleMission>("VGGroundControl", 1, 0, "VGVehicleMission", "Reference only");
     qmlRegisterUncreatableType<VGMissionItem>("VGGroundControl", 1, 0, "VGMissionItem", "Reference only");
     qmlRegisterUncreatableType<VGQXManager>("VGGroundControl", 1, 0, "VGQXManager", "Reference only");
-    qmlRegisterUncreatableType<ParametersLimit>("VGGroundControl", 1, 0, "ParametersLimit", "Reference only");
+    qmlRegisterUncreatableType<ParametersMgr>("VGGroundControl", 1, 0, "ParametersMgr", "Reference only");
+    qmlRegisterUncreatableType<ParaLimitAbs>("VGGroundControl", 1, 0, "ParaLimitAbs", "Reference only");
     qmlRegisterUncreatableType<VGPlantEvent>("VGGroundControl", 1, 0, "VGPlantEvent", "Reference only");
     qmlRegisterUncreatableType<VGPlantEvents>("VGGroundControl", 1, 0, "VGPlantEvents", "Reference only");
     qmlRegisterUncreatableType<VGController>("VGGroundControl", 1, 0, "VGController", "Reference only");

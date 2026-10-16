@@ -13,8 +13,11 @@ class ParaLimitAbs {
     Q_ENUMS(ParamType)
     Q_PROPERTY(QString name READ GetName WRITE SetName)
     Q_PROPERTY(bool readOnly READ IsReadOnly WRITE SetReadOnly)
+    Q_PROPERTY(bool strict READ IsStrict WRITE SetStrict)
     Q_PROPERTY(QStringList describe READ GetDescribes)
-    Q_PROPERTY(QVariant value READ GetValue)
+    Q_PROPERTY(QVariant up READ GetBiggest)
+    Q_PROPERTY(QVariant down READ Getleast)
+    Q_PROPERTY(ParamType type READ GetType)
 public:
     enum ParamType {
         ParamUnknow = QVariant::Invalid,
@@ -50,9 +53,9 @@ public:
     void AddValue(const QVariant &val, const QString &describe = QString());
 
     QStringList GetDescribes()const;
-    bool IsInScope(const QVariant &val)const;
+    Q_INVOKABLE bool IsInScope(const QVariant &val)const;
     QVariant GetValue(int idx)const;
-    virtual int GetType()const = 0;
+    virtual ParamType GetType()const = 0;
     virtual int GetPropertyIndex(const QVariant &val)const = 0;
     void ParseContent(const QDomElement &e);
     void SetBiggest(const QVariant &val);
@@ -77,9 +80,9 @@ template<class T>
 class ParameterLimit : public ParaLimitAbs {
 public:
     ParameterLimit() : ParaLimitAbs(){ }
-    int GetType()const
+    ParamType GetType()const
     {
-        return qMetaTypeId<T>();
+        return (ParamType)qMetaTypeId<T>();
     }
     int GetPropertyIndex(const QVariant &val)const
     {

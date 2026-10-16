@@ -107,7 +107,7 @@ public:
     };
 public:
     explicit VGPlantInformation(QObject *parent = 0);    
-    VGPlantInformation(const VGPlantInformation &oth);
+    //VGPlantInformation(const VGPlantInformation &oth);
     ~VGPlantInformation();
 
     QString planeId()const;
@@ -254,6 +254,7 @@ protected:
     double GetLat()const;
     double GetLon()const;
     Q_INVOKABLE VGVehicleMission *beginOperation(VGMissionPlan *fr);
+    void timerEvent(QTimerEvent *e)override;
 signals:
     void flightModeChanged();
     void planeIdChanged(const QString &id);
@@ -353,7 +354,8 @@ private:
     qint64          m_bindTime;         //解绑、绑定时间
     qint64          m_lastTime;         //最后在线时间
     qint64          m_lastLacalTime;    //无数据计时
-    qint64          m_lastPosChgTm;    //无数据计时
+    qint64          m_lastPosChgTm;     //无数据计时
+    qint64          m_lastParamTm=0;      //参数
 
     QString         m_planeId;          //飞机ID
     QString         m_master;           //绑定者
@@ -380,7 +382,7 @@ private:
     QMap<QString, QVariant> m_strLsReqParams;
     QList<VGBlock *>        m_blocks;
     int16_t                 m_paramsCount=1;
-    int16_t                 m_indexRead=0;
+    int                     m_idTimer;
 };
 
 #endif // VGMYPLANEINFORMATION_H

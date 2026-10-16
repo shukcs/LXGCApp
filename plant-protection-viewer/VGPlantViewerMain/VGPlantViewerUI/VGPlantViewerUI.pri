@@ -30,6 +30,7 @@ HEADERS += \
     $$PWD/plant/VGVehicle.h \
     $$PWD/plant/VGVehicleLogManager.h \
     $$PWD/plant/VGVehicleManager.h \
+    $$PWD/plant/ParamtersModel.h \
     $$PWD/qx/VGQXManager.h\
     $$PWD/survey/VGGetGpsLocation.h\
     $$PWD/survey/VGBDLocation.h\
@@ -73,6 +74,7 @@ SOURCES += \
     $$PWD/plant/VGVehicleManager.cpp \
     $$PWD/plant/MissionItem.cc \
     $$PWD/plant/MissionManager.cc \
+    $$PWD/plant/ParamtersModel.cc \
     $$PWD/qx/VGQXManager.cpp\
     $$PWD/survey/VGGetGpsLocation.cpp\
     $$PWD/survey/VGBDLocation.cpp\

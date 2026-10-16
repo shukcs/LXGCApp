@@ -11,8 +11,8 @@ Rectangle {
     anchors.fill:                   parent
     color:                          "#1f000000"
 
-    property string strTitle:       ""
-    property string strTip:         ""
+    property string strTitle:       "123"
+    property string strTip:         "123456----7891"
     property alias bCancel:         txtCancle.visible
     property int idTip:             0
     signal finished(bool accept, int id)
@@ -65,9 +65,10 @@ Rectangle {
                 height: txtHeader.contentHeight*4
                 color: "transparent"
                 Label{
-                    id:                         txtTip
-                    anchors.verticalCenter:     parent.verticalCenter
-                    anchors.horizontalCenter:   parent.horizontalCenter
+                    id:                   txtTip
+                    anchors {fill: parent; margins: contentHeight/2}
+                    horizontalAlignment:        Text.AlignHCenter
+                    verticalAlignment:          Text.AlignVCenter
                     text:                       strTip
                     font:                       vgMainPage.font(true)
                     color: "#01113E"

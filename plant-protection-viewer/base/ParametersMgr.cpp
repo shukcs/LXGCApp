@@ -1,14 +1,14 @@
-﻿#include "ParametersLimit.h"
+﻿#include "ParametersMgr.h"
 #include "ParameterLimit.h"
 #include <QDomDocument>
 #include <QDomElement>
 #include <QDomNode>
 
-ParametersLimit::ParametersLimit(QObject *parent) : QObject(parent)
+ParametersMgr::ParametersMgr(QObject *parent) : QObject(parent)
 {
 }
 
-void ParametersLimit::LoadParameters(const QDomElement &ele)
+void ParametersMgr::LoadParameters(const QDomElement &ele)
 {
     QDomElement e = ele.firstChildElement("ParameterLimit");
     while (!e.isNull())
@@ -18,7 +18,7 @@ void ParametersLimit::LoadParameters(const QDomElement &ele)
     }
 }
 
-QStringList ParametersLimit::GetGroups() const
+QStringList ParametersMgr::GetGroups() const
 {
     QMap <QString, QList<ParaLimitAbs*> >::const_iterator itr = m_params.begin();
     QStringList ret;
@@ -29,7 +29,7 @@ QStringList ParametersLimit::GetGroups() const
     return ret;
 }
 
-QVariant ParametersLimit::stringToVariant(const QString &id, const QString &val) const
+QVariant ParametersMgr::stringToVariant(const QString &id, const QString &val) const
 {
     QVariant ret;
     if (ParaLimitAbs *parm = _getParemeterLimit(id))
@@ -42,7 +42,7 @@ QVariant ParametersLimit::stringToVariant(const QString &id, const QString &val)
     return ret;
 }
 
-QStringList ParametersLimit::getParams(const QString &group) const
+QStringList ParametersMgr::getParams(const QString &group) const
 {
     QString str = group.isEmpty() ? "undef" : group;
     QMap <QString, QList<ParaLimitAbs*> >::const_iterator itr = m_params.find(str);
@@ -57,7 +57,7 @@ QStringList ParametersLimit::getParams(const QString &group) const
     return ret;
 }
 
-ParaLimitAbs::ParamType ParametersLimit::getType(const QString &id) const
+ParaLimitAbs::ParamType ParametersMgr::getType(const QString &id) const
 {
     if (auto parm = _getParemeterLimit(id))
         return (ParaLimitAbs::ParamType)parm->GetType();
@@ -65,7 +65,7 @@ ParaLimitAbs::ParamType ParametersLimit::getType(const QString &id) const
     return ParaLimitAbs::ParamUnknow;
 }
 
-QString ParametersLimit::getName(const QString &id) const
+QString ParametersMgr::getName(const QString &id) const
 {
     if (ParaLimitAbs *parm = _getParemeterLimit(id))
         return parm->GetName();
@@ -73,12 +73,12 @@ QString ParametersLimit::getName(const QString &id) const
     return QString();
 }
 
-bool ParametersLimit::hasParam(const QString &id, const QString &group) const
+bool ParametersMgr::hasParam(const QString &id, const QString &group) const
 {
     return _getParemeterLimit(id, group) != NULL;
 }
 
-bool ParametersLimit::isParamReadonly(const QString &id) const
+bool ParametersMgr::isParamReadonly(const QString &id) const
 {
     if (ParaLimitAbs *parm = _getParemeterLimit(id))
         return parm->IsReadOnly();
@@ -86,7 +86,7 @@ bool ParametersLimit::isParamReadonly(const QString &id) const
     return true;
 }
 
-bool ParametersLimit::isScope(const QString &id) const
+bool ParametersMgr::isScope(const QString &id) const
 {
     if (ParaLimitAbs *parm = _getParemeterLimit(id))
         return parm->IsScope();
@@ -94,7 +94,7 @@ bool ParametersLimit::isScope(const QString &id) const
     return false;
 }
 
-QString ParametersLimit::getLeast(const QString &id) const
+QString ParametersMgr::getLeast(const QString &id) const
 {
     if (ParaLimitAbs *parm = _getParemeterLimit(id))
         return parm->ValueToString(parm->Getleast());
@@ -102,7 +102,7 @@ QString ParametersLimit::getLeast(const QString &id) const
     return QString();
 }
 
-QString ParametersLimit::getBiggest(const QString &id) const
+QString ParametersMgr::getBiggest(const QString &id) const
 {
     if (ParaLimitAbs *parm = _getParemeterLimit(id))
         return parm->ValueToString(parm->GetBiggest());
@@ -110,7 +110,7 @@ QString ParametersLimit::getBiggest(const QString &id) const
     return QString();
 }
 
-QStringList ParametersLimit::getDscribes(const QString &id) const
+QStringList ParametersMgr::getDscribes(const QString &id) const
 {
     if (ParaLimitAbs *parm = _getParemeterLimit(id))
         return parm->GetDescribes();
@@ -118,7 +118,7 @@ QStringList ParametersLimit::getDscribes(const QString &id) const
     return QStringList();
 }
 
-int ParametersLimit::getVarIndex(const QString &id, const QVariant &val) const
+int ParametersMgr::getVarIndex(const QString &id, const QVariant &val) const
 {
     if (ParaLimitAbs *parm = _getParemeterLimit(id))
         return parm->GetPropertyIndex(val);
@@ -126,7 +126,7 @@ int ParametersLimit::getVarIndex(const QString &id, const QVariant &val) const
     return -1;
 }
 
-QString ParametersLimit::getStrValue(const QString &id, QVariant val)
+QString ParametersMgr::getStrValue(const QString &id, QVariant val)
 {
 	if (!val.isValid())
 		return QString();
@@ -136,7 +136,7 @@ QString ParametersLimit::getStrValue(const QString &id, QVariant val)
 	return QString("%1").arg(val.toUInt()) + tr("Origin");//"原始"
 }
 
-QString ParametersLimit::GetGroup(const QString &id) const
+QString ParametersMgr::GetGroup(const QString &id) const
 {
     QMap <QString, QList<ParaLimitAbs*> >::const_iterator itr = m_params.begin();
     for (; itr != m_params.end(); ++itr)
@@ -150,7 +150,7 @@ QString ParametersLimit::GetGroup(const QString &id) const
     return QString();
 }
 
-QStringList ParametersLimit::GetAllInSameGroup(const QString &id) const
+QStringList ParametersMgr::GetAllInSameGroup(const QString &id) const
 {
     QMap <QString, QList<ParaLimitAbs*> >::const_iterator itr = m_params.begin();
     for (; itr != m_params.end(); ++itr)
@@ -165,7 +165,26 @@ QStringList ParametersLimit::GetAllInSameGroup(const QString &id) const
     
 }
 
-QVariant ParametersLimit::getValue(const QString &id, int index) const
+QStringList ParametersMgr::GetLables() const
+{
+    return m_labels;
+}
+
+void ParametersMgr::ParameterAdd(const QString &id)
+{
+    auto idx = id.indexOf("_") - 1;
+    while (idx >= 0)
+    {
+        if ('0' <= id.at(idx) && id.at(idx) <= '9')
+            idx--;
+        else
+            break;
+    }
+    if (idx >= 0)
+        _addLabel(id.left(idx + 1));
+}
+
+QVariant ParametersMgr::getValue(const QString &id, int index) const
 {
     if (ParaLimitAbs *parm = _getParemeterLimit(id))
         return parm->GetValue(index);
@@ -173,7 +192,7 @@ QVariant ParametersLimit::getValue(const QString &id, int index) const
     return QVariant();
 }
 
-void ParametersLimit::parseParameterLimit(const QDomElement &e)
+void ParametersMgr::parseParameterLimit(const QDomElement &e)
 {
     QString str = e.attribute("type");
     ParaLimitAbs *param = NULL;
@@ -194,7 +213,7 @@ void ParametersLimit::parseParameterLimit(const QDomElement &e)
     }
 }
 
-ParaLimitAbs *ParametersLimit::_getParemeterLimit(const QString &id, const QString &group)const
+ParaLimitAbs *ParametersMgr::_getParemeterLimit(const QString &id, const QString &group)const
 {
     if (!group.isEmpty())
     {
@@ -216,4 +235,25 @@ ParaLimitAbs *ParametersLimit::_getParemeterLimit(const QString &id, const QStri
         }
     }
     return NULL;
+}
+
+void ParametersMgr::_addLabel(const QString &label)
+{
+    auto itr = m_labels.begin();
+    for (; itr != m_labels.end(); ++itr)
+    {
+        if (*itr == label)
+            return;
+        if (*itr > label)
+        {
+            m_labels.insert(itr, label);
+            emit labelsChanged();
+            break;
+        }
+    }
+    if (itr == m_labels.end())
+    {
+        m_labels.insert(itr, label);
+        emit labelsChanged();
+    }
 }

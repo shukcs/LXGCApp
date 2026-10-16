@@ -46,6 +46,7 @@ Rectangle {
                 addTab(qsTr("QX account"))//"千寻账号"
                 addTab(qsTr("Controller correct"))//"遥控器校准"
                 addTab(qsTr("Mission params"))//"换垄设置"
+                addTab(qsTr("All parameters"))//"所有参数"
                 setCurrentIndex(0)
             }
             onCurrentChanged: headerChange(idx)
@@ -60,8 +61,7 @@ Rectangle {
     }
     Flickable {
         id:                     flickCnt
-        anchors {top: rctHeader.bottom; topMargin: 6; bottom: rowBtn.top; bottomMargin: 6
-            left: parent.left; leftMargin: 10; right: parent.right; rightMargin: 10}
+        anchors {top: rctHeader.bottom; bottom: rowBtn.top; left: parent.left; right: parent.right; margins: 10}
         clip:                   true
         contentHeight:          colCnt.height
         contentWidth:           width
@@ -98,7 +98,7 @@ Rectangle {
                         Text {
                             height:     nameTxt.height
                             visible:    parameters.isScope(modelData)
-                            text:       "(" + parameters.getLeast(modelData) + "~~" + parameters.getBiggest(modelData)+")"
+                            text:       "(" + parameters.getLeast(modelData) + " ~~ " + parameters.getBiggest(modelData)+")"
                             font:       vgMainPage.font()
                             color:      "#ff0b81"
                             verticalAlignment: Text.AlignVCenter
@@ -132,16 +132,21 @@ Rectangle {
                                 return
                             }
                             vgMainPage.curQmlPage = tipCom.createObject(root)
-                            vgMainPage.curQmlPage.strTip = qsTr("Range:") + parameters.getLeast(modelData) + "~~\r\n" + parameters.getBiggest(modelData)+qsTr("!")//qsTr("参数范围：");qsTr("！")
+                            vgMainPage.curQmlPage.strTip = qsTr("Range:") + parameters.getLeast(modelData) + " ~~ " + parameters.getBiggest(modelData)+qsTr("!")//qsTr("参数范围：");qsTr("！")
                         }
                     }
                 }
             }
         }
     }
+    AllParametersView {
+        id:                     rctAllParams
+        anchors {top: rctHeader.bottom; bottom: rowBtn.top; left: parent.left; right: parent.right; margins: 10}
+        visible: tabFunc.currentIndex == 4
+    }
     Rectangle{
         id: rctQX
-        anchors {top: rctHeader.bottom; bottom: rowBtn.top;bottomMargin: 5; left: parent.left; right: parent.right}
+        anchors {top: rctHeader.bottom; bottom: rowBtn.top; bottomMargin: 5; left: parent.left; right: parent.right}
         visible: tabFunc.currentIndex == 1
         Row {
             id:     rowQXSdk

@@ -1183,9 +1183,9 @@
     </message>
 </context>
 <context>
-    <name>ParametersLimit</name>
+    <name>ParametersMgr</name>
     <message>
-        <location filename="../base/ParametersLimit.cpp" line="136"/>
+        <location filename="../base/ParametersMgr.cpp" line="136"/>
         <source>Origin</source>
         <translation>原始</translation>
     </message>

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/qml">
+        <file alias="AllParametersView.qml">res/qml/AllParametersView.qml</file>
         <file alias="BluetoothGPS.qml">res/qml/BluetoothGPS.qml</file>
         <file alias="DeviceOption.qml">res/qml/DeviceOption.qml</file>
         <file alias="FriendsManager.qml">res/qml/FriendsManager.qml</file>

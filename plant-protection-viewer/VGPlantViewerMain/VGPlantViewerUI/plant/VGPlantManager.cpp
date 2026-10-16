@@ -9,7 +9,7 @@
 #include "das.pb.h"
 #include "VGMavLinkCode.h"
 #include "VGGlobalFun.h"
-#include "ParametersLimit.h"
+#include "ParametersMgr.h"
 #include "MissionItem.h"
 #include "VGPlantEvents.h"
 #include "VGMapManager.h"
@@ -798,8 +798,7 @@ void VGPlantManager::timerEvent(QTimerEvent *event)
     qint64 curMs = QDateTime::currentMSecsSinceEpoch();
     for (VGPlantInformation *planeInfo : m_plants)
     {
-        if (!planeInfo->DirectLink())
-            planeInfo->CheckConnect(curMs);
+        planeInfo->CheckConnect(curMs);
     }
 }
 

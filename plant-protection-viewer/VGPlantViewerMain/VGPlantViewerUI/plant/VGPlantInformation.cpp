@@ -11,7 +11,7 @@
 #include "VGMavLinkCode.h"
 #include "VGLandInformation.h"
 #include "VGLandPolygon.h"
-#include "ParametersLimit.h"
+#include "ParametersMgr.h"
 #include "MissionManager.h"
 #include "VGSupportPolyline.h"
 #include "VGMapManager.h"
@@ -111,34 +111,35 @@ VGPlantInformation::VGPlantInformation(QObject *parent) : MapAbstractItem(parent
 , m_bArmOp(false), m_missionCount(0), m_bDownMs(false), m_rtl(NULL), m_devType(-1)
 , m_statSupport(GetHomeAndSupport),m_aPointCoor(NULL),m_bPointCoor(NULL)
 {
+    m_idTimer = startTimer(1000);
 }
-
-VGPlantInformation::VGPlantInformation(const VGPlantInformation &oth) : MapAbstractItem(oth)
-, m_medicineVol(oth.m_medicineVol), m_uploadVm(NULL), m_bBind(oth.m_bBind), m_distance(oth.m_distance)
-, m_lastTime(oth.m_lastTime), m_master(oth.m_master), m_lastPosition(oth.m_lastPosition)
-, m_bindTime(oth.m_bindTime), m_directLink(oth.m_directLink), m_bLanded(oth.m_bLanded)
-, m_satNum(oth.m_satNum), m_horSpeed(oth.m_horSpeed), m_verSpeed(oth.m_verSpeed)
-, m_relativeAltitude(oth.m_relativeAltitude), m_compassAngle(oth.m_compassAngle)
-, m_rollAngle(oth.m_rollAngle), m_pitchAngle(oth.m_pitchAngle), m_powerPercent(oth.m_powerPercent)
-, m_medicineSpeed(oth.m_medicineSpeed), m_precision(0), m_status(oth.m_status), m_bMonitor(oth.m_bMonitor)
-, m_lastLacalTime(oth.m_lastLacalTime), m_lastPosChgTm(m_lastLacalTime), m_homeCoor(NULL), m_cntnCoor(NULL)
-, m_bMissionValible(false), m_tpPos(oth.m_tpPos), m_bSychUav(false), m_planMissionLine(NULL), m_acc(oth.m_acc)
-, m_bSetArm(false), m_baseMode(oth.m_baseMode), m_gndHeight(oth.m_gndHeight), m_bSys(false), m_powerGrade(0)
-, m_bRestrain(false), m_medicineGrade(0), m_voltage(oth.m_voltage), m_bWlcLose(true), m_bArmOp(false)
-, m_missionCount(0), m_bDownMs(false), m_devType(-1), m_rtl(NULL), m_statSupport(GetHomeAndSupport)
-,m_aPointCoor(NULL),m_bPointCoor(NULL)
-{
-    if (oth.m_homeCoor)
-        SetHome(oth.m_homeCoor->GetCoordinate());
-    if (oth.m_cntnCoor)
-        m_cntnCoor = new VGCoordinate(*oth.m_cntnCoor);
-    if(oth.m_aPointCoor)
-        SetAPointCoor(oth.m_aPointCoor->GetCoordinate());
-    if(oth.m_bPointCoor)
-        SetBPointCoor(oth.m_bPointCoor->GetCoordinate());
-
-    setPlaneId(oth.planeId());
-}
+//
+//VGPlantInformation::VGPlantInformation(const VGPlantInformation &oth) : MapAbstractItem(oth)
+//, m_medicineVol(oth.m_medicineVol), m_uploadVm(NULL), m_bBind(oth.m_bBind), m_distance(oth.m_distance)
+//, m_lastTime(oth.m_lastTime), m_master(oth.m_master), m_lastPosition(oth.m_lastPosition)
+//, m_bindTime(oth.m_bindTime), m_directLink(oth.m_directLink), m_bLanded(oth.m_bLanded)
+//, m_satNum(oth.m_satNum), m_horSpeed(oth.m_horSpeed), m_verSpeed(oth.m_verSpeed)
+//, m_relativeAltitude(oth.m_relativeAltitude), m_compassAngle(oth.m_compassAngle)
+//, m_rollAngle(oth.m_rollAngle), m_pitchAngle(oth.m_pitchAngle), m_powerPercent(oth.m_powerPercent)
+//, m_medicineSpeed(oth.m_medicineSpeed), m_precision(0), m_status(oth.m_status), m_bMonitor(oth.m_bMonitor)
+//, m_lastLacalTime(oth.m_lastLacalTime), m_lastPosChgTm(m_lastLacalTime), m_homeCoor(NULL), m_cntnCoor(NULL)
+//, m_bMissionValible(false), m_tpPos(oth.m_tpPos), m_bSychUav(false), m_planMissionLine(NULL), m_acc(oth.m_acc)
+//, m_bSetArm(false), m_baseMode(oth.m_baseMode), m_gndHeight(oth.m_gndHeight), m_bSys(false), m_powerGrade(0)
+//, m_bRestrain(false), m_medicineGrade(0), m_voltage(oth.m_voltage), m_bWlcLose(true), m_bArmOp(false)
+//, m_missionCount(0), m_bDownMs(false), m_devType(-1), m_rtl(NULL), m_statSupport(GetHomeAndSupport)
+//,m_aPointCoor(NULL),m_bPointCoor(NULL)
+//{
+//    if (oth.m_homeCoor)
+//        SetHome(oth.m_homeCoor->GetCoordinate());
+//    if (oth.m_cntnCoor)
+//        m_cntnCoor = new VGCoordinate(*oth.m_cntnCoor);
+//    if(oth.m_aPointCoor)
+//        SetAPointCoor(oth.m_aPointCoor->GetCoordinate());
+//    if(oth.m_bPointCoor)
+//        SetBPointCoor(oth.m_bPointCoor->GetCoordinate());
+//
+//    setPlaneId(oth.planeId());
+//}
 
 VGPlantInformation::~VGPlantInformation()
 {
@@ -544,11 +545,8 @@ bool VGPlantInformation::operator==(const MapAbstractItem &item)const
 
 void VGPlantInformation::CheckConnect(qint64 curMs)
 {
-    if (!m_directLink && curMs - m_lastLacalTime > TMOUT_CONNECT)
-    {
+    if (!m_directLink && curMs-m_lastLacalTime > TMOUT_CONNECT)
         SetStatus(UnConnect);
-        return;
-    }
 }
 
 void VGPlantInformation::syncPlanFlight(VGVehicleMission *vm)
@@ -1361,6 +1359,18 @@ VGVehicleMission *VGPlantInformation::beginOperation(VGMissionPlan *fr)
     return m_prepareVm;
 }
 
+void VGPlantInformation::timerEvent(QTimerEvent *e)
+{
+    if (m_directLink && e->timerId()==m_idTimer && QDateTime::currentMSecsSinceEpoch()-m_lastParamTm>1000)
+    {
+        if (m_paramsCount > m_params.size())
+            m_directLink->getParametesList();
+
+        return;
+    }
+    QObject::timerEvent(e);
+}
+
 QString VGPlantInformation::GetFlightModeDscb(const QString &str)
 {
     static QMap<QString, QString> trans = { { DenyMod, tr("deny") }, { MissionMod, tr("Mission") },
@@ -1437,10 +1447,11 @@ bool VGPlantInformation::DealPlantParameter(const QString &key, const QVariant &
 {
     if (count > m_paramsCount)
         m_paramsCount = count;
-    else if (count < m_paramsCount)
-        count++;
 
     m_strLsReqParams.remove(key);
+    m_params[key] = v;
+    qvgApp->parameters()->ParameterAdd(key);
+    m_lastParamTm = QDateTime::currentMSecsSinceEpoch();
     if (qvgApp->parameters()->hasParam(key))
     {
         QMap<QString, QVariant>::iterator itr = m_params.find(key);
@@ -1453,9 +1464,12 @@ bool VGPlantInformation::DealPlantParameter(const QString &key, const QVariant &
 
             return true;
         }
-
-        if (key == Imitation_Mode || key == Imitation_Precision)
-            _checkParams();
+        else
+        {
+            m_params[key] = v;
+            if (key == Imitation_Mode || key == Imitation_Precision)
+                _checkParams();
+        }
     }
 
     return false;
@@ -1724,6 +1738,9 @@ void VGPlantInformation::setMissionRun()
 
 void VGPlantInformation::setParameter(const QString &str, const QVariant &var, bool doAnyway)
 {
+    if (m_params.size() < m_paramsCount)
+        return;
+
     if (!m_directLink)
     {
         bool bSend = m_strLsReqParams.size() == 0 || doAnyway;

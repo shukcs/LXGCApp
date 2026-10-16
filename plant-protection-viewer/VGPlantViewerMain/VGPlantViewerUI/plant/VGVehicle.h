@@ -11,6 +11,7 @@
 #include <mavlink.h>
 
 #define MAVTYPESURVEY   MAV_TYPE_VTOL_RESERVED2
+#define PARAM_UAV_ID "SYS_UAV_ID"
 
 class MissionManager;
 class VGVehicleMission;
@@ -81,6 +82,7 @@ public:
     void prcsVehicleParameter(const QString &strParam, const QVariant &param=QVariant());
     void getParameter(int idx);
 	QString flightMode()const;
+    void getParametesList();
 public:
     static QStringList	GetFlightModes();
 protected:
