@@ -8,16 +8,8 @@
 #include <QMetaType>
 
 class QDomElement;
-class ParaLimitAbs {
-    Q_GADGET
-    Q_ENUMS(ParamType)
-    Q_PROPERTY(QString name READ GetName WRITE SetName)
-    Q_PROPERTY(bool readOnly READ IsReadOnly WRITE SetReadOnly)
-    Q_PROPERTY(bool strict READ IsStrict WRITE SetStrict)
-    Q_PROPERTY(QStringList describe READ GetDescribes)
-    Q_PROPERTY(QVariant up READ GetBiggest)
-    Q_PROPERTY(QVariant down READ Getleast)
-    Q_PROPERTY(ParamType type READ GetType)
+class ParaLimitAbs
+{
 public:
     enum ParamType {
         ParamUnknow = QVariant::Invalid,
@@ -112,8 +104,4 @@ public:
 typedef ParameterLimit<float> ParameterFloat;
 typedef ParameterLimit<int> ParameterInt;
 typedef ParameterLimit<uint32_t> ParameterU32;
-
-Q_DECLARE_METATYPE(ParameterFloat)
-Q_DECLARE_METATYPE(ParameterInt)
-Q_DECLARE_METATYPE(ParameterU32)
 #endif // __PARAMETER_LIMIT_H__

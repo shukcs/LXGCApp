@@ -222,10 +222,11 @@ void VGPlantEvents::SetShowAll(bool b)
         return;
 
     int count = m_events->count();
-    for (int i = 0; i < count; ++i)
+    auto &evts = m_events->AllQObject();
+    for (auto itr = evts.begin(); itr != evts.end(); ++itr)
     {
-        VGPlantEvent *evt = (VGPlantEvent *)m_events->get(i);
-        evt->SetVisible(b || count==i+1);
+        VGPlantEvent *evt = (VGPlantEvent *)*itr;
+        evt->SetVisible(b || itr+1 == evts.end());
     }
     _saveConfig();
 }

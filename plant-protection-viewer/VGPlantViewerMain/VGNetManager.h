@@ -75,7 +75,7 @@ public:
     void QuerySuspend(const QString &uavId, const QString &plan);
     void SendControlUav(const QString &uav, const mavlink_message_t &mav);
     void SendControlUav(const QString &uav, const QList<MissionItem*> &items);
-    void SendControlUav(const QString &uav, const QMap<QString, QVariant> &params);
+    void SendControlUav(const QString &uav, const QList<QPair<QString, QVariant>> &params);
     void SendNetWork(const google::protobuf::Message &msg);
     VGLandBoundary *parseLand(const das::proto::ParcelDescription &pDes);
 public:

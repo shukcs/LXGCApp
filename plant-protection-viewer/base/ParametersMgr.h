@@ -8,6 +8,7 @@
 
 class QDomElement;
 class QVariant;
+class ParamtersModel;
 class ParametersMgr : public QObject
 {
     Q_OBJECT
@@ -44,8 +45,9 @@ private:
     void _addLabel(const QString &lab);
 signals:
     void labelsChanged();
+    void varsChanged();
 private:
-    QMap <QString, QList<ParaLimitAbs*> >  m_params;
+    QMap <QString, QList<ParaLimitAbs*> >   m_params;
     QStringList                             m_labels;
 };
 

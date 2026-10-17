@@ -343,10 +343,9 @@ void VGVehicleMission::SetCurrentExecuteItem(int idx)
     if (idx < 0 || idx == m_iCurExecuteItem || !m_missionItems)
         return;
 
-    auto count = m_missionItems->count();
-    for (int i = 0; i < count; ++i)
+    for (auto it : m_missionItems->AllQObject())
     {
-        auto itr = (VGMissionItem*)m_missionItems->get(i);
+        auto itr = (VGMissionItem*)it;
         int seq = itr->GetSequence()-1;
         if (seq == idx)
             itr->SetColor(SeqCurCol);
@@ -679,10 +678,9 @@ void VGVehicleMission::SetOpHeight(double f)
     if (VGMissionPlan *fr = GetMissionPlan())
         fr->SetOperationHeight(f);
 
-    auto count = m_missionItems ? m_missionItems->count() : 0;
-    for (int i = 0; i < count; ++i)
+    for (auto it : m_missionItems->AllQObject())
     {
-        auto itr = (VGMissionItem*)m_missionItems->get(i);
+        auto itr = (VGMissionItem*)it;
         int id = itr->GetId();
         if (id >= VGCoordinate::RouteBegin && id<=VGCoordinate::RouteEnd)
             itr->SetRelativeAtitude(f);
@@ -995,7 +993,7 @@ void VGVehicleMission::_adjustSequence(int beg)
     int count = m_missionItems->count();
     for (int i = beg; i<count; ++i)
     {
-        auto itr = (VGMissionItem *)m_missionItems->get(i);
+        auto itr = (VGMissionItem *)(*m_missionItems)[i];
         itr->SetSequence(i);
     }
 }

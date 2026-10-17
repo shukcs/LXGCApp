@@ -20,6 +20,7 @@ class QVariant;
 class MissionItem;
 class VGSupportPolyline;
 class VGBlock;
+class ParamtersModel;
 
 class VGPlantInformation : public MapAbstractItem
 {
@@ -254,6 +255,7 @@ protected:
     double GetLat()const;
     double GetLon()const;
     Q_INVOKABLE VGVehicleMission *beginOperation(VGMissionPlan *fr);
+    Q_INVOKABLE ParamtersModel *getParamtersModel()const;
     void timerEvent(QTimerEvent *e)override;
 signals:
     void flightModeChanged();
@@ -315,6 +317,8 @@ private:
     void _checkParams();
     void _showContinue(bool b = true);
     void _showBlocks(bool b);
+    void _doParam(const QString &str, const QVariant &var = QVariant());
+    void _removeParamOp(const QString &key);
 private:
     VGVehicle       *m_directLink;  //直连设备
     bool            m_bLanded;      //是否降落
@@ -378,10 +382,9 @@ private:
     unsigned                m_baseMode;
     uint32_t                m_statSupport;
     VGSupportPolyline       *m_rtl;
-    QMap<QString, QVariant> m_params;
-    QMap<QString, QVariant> m_strLsReqParams;
+    QList<QPair<QString, QVariant>> m_strLsReqParams;
     QList<VGBlock *>        m_blocks;
-    int16_t                 m_paramsCount=1;
+    ParamtersModel          *m_params = nullptr;
     int                     m_idTimer;
 };
 

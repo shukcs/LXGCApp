@@ -21,6 +21,7 @@
 #include "VGBlock.h"
 #include "VGWayPointPlan.h"
 #include "VGLandManager.h"
+#include "ParamtersModel.h"
 
 #define MAXHEIGHT 1000
 #define DOUBLELIIM 1000000
@@ -109,37 +110,10 @@ VGPlantInformation::VGPlantInformation(QObject *parent) : MapAbstractItem(parent
 , m_planMissionLine(NULL), m_acc(0), m_baseMode(0), m_bSetArm(false), m_bSychUav(false), m_gndHeight(0)
 , m_bSys(false), m_powerGrade(0), m_medicineGrade(0), m_voltage(0), m_bWlcLose(true), m_bRestrain(false)
 , m_bArmOp(false), m_missionCount(0), m_bDownMs(false), m_rtl(NULL), m_devType(-1)
-, m_statSupport(GetHomeAndSupport),m_aPointCoor(NULL),m_bPointCoor(NULL)
+, m_statSupport(GetHomeAndSupport),m_aPointCoor(NULL),m_bPointCoor(NULL), m_params(new ParamtersModel(this))
 {
     m_idTimer = startTimer(1000);
 }
-//
-//VGPlantInformation::VGPlantInformation(const VGPlantInformation &oth) : MapAbstractItem(oth)
-//, m_medicineVol(oth.m_medicineVol), m_uploadVm(NULL), m_bBind(oth.m_bBind), m_distance(oth.m_distance)
-//, m_lastTime(oth.m_lastTime), m_master(oth.m_master), m_lastPosition(oth.m_lastPosition)
-//, m_bindTime(oth.m_bindTime), m_directLink(oth.m_directLink), m_bLanded(oth.m_bLanded)
-//, m_satNum(oth.m_satNum), m_horSpeed(oth.m_horSpeed), m_verSpeed(oth.m_verSpeed)
-//, m_relativeAltitude(oth.m_relativeAltitude), m_compassAngle(oth.m_compassAngle)
-//, m_rollAngle(oth.m_rollAngle), m_pitchAngle(oth.m_pitchAngle), m_powerPercent(oth.m_powerPercent)
-//, m_medicineSpeed(oth.m_medicineSpeed), m_precision(0), m_status(oth.m_status), m_bMonitor(oth.m_bMonitor)
-//, m_lastLacalTime(oth.m_lastLacalTime), m_lastPosChgTm(m_lastLacalTime), m_homeCoor(NULL), m_cntnCoor(NULL)
-//, m_bMissionValible(false), m_tpPos(oth.m_tpPos), m_bSychUav(false), m_planMissionLine(NULL), m_acc(oth.m_acc)
-//, m_bSetArm(false), m_baseMode(oth.m_baseMode), m_gndHeight(oth.m_gndHeight), m_bSys(false), m_powerGrade(0)
-//, m_bRestrain(false), m_medicineGrade(0), m_voltage(oth.m_voltage), m_bWlcLose(true), m_bArmOp(false)
-//, m_missionCount(0), m_bDownMs(false), m_devType(-1), m_rtl(NULL), m_statSupport(GetHomeAndSupport)
-//,m_aPointCoor(NULL),m_bPointCoor(NULL)
-//{
-//    if (oth.m_homeCoor)
-//        SetHome(oth.m_homeCoor->GetCoordinate());
-//    if (oth.m_cntnCoor)
-//        m_cntnCoor = new VGCoordinate(*oth.m_cntnCoor);
-//    if(oth.m_aPointCoor)
-//        SetAPointCoor(oth.m_aPointCoor->GetCoordinate());
-//    if(oth.m_bPointCoor)
-//        SetBPointCoor(oth.m_bPointCoor->GetCoordinate());
-//
-//    setPlaneId(oth.planeId());
-//}
 
 VGPlantInformation::~VGPlantInformation()
 {
@@ -260,7 +234,7 @@ void VGPlantInformation::setLastConnected()
     _sysFlightMode();
     prcsSupportAndHome();
     if (m_strLsReqParams.size() > 0)
-        setParameter(m_strLsReqParams.firstKey(), m_strLsReqParams.first(), true);
+        setParameter(m_strLsReqParams.first().first, m_strLsReqParams.first().second, true);
 }
 
 uint32_t VGPlantInformation::getConnectedTime() const
@@ -1359,11 +1333,16 @@ VGVehicleMission *VGPlantInformation::beginOperation(VGMissionPlan *fr)
     return m_prepareVm;
 }
 
+ParamtersModel *VGPlantInformation::getParamtersModel() const
+{
+    return m_params;
+}
+
 void VGPlantInformation::timerEvent(QTimerEvent *e)
 {
     if (m_directLink && e->timerId()==m_idTimer && QDateTime::currentMSecsSinceEpoch()-m_lastParamTm>1000)
     {
-        if (m_paramsCount > m_params.size())
+        if (!m_params->IsFull())
             m_directLink->getParametesList();
 
         return;
@@ -1445,28 +1424,22 @@ QString VGPlantInformation::GetQxStatDscb(int stat)
 
 bool VGPlantInformation::DealPlantParameter(const QString &key, const QVariant &v, int count)
 {
-    if (count > m_paramsCount)
-        m_paramsCount = count;
-
-    m_strLsReqParams.remove(key);
-    m_params[key] = v;
+    m_params->SetMax(count);
+    _removeParamOp(key);
+    m_params->insert(key, v);
     qvgApp->parameters()->ParameterAdd(key);
     m_lastParamTm = QDateTime::currentMSecsSinceEpoch();
     if (qvgApp->parameters()->hasParam(key))
     {
-        QMap<QString, QVariant>::iterator itr = m_params.find(key);
-        if (itr == m_params.end() || itr.value() != v)
+        if (m_params->Contains(key))
         {
             if (key == "SPRAY_QUAN")
-                m_params[key] = v.toFloat() / 1000;
-            else
-                m_params[key] = v;
+                m_params->insert(key, v.toFloat() / 1000);
 
             return true;
         }
         else
         {
-            m_params[key] = v;
             if (key == Imitation_Mode || key == Imitation_Precision)
                 _checkParams();
         }
@@ -1490,9 +1463,8 @@ void VGPlantInformation::SetGndHeight(double height)
 
 QVariant VGPlantInformation::GetParamValue(const QString &key)
 {
-    QMap<QString, QVariant>::const_iterator itr = m_params.find(key);
-    if (itr != m_params.end())
-        return itr.value();
+    if (m_params->Contains(key))
+        return m_params->Value(key);
 
     if(qvgApp->parameters()->hasParam(key))
         GetPlantParammeter(key);
@@ -1738,16 +1710,16 @@ void VGPlantInformation::setMissionRun()
 
 void VGPlantInformation::setParameter(const QString &str, const QVariant &var, bool doAnyway)
 {
-    if (m_params.size() < m_paramsCount)
+    if (!m_params->IsFull())
         return;
 
     if (!m_directLink)
     {
         bool bSend = m_strLsReqParams.size() == 0 || doAnyway;
-        m_strLsReqParams[str] = var;
+        _doParam(str, var);
 
         if (var.isValid() && str == Imitation_Mode && var.toInt() == 0)
-            m_strLsReqParams[Imitation_Precision] = QVariant::fromValue<float>(1.2f);
+            _doParam(Imitation_Precision, 1.2f);
 
         if (bSend)
             qvgApp->netManager()->SendControlUav(m_planeId, m_strLsReqParams);
@@ -1957,24 +1929,24 @@ void VGPlantInformation::_checkParams()
     float fZP = var.isNull() ? -1 : var.toFloat();
     if (!IsImitateGround() || DoubleEqu(fZP, 1.2))
     {
-        m_strLsReqParams["MPC_ALT_KP"] = QVariant::fromValue(float(3.0));
-        m_strLsReqParams["MPC_ALT_KI"] = QVariant::fromValue(float(.15));
-        m_strLsReqParams["MPC_ALT_KD"] = QVariant::fromValue(float(.5));
-        m_strLsReqParams["EKF2_DISFILTER_N"] = QVariant::fromValue(50);
+        _doParam("MPC_ALT_KP", float(3.0));
+        _doParam("MPC_ALT_KI", float(.15));
+        _doParam("MPC_ALT_KD", float(.5));
+        _doParam("EKF2_DISFILTER_N", 50);
     }
     else if (DoubleEqu(fZP, 1.0))
     {
-        m_strLsReqParams["MPC_ALT_KP"] = QVariant::fromValue(float(2.0));
-        m_strLsReqParams["MPC_ALT_KI"] = QVariant::fromValue(float(0.0));
-        m_strLsReqParams["MPC_ALT_KD"] = QVariant::fromValue(float(.75));
-        m_strLsReqParams["EKF2_DISFILTER_N"] = QVariant::fromValue(50);
+        _doParam("MPC_ALT_KP", float(2.0));
+        _doParam("MPC_ALT_KI", float(.0));
+        _doParam("MPC_ALT_KD", float(.75));
+        _doParam("EKF2_DISFILTER_N", 50);
     }
     else if (DoubleEqu(fZP, .8))
     {
-        m_strLsReqParams["MPC_ALT_KP"] = QVariant::fromValue(float(1.4));
-        m_strLsReqParams["MPC_ALT_KI"] = QVariant::fromValue(float(0));
-        m_strLsReqParams["MPC_ALT_KD"] = QVariant::fromValue(float(1.1));
-        m_strLsReqParams["EKF2_DISFILTER_N"] = QVariant::fromValue(50);
+        _doParam("MPC_ALT_KP", float(1.4));
+        _doParam("MPC_ALT_KI", float(.0));
+        _doParam("MPC_ALT_KD", float(1.1));
+        _doParam("EKF2_DISFILTER_N", 50);
     }
     else
     {
@@ -2005,5 +1977,30 @@ void VGPlantInformation::_showBlocks(bool b)
     for (VGBlock *itr : m_blocks)
     {
         itr->Show(b);
+    }
+}
+
+void VGPlantInformation::_doParam(const QString &str, const QVariant &var /*= QVariant()*/)
+{
+    for (auto &itr : m_strLsReqParams)
+    {
+        if (str == itr.first)
+        {
+            itr.second = var;
+            return;
+        }
+    }
+    m_strLsReqParams << QPair<QString, QVariant>(str, var);
+}
+
+void VGPlantInformation::_removeParamOp(const QString &key)
+{
+    for (auto itr = m_strLsReqParams.begin(); itr != m_strLsReqParams.end(); ++itr)
+    {
+        if (itr->first == key)
+        {
+            m_strLsReqParams.erase(itr);
+            return;
+        }
     }
 }

@@ -1027,7 +1027,7 @@ void VGNetManager::SendControlUav(const QString &uav, const QList<MissionItem*> 
     SendNetWork(gc2uav);
 }
 
-void VGNetManager::SendControlUav(const QString &uav, const QMap<QString, QVariant> &params)
+void VGNetManager::SendControlUav(const QString &uav, const QList<QPair<QString, QVariant>> &params)
 {
     if (params.count() <= 0 || m_connectState != 1)
         return;
@@ -1040,13 +1040,13 @@ void VGNetManager::SendControlUav(const QString &uav, const QMap<QString, QVaria
     mavlink_message_t message;
     uint8_t buffer[MAVLINK_MAX_PACKET_LEN + 2];
     int nLen = 70;
-    QMap<QString, QVariant>::const_iterator itr = params.begin();
+    auto itr = params.begin();
     for (; itr!= params.end(); ++itr)
     {
-        if (!itr.value().isValid())
-            VGMavLinkCode::EncodeGetParameter(message, itr.key());
+        if (!itr->second.isValid())
+            VGMavLinkCode::EncodeGetParameter(message, itr->first);
         else
-            VGMavLinkCode::EncodeSetParameter(message, itr.key(), itr.value());
+            VGMavLinkCode::EncodeSetParameter(message, itr->first, itr->second);
 
         *(uint16_t*)buffer = message.msgid;
         memcpy(buffer + sizeof(uint16_t), message.payload64, message.len);

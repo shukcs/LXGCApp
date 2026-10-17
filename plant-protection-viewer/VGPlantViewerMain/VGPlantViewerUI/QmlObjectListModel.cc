@@ -27,13 +27,13 @@ QmlObjectListModel::~QmlObjectListModel()
     }
 }
 
-QObject *QmlObjectListModel::get(int index) const
-{
-    if (index<0 || index>=m_lsObject.count())
-        return nullptr;
-
-    return m_lsObject.at(index);
-}
+//QObject *QmlObjectListModel::get(int index) const
+//{
+//    if (index<0 || index>=m_lsObject.count())
+//        return nullptr;
+//
+//    return m_lsObject.at(index);
+//}
 
 int QmlObjectListModel::rowCount(const QModelIndex& parent) const
 {
@@ -55,14 +55,14 @@ QVariant QmlObjectListModel::data(const QModelIndex &index, int role) const
     if (role == ObjectRole)
         return QVariant::fromValue(m_lsObject[index.row()]);
     if (role == TextRole)
-        return QVariant::fromValue(m_lsObject[index.row()]->objectName());
+        return QString(m_lsObject[index.row()]->metaObject()->className());
 
     return QVariant();
 }
 
 QHash<int, QByteArray> QmlObjectListModel::roleNames(void) const
 {
-    static QHash<int, QByteArray> hash = { { ObjectRole ,"object" },{ TextRole,"text" } };
+    static QHash<int, QByteArray> hash = { { ObjectRole ,"object" },{ TextRole,"className" } };
     return hash;
 }
 
@@ -79,12 +79,18 @@ bool QmlObjectListModel::setData(const QModelIndex& index, const QVariant& value
 
 QObject *QmlObjectListModel::operator[](int index)
 {
-    return get(index);
+    if (index < 0 || index >= m_lsObject.count())
+        return nullptr;
+
+    return m_lsObject.at(index);
 }
 
 const QObject* QmlObjectListModel::operator[](int index) const
 {
-    return get(index);
+    if (index<0 || index>=m_lsObject.count())
+        return nullptr;
+
+    return m_lsObject.at(index);
 }
 
 bool QmlObjectListModel::contains(QObject* object) const
@@ -192,7 +198,7 @@ void QmlObjectListModel::insert(int i, QObject *object)
     if (i < 0 || i > m_lsObject.count())
         i = m_lsObject.count();
     
-    QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
+    ///QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
 
     beginInsertRows(QModelIndex(), i, i);
     m_lsObject.insert(i, object);

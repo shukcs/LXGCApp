@@ -39,6 +39,7 @@
 #include "friends/VGFriendsManager.h"
 #include "friends/VGFriend.h"
 #include "VGMissionHistory.h"
+#include "ParamtersModel.h"
 
 VGUIInstance::VGUIInstance(QObject* parent) : QObject(parent)
 , m_mapManager(new VGMapManager(this)), m_vgMainPage(new VGMainPage(this))
@@ -62,6 +63,7 @@ VGUIInstance::VGUIInstance(QObject* parent) : QObject(parent)
     qmlRegisterUncreatableType<VGLandInformation>("VGGroundControl", 1, 0, "VGLandInformation", "Reference only");
     qmlRegisterUncreatableType<VGVehicle>("VGGroundControl", 1, 0, "VGVehicle", "Reference only");
     qmlRegisterUncreatableType<QmlObjectListModel>("VGGroundControl", 1, 0, "QmlObjectListModel", "Reference only");
+    qmlRegisterUncreatableType<ParamtersModel>("VGGroundControl", 1, 0, "ParamtersModel", "Reference only");
     qmlRegisterUncreatableType<MapAbstractItem>("VGGroundControl", 1, 0, "MapAbstractItem", "Reference only");
     qmlRegisterUncreatableType<VGCoordinate>("VGGroundControl", 1, 0, "VGCoordinate", "Reference only");
     qmlRegisterUncreatableType<VGLandPolyline>("VGGroundControl", 1, 0, "VGLandPolyline", "Reference only");
@@ -78,7 +80,6 @@ VGUIInstance::VGUIInstance(QObject* parent) : QObject(parent)
     qmlRegisterUncreatableType<VGMissionItem>("VGGroundControl", 1, 0, "VGMissionItem", "Reference only");
     qmlRegisterUncreatableType<VGQXManager>("VGGroundControl", 1, 0, "VGQXManager", "Reference only");
     qmlRegisterUncreatableType<ParametersMgr>("VGGroundControl", 1, 0, "ParametersMgr", "Reference only");
-    qmlRegisterUncreatableType<ParaLimitAbs>("VGGroundControl", 1, 0, "ParaLimitAbs", "Reference only");
     qmlRegisterUncreatableType<VGPlantEvent>("VGGroundControl", 1, 0, "VGPlantEvent", "Reference only");
     qmlRegisterUncreatableType<VGPlantEvents>("VGGroundControl", 1, 0, "VGPlantEvents", "Reference only");
     qmlRegisterUncreatableType<VGController>("VGGroundControl", 1, 0, "VGController", "Reference only");

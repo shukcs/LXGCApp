@@ -511,13 +511,13 @@ MapAbstractItem *VGMapManager::SpecItemAt(MapAbstractItem::MapItemType tp, int i
 {
     QMap<MapAbstractItem::MapItemType, QmlObjectListModel*>::const_iterator itr = m_mapItems.find(tp);
     if (itr == m_mapItems.end())
-        return NULL;
+        return nullptr;
 
     QmlObjectListModel *model = itr.value();
     if (index >= model->count() || index < 0)
-        return NULL;
+        return nullptr;
 
-    return (MapAbstractItem *)model->get(index);
+    return (MapAbstractItem *)(*model)[index];
 }
 
 void VGMapManager::ClearSpecItem(MapAbstractItem::MapItemType tp)

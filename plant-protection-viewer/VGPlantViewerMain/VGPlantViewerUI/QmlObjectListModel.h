@@ -1,10 +1,8 @@
 ﻿#ifndef QmlObjectListModel_H
 #define QmlObjectListModel_H
-
 #include <QAbstractListModel>
 
 class MapAbstractItem;
-
 class QmlObjectListModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -15,8 +13,6 @@ public:
     ~QmlObjectListModel();  
     /// Returns true if any of the items in the list are dirty. Requires each object to have
     /// a dirty property and dirtyChanged signal.
-    Q_INVOKABLE QObject* get(int index)const;
-
     // Property accessors
     
     int count(void) const;
