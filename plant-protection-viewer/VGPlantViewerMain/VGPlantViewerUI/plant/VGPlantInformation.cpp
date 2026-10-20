@@ -758,6 +758,8 @@ void VGPlantInformation::SetSelected(bool b)
 
     showContent(b);
     _showBlocks(b);
+    if (b)
+        qvgApp->parameters()->SetParasModel(m_params);
 }
 
 void VGPlantInformation::SetSychBegin()
@@ -1331,11 +1333,6 @@ VGVehicleMission *VGPlantInformation::beginOperation(VGMissionPlan *fr)
     }
 
     return m_prepareVm;
-}
-
-ParamtersModel *VGPlantInformation::getParamtersModel() const
-{
-    return m_params;
 }
 
 void VGPlantInformation::timerEvent(QTimerEvent *e)

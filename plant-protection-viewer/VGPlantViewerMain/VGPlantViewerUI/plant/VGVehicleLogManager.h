@@ -8,7 +8,7 @@
 #include <QtMath>
 #include <QTimer>
 #include <QDateTime>
-
+#include "mavlink.h"
 #include "LinkInterface.h"
 #include "VGVehicle.h"
 

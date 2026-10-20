@@ -762,6 +762,8 @@ void VGPlantManager::prcsUavMavlink(VGPlantInformation *info, const mavlink_mess
         _prcsRcChannels(*info, msg); break;
     case MAVLINK_MSG_ID_SPRAY_VALUE:
         _prcsSprayVal(*info, msg); break;
+    case MAVLINK_MSG_ID_STATUSTEXT:
+        _prcsStatustext(info->planeId(), msg); break;
     default:
         break;
     }
@@ -1302,6 +1304,26 @@ void VGPlantManager::_prcsSprayVal(VGPlantInformation &p, const mavlink_message_
         p.SetMedicineVol(vol);
         p.SetMedicineGrade(stat);
     }
+}
+
+void VGPlantManager::_prcsStatustext(const QString &id, const mavlink_message_t& message)
+{
+    void _handleStatustext(const mavlink_message_t& message);
+    mavlink_statustext_t s;
+    mavlink_msg_statustext_decode(&message, &s);
+    Event_Leave lv = Event_Info;
+    switch (s.severity)
+    {
+    case MAV_SEVERITY_EMERGENCY:
+    case MAV_SEVERITY_ALERT:
+    case MAV_SEVERITY_CRITICAL:
+    case MAV_SEVERITY_WARNING:
+        lv = Event_Fatal; break;
+    case MAV_SEVERITY_ERROR:
+        lv = Event_SpeakInfo; break;
+        break;
+    }
+    qvgApp->plantEvents()->AddEvent(id, s.text, lv);
 }
 
 void VGPlantManager::_prcsQXAccount(VGPlantInformation &plant, const mavlink_message_t &msg)

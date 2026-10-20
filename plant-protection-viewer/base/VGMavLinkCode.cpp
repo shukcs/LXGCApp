@@ -251,30 +251,33 @@ bool VGMavLinkCode::EncodeSetParameter(mavlink_message_t &msg, const QString &ke
     if (key.isEmpty() || v.isNull())
         return false;
 
-    MAV_PARAM_TYPE type;
-    float pTmp;
+    mavlink_param_union_t paramVal;
     switch (v.type())
     {
-    case QVariant::Bool:
-        type = MAV_PARAM_TYPE_UINT8;
-        pTmp = v.toBool();
+    case QMetaType::UChar:
+        paramVal.type = MAV_PARAM_TYPE_UINT8;
+        paramVal.param_float = v.value<uint8_t>();
         break;
-    case QVariant::Char:
-        type = MAV_PARAM_TYPE_INT8;
-        *(QChar*)&pTmp = v.toChar();
+    case QMetaType::SChar:
+        paramVal.type = MAV_PARAM_TYPE_INT8;
+        paramVal.param_float = v.value<int8_t>();
+        break;
+    case QMetaType::Short:
+        paramVal.type = MAV_PARAM_TYPE_INT16;
+        paramVal.param_float = v.value<short>();
         break;
     case QVariant::UInt:
-        type = MAV_PARAM_TYPE_UINT32;
-        *(unsigned*)&pTmp = v.toUInt();
+        paramVal.type = MAV_PARAM_TYPE_UINT32;
+        paramVal.param_float = v.toUInt();
         break;
     case QVariant::Int:
-        type = MAV_PARAM_TYPE_INT32;
-        *(int*)&pTmp = v.toInt();
+        paramVal.type = MAV_PARAM_TYPE_INT32;
+        paramVal.param_float = v.toInt();
         break;
     case QVariant::Double:
     case QMetaType::Float:
-        type = MAV_PARAM_TYPE_REAL32;
-        pTmp = v.toDouble();
+        paramVal.type = MAV_PARAM_TYPE_REAL32;
+        paramVal.param_float = v.toDouble();
         break;
     default:
         return false;
@@ -283,7 +286,7 @@ bool VGMavLinkCode::EncodeSetParameter(mavlink_message_t &msg, const QString &ke
     mavlink_msg_param_set_pack_chan(p ? p->getSystemId() : 0,
         p ? p->getComponentId() : 0,
         ch, &msg, sysId, BASE::defaultComponentId,
-        key.toUtf8().data(), pTmp, type);
+        key.toUtf8().data(), paramVal.param_float, paramVal.type);
 
     return true;
 }
@@ -383,25 +386,25 @@ QString VGMavLinkCode::DecodeParameter(const mavlink_message_t &msg, QVariant &v
     switch (param.param_type)
     {
     case MAV_PARAM_TYPE_REAL32:
-        v.setValue<float>(paramVal.param_float);
+        v.setValue(paramVal.param_float);
         break;
     case MAV_PARAM_TYPE_UINT8:
-        v.setValue<uint8_t>(paramVal.param_uint8);
+        v.setValue<uint8_t>(paramVal.param_float);
         break;
     case MAV_PARAM_TYPE_INT8:
-        v.setValue<int8_t>(paramVal.param_int8);
+        v.setValue<int8_t>(paramVal.param_float);
         break;
     case MAV_PARAM_TYPE_UINT16:
-        v.setValue<uint16_t>(paramVal.param_uint16);
+        v.setValue<uint16_t>(paramVal.param_float);
         break;
     case MAV_PARAM_TYPE_INT16:
-        v.setValue<int16_t>(paramVal.param_int16);
+        v.setValue<int16_t>(paramVal.param_float);
         break;
     case MAV_PARAM_TYPE_UINT32:
-        v.setValue<unsigned>(paramVal.param_uint32);
+        v.setValue<unsigned>(paramVal.param_float);
         break;
     case MAV_PARAM_TYPE_INT32:
-        v.setValue<int>(paramVal.param_int32);
+        v.setValue<int>(paramVal.param_float);
         break;
     default:
         v = QVariant();

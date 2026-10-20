@@ -1,24 +1,26 @@
 ﻿#ifndef VGVEHICLE_H
 #define VGVEHICLE_H
+#define MAVLINK_USE_MESSAGE_INFO
 
 #include <QObject>
 #include <QGeoCoordinate>
-#include "LinkInterface.h"
 #include <QVariant>
 #include <QPair>
-#include <QTimer>
-#include <QPointF>
-#include <mavlink.h>
 
 #define MAVTYPESURVEY   MAV_TYPE_VTOL_RESERVED2
 #define PARAM_UAV_ID "SYS_UAV_ID"
 
+typedef enum MAV_TYPE MAV_TYPE;
+typedef enum MAV_CMD MAV_CMD;
+typedef enum MAV_AUTOPILOT MAV_AUTOPILOT;
+typedef enum MAV_MISSION_TYPE MAV_MISSION_TYPE;
+typedef struct __mavlink_message mavlink_message_t;
 class MissionManager;
 class VGVehicleMission;
 class VGLandPolyline;
 class VGCoordinate;
 class MissionItem;
-
+class LinkInterface;
 class VGVehicle : public QObject
 {
     Q_OBJECT
@@ -71,7 +73,7 @@ public:
     void setQxAccount(const QString &acc, const QString &pswd);
     void setQxSdkAccount(const QString &, const QString &, const QString &, const QString &);
     bool isMissionIdle()const;
-    void loadFromVehicle(MAV_MISSION_TYPE tp=MAV_MISSION_TYPE_MISSION);
+    void loadFromVehicle(MAV_MISSION_TYPE tp=(MAV_MISSION_TYPE)0);
     bool hasValidMissionItems()const;
     MissionManager *missionManager()const;
     void setArmed(bool armed);

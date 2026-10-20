@@ -11,13 +11,6 @@ class QDomElement;
 class ParaLimitAbs
 {
 public:
-    enum ParamType {
-        ParamUnknow = QVariant::Invalid,
-        ParamBool = QVariant::Bool,
-        ParamInt = QVariant::Int,
-        ParamUInt = QVariant::UInt,
-        ParamFloat = QVariant::Double,
-    };
     enum ParamStat{
         Normal,
         Base16,
@@ -47,13 +40,14 @@ public:
     QStringList GetDescribes()const;
     Q_INVOKABLE bool IsInScope(const QVariant &val)const;
     QVariant GetValue(int idx)const;
-    virtual ParamType GetType()const = 0;
-    virtual int GetPropertyIndex(const QVariant &val)const = 0;
     void ParseContent(const QDomElement &e);
     void SetBiggest(const QVariant &val);
     QVariant GetBiggest()const;
     void SetLeast(const QVariant &v);
     QVariant Getleast()const;
+    virtual int GetType()const = 0;
+    virtual int GetPropertyIndex(const QVariant &val)const = 0;
+    static QVariant ValueFromString(const QString &val, int tp);
 public:
     QString ValueToString(const QVariant &val);
     QVariant ValueFromString(const QString &str);
@@ -72,11 +66,11 @@ template<class T>
 class ParameterLimit : public ParaLimitAbs {
 public:
     ParameterLimit() : ParaLimitAbs(){ }
-    ParamType GetType()const
+    int GetType()const override
     {
-        return (ParamType)qMetaTypeId<T>();
+        return qMetaTypeId<T>();
     }
-    int GetPropertyIndex(const QVariant &val)const
+    int GetPropertyIndex(const QVariant &val)const override
     {
         if (IsScope() || m_vCanValues.size() < 1 || val.type() != GetType())
             return -1;
@@ -102,6 +96,10 @@ public:
     }
 };
 typedef ParameterLimit<float> ParameterFloat;
-typedef ParameterLimit<int> ParameterInt;
+typedef ParameterLimit<long> ParameterI32;
 typedef ParameterLimit<uint32_t> ParameterU32;
+typedef ParameterLimit<short> ParameterI16;
+typedef ParameterLimit<unsigned short> ParameterU16;
+typedef ParameterLimit<int8_t> ParameterI8;
+typedef ParameterLimit<uint8_t> ParameterU8;
 #endif // __PARAMETER_LIMIT_H__

@@ -7,30 +7,28 @@
 #define EventString(lv) #lv
 #define MaxEventSeq 1024
 
-VGPlantEvent::VGPlantEvent(const QString &id, VGPlantEventDescribe *evt, int idEvt)
-: QObject(NULL), m_time(QDateTime::currentMSecsSinceEpoch()), m_strUav(id), m_event(evt)
-, m_bVisible(true), m_id(idEvt)
+VGPlantEvent::VGPlantEvent(const QString &id, VGPlantEventDescribe *evt): QObject(NULL)
+, m_time(QDateTime::currentMSecsSinceEpoch()), m_strUav(id)
+, m_strDesc(evt ? evt->GetTip() : QString()), m_leave(evt?evt->GetLeave() : Event_Info)
+, m_bVisible(true)
 {
+}
+
+VGPlantEvent::VGPlantEvent(const QString &id, const QString &des, Event_Leave lv) : QObject(NULL)
+, m_time(QDateTime::currentMSecsSinceEpoch()), m_strUav(id)
+, m_strDesc(des), m_leave(lv), m_bVisible(true)
+{
+
 }
 
 QString VGPlantEvent::GetDescribe() const
 {
-    if (m_event)
-    {
-        if (m_event->GetEventID() == MaxEventSeq)
-            return m_event->GetTip().arg(m_id);
-
-        return m_event->GetTip();
-    }
-    return QString();
+    return m_strDesc;
 }
 
 Event_Leave VGPlantEvent::GetLeave() const
 {
-    if (m_event)
-        return m_event->GetLeave();
-
-    return Event_Info;
+    return m_leave;
 }
 
 void VGPlantEvent::SetVisible(bool b)
@@ -44,19 +42,18 @@ void VGPlantEvent::SetVisible(bool b)
 
 QColor VGPlantEvent::GetEventColor() const
 {
-    return QColor(m_event && m_event->GetLeave()==Event_Fatal ? "#c81e06" : "#A0A0FF");
+    return QColor(m_leave==Event_Fatal ? "#c81e06" : "#A0A0FF");
 }
 
 QString VGPlantEvent::GetEvent() const
 {
-    QString tip = GetDescribe();
-    if (tip.isEmpty())
+    if (m_strDesc.isEmpty())
         return QString();
 
     if (m_strUav.isEmpty())
-        return  QString("(%1): %2").arg(QDateTime::fromMSecsSinceEpoch(m_time).toString("hh:mm:ss")).arg(tip);
+        return  QString("(%1): %2").arg(QDateTime::fromMSecsSinceEpoch(m_time).toString("hh:mm:ss"), m_strDesc);
 
-    return QString("(%1)%2: \r\n%3").arg(QDateTime::fromMSecsSinceEpoch(m_time).toString("hh:mm:ss")).arg(m_strUav).arg(tip);
+    return QString("(%1)%2: \r\n%3").arg(QDateTime::fromMSecsSinceEpoch(m_time).toString("hh:mm:ss"), m_strUav, m_strDesc);
 }
 
 bool VGPlantEvent::IsVisible() const
@@ -177,27 +174,25 @@ void VGPlantEvents::Parse(const QDomElement &e)
 
 void VGPlantEvents::AddEvent(const QString &id, int eId)
 {
-    QMap<int, VGPlantEventDescribe*>::iterator itr = m_eventDscrs.find(eId);
+    auto itr = m_eventDscrs.find(eId);
     if (itr == m_eventDscrs.end())
         itr = m_eventDscrs.find(MaxEventSeq);
 
     if (itr != m_eventDscrs.end())
     {
-        if (VGPlantEvent *evt = new VGPlantEvent(id, *itr, eId))
-        {
-            if (!m_bShowAll && m_events->lastObject())
-                ((VGPlantEvent*)m_events->lastObject())->SetVisible(false);
+        if (VGPlantEvent *evt = new VGPlantEvent(id, *itr))
+            _addEvent(evt);
+    }
+}
 
-            m_events->append(evt);
-            while (m_events->count() > 100)
-            {
-                delete m_events->removeAt(0);
-            }
-            connect(evt, &VGPlantEvent::removed, this, &VGPlantEvents::onEventRemoved);
-            evt->SetVisible(true);
-            if ((*itr)->GetLeave() != Event_Info)
-                qvgApp->speakNotice(evt->GetDescribe());
-        }
+void VGPlantEvents::AddEvent(const QString &id, const QString &desc, Event_Leave lv)
+{
+    if (VGPlantEvent *evt = new VGPlantEvent(id, desc, lv))
+    {
+        if (!m_bShowAll && (*m_events)[0])
+            m_events->value<VGPlantEvent*>(0)->SetVisible(false);
+
+        _addEvent(evt);
     }
 }
 
@@ -221,21 +216,32 @@ void VGPlantEvents::SetShowAll(bool b)
     if (!m_events)
         return;
 
-    int count = m_events->count();
     auto &evts = m_events->AllQObject();
     for (auto itr = evts.begin(); itr != evts.end(); ++itr)
     {
         VGPlantEvent *evt = (VGPlantEvent *)*itr;
-        evt->SetVisible(b || itr+1 == evts.end());
+        evt->SetVisible(b || itr==evts.begin());
     }
     _saveConfig();
+}
+
+void VGPlantEvents::_addEvent(VGPlantEvent *evt)
+{
+    m_events->insert(0, evt);
+    while (m_events->count() > 100)
+    {
+        delete m_events->removeLast();
+    }
+    connect(evt, &VGPlantEvent::removed, this, &VGPlantEvents::onEventRemoved);
+    if (evt->GetLeave() != Event_Info)
+        qvgApp->speakNotice(evt->GetDescribe());
 }
 
 void VGPlantEvents::onEventRemoved(VGPlantEvent *e)
 {
     delete m_events->removeOne(e);
-    if (!m_bShowAll && m_events->count()>0)
-        ((VGPlantEvent *)m_events->lastObject())->SetVisible(true);
+    if (!m_bShowAll && !m_events->IsEmpty())
+        (m_events->value<VGPlantEvent *>(0))->SetVisible(true);
 }
 
 void VGPlantEvents::_saveConfig()

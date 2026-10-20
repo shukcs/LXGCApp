@@ -8,21 +8,21 @@
     <ParameterLimit type="float" id="MPC_ALT_KD" name="其它参数3"  group="仿地其它参数" />
     <ParameterLimit type="int" id="EKF2_DISFILTER_N" name="其它参数4" group="仿地其它参数" />
 
-    <ParameterLimit type="float" id="RC1_MIN" name="横滚最小"  group="横滚" />
-    <ParameterLimit type="float" id="RC1_TRIM" name="横滚中值"  group="横滚" />
-    <ParameterLimit type="float" id="RC1_MAX" name="横滚最大"  group="横滚" />
+    <ParameterLimit type="int16" id="RC1_MIN" name="横滚最小"  group="横滚" />
+    <ParameterLimit type="int16" id="RC1_TRIM" name="横滚中值"  group="横滚" />
+    <ParameterLimit type="int16" id="RC1_MAX" name="横滚最大"  group="横滚" />
 
-    <ParameterLimit type="float" id="RC2_MIN" name="俯仰最小"  group="俯仰" />
-    <ParameterLimit type="float" id="RC2_TRIM" name="俯仰中值"  group="俯仰" />
-    <ParameterLimit type="float" id="RC2_MAX" name="俯仰最大"  group="俯仰" />
+    <ParameterLimit type="int16" id="RC2_MIN" name="俯仰最小"  group="俯仰" />
+    <ParameterLimit type="int16" id="RC2_TRIM" name="俯仰中值"  group="俯仰" />
+    <ParameterLimit type="int16" id="RC2_MAX" name="俯仰最大"  group="俯仰" />
 
-    <ParameterLimit type="float" id="RC3_MIN" name="油门最小"  group="油门" />
-    <ParameterLimit type="float" id="RC3_TRIM" name="油门中值"  group="油门" />
-    <ParameterLimit type="float" id="RC3_MAX" name="油门最大"  group="油门" />
+    <ParameterLimit type="int16" id="RC3_MIN" name="油门最小"  group="油门" />
+    <ParameterLimit type="int16" id="RC3_TRIM" name="油门中值"  group="油门" />
+    <ParameterLimit type="int16" id="RC3_MAX" name="油门最大"  group="油门" />
 
-    <ParameterLimit type="float" id="RC4_MIN" name="偏航最小"  group="偏航" />
-    <ParameterLimit type="float" id="RC4_TRIM" name="偏航中值"  group="偏航" />
-    <ParameterLimit type="float" id="RC4_MAX" name="偏航最大"  group="偏航" />
+    <ParameterLimit type="int16" id="RC4_MIN" name="偏航最小"  group="偏航" />
+    <ParameterLimit type="int16" id="RC4_TRIM" name="偏航中值"  group="偏航" />
+    <ParameterLimit type="int16" id="RC4_MAX" name="偏航最大"  group="偏航" />
 
     <ParameterLimit type="float" id="SPRAY_SWAT" name="喷幅" group="喷洒参数"/>
     <ParameterLimit type="float" id="SPRAY_QUAN" name="亩用量" group="喷洒参数"/>

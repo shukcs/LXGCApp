@@ -19,6 +19,7 @@
 #include "VGVehicle.h"
 #include "VGCoordinate.h"
 #include "VGWayPointPlan.h"
+#include "mavlink.h"
 
 #define GPS_ValideTm 5000
 

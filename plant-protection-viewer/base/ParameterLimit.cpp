@@ -278,27 +278,45 @@ QString ParaLimitAbs::ValueToString(const QVariant &val)
     return QString();
 }
 
+QVariant ParaLimitAbs::ValueFromString(const QString &str, int tp)
+{
+    bool b = true;
+    QVariant ret;
+    switch (tp)
+    {
+    case QMetaType::Bool:
+        ret.setValue(str.compare("true") ? false : true); break;
+    case QMetaType::Int:
+        ret.setValue(str.toInt(&b)); break;
+    case QMetaType::UInt:
+        ret.setValue(str.toUInt(&b)); break;
+    case QMetaType::Double:
+        ret = str.toDouble(&b); break;
+    case QMetaType::Float:
+        ret.setValue(str.toFloat(&b)); break;
+    case QMetaType::Short:
+        ret.setValue(str.toShort(&b)); break;
+    case QMetaType::SChar:
+        ret.setValue((int8_t)str.toShort(&b)); break;
+    default:
+        b = false;
+        break;
+    }
+    return b ? ret : QVariant();
+}
+
 QVariant ParaLimitAbs::ValueFromString(const QString &str)
 {
     bool b = true;
     QVariant ret;
 	switch (GetType())
-	{
-	case QMetaType::Bool:
-		ret = str.compare("true") ? false : true;
-		break;
+    {
 	case QMetaType::Int:
     case QMetaType::UInt:
         ret = intVarientFromStr(str, GetShowType(), QMetaType::UInt == GetType());
         break;
-    case QMetaType::Double:
-        ret = str.toDouble(&b);
-        break;
-    case QMetaType::Float:
-        ret.setValue<float>(str.toFloat(&b));
-        break;
     default:
-        b = false;
+        return ValueFromString(str, GetType());
         break;
     }
 

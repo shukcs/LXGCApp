@@ -35,10 +35,8 @@ QmlObjectListModel::~QmlObjectListModel()
 //    return m_lsObject.at(index);
 //}
 
-int QmlObjectListModel::rowCount(const QModelIndex& parent) const
+int QmlObjectListModel::rowCount(const QModelIndex&) const
 {
-    Q_UNUSED(parent);
-    
     return m_lsObject.count();
 }
 
@@ -133,7 +131,7 @@ void QmlObjectListModel::clear(bool bDelObj)
 QObject *QmlObjectListModel::removeAt(int i)
 {
     if (i < 0 || i >= m_lsObject.count())
-        return NULL;
+        return nullptr;
 
     beginRemoveRows(QModelIndex(), i, i);
     QObject *removedObject = m_lsObject.takeAt(i);
@@ -141,7 +139,7 @@ QObject *QmlObjectListModel::removeAt(int i)
     emit countChanged();
 
     if (MapAbstractItem *item = qobject_cast<MapAbstractItem*>(removedObject))
-        item->SetParentModel(NULL);
+        item->SetParentModel(nullptr);
 
     return removedObject;
 }
@@ -188,6 +186,14 @@ void QmlObjectListModel::removeItmes(const QObjectList &objects)
         endRemoveRows();
         emit countChanged();
     }
+}
+
+QObject* QmlObjectListModel::removeLast()
+{
+    if (m_lsObject.isEmpty())
+        return nullptr;
+
+    return removeOne(m_lsObject.last());
 }
 
 void QmlObjectListModel::insert(int i, QObject *object)
@@ -279,9 +285,14 @@ bool QmlObjectListModel::hasItem(const MapAbstractItem &item) const
     return false;
 }
 
-QObject *QmlObjectListModel::lastObject() const
+QObject *QmlObjectListModel::Last() const
 {
-    return m_lsObject.count() > 0 ? m_lsObject.last():NULL;
+    return !m_lsObject.isEmpty() ? m_lsObject.last():nullptr;
+}
+
+QObject * QmlObjectListModel::First() const
+{
+    return !m_lsObject.isEmpty() ? m_lsObject.first() : nullptr;
 }
 
 void QmlObjectListModel::removeAll(QObject *obj)
@@ -292,6 +303,11 @@ void QmlObjectListModel::removeAll(QObject *obj)
 const QList<QObject*> & QmlObjectListModel::AllQObject() const
 {
     return m_lsObject;
+}
+
+bool QmlObjectListModel::IsEmpty() const
+{
+    return m_lsObject.isEmpty();
 }
 
 bool QmlObjectListModel::operator!=(const QmlObjectListModel &oth) const

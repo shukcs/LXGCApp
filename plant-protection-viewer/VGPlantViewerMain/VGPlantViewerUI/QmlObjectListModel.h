@@ -15,14 +15,15 @@ public:
     /// a dirty property and dirtyChanged signal.
     // Property accessors
     
-    int count(void) const;
+    int count() const;
 
     void setList(const QList<QObject*> &lstObject);
     void append(QObject* object);
     void clear(bool bDelObj = false);
     QObject* removeAt(int i);
     QObject* removeOne(QObject* object);
-	void removeItmes(const QObjectList &objects);
+    void removeItmes(const QObjectList &objects);
+    QObject* removeLast();
     void insert(int i, QObject* object);
 	void insertList(const QObjectList &objects, int i=-1);
     QObject* operator[](int i);
@@ -46,9 +47,11 @@ public:
     bool operator==(const QmlObjectListModel &oth)const;
     bool operator!=(const QmlObjectListModel &oth)const;
     bool hasItem(const MapAbstractItem &item)const;
-    QObject *lastObject()const;
+    QObject *Last()const;
+    QObject *First()const;
     void removeAll(QObject *obj);
     const QList<QObject*> &AllQObject()const;
+    bool IsEmpty()const;
 protected:
 signals:
     void countChanged();

@@ -14,6 +14,7 @@
 #include "SerialLink.h"
 #include "MAVLinkProtocol.h"
 #include "LinkManager.h"
+#include "LinkInterface.h"
 
 #define PARAM_MAXSPEED_ID "MAX_SPEED_ID"
 #define PARAM_MAXACC_ID "MAX_ACC_ID"
@@ -125,6 +126,7 @@ void VGVehicle::_mavlinkMessageReceived(LinkInterface *link, const mavlink_messa
     case MAVLINK_MSG_ID_OBSTACLE_INFO:
     case MAVLINK_MSG_ID_ASSIST_POSITION:
     case MAVLINK_MSG_ID_MISSION_CURRENT:
+    case MAVLINK_MSG_ID_STATUSTEXT:
         emit recvMavlink(this, message); break;
     case MAVLINK_MSG_ID_SPRAY_VALUE:
         emit recvMavlink(this, message); return;

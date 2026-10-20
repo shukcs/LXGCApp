@@ -31,15 +31,14 @@ class VGPlantInformation : public MapAbstractItem
     Q_PROPERTY(VGVehicleMission *vm READ GetVehicleMission NOTIFY missionChanged)
     Q_PROPERTY(QString flightMode READ GetFlightMode WRITE SetFlightMode NOTIFY flightModeChanged)
     Q_PROPERTY(bool arm READ IsSetArm WRITE SetArm NOTIFY armChanged)
-
     Q_PROPERTY(QString planeId READ planeId NOTIFY planeIdChanged)
     Q_PROPERTY(float voltage READ GetVoltage NOTIFY voltageChanged)
-
     Q_PROPERTY(PlantStatus status READ GetStatus NOTIFY statusChanged)
     Q_PROPERTY(bool binded READ IsBinded NOTIFY bindedChanged)
     Q_PROPERTY(QString master READ master  NOTIFY masterChanged)
     Q_PROPERTY(QString posTip READ GetPosTip NOTIFY posTipChanged)
     Q_PROPERTY(bool landed READ IsLanded NOTIFY landedChanged)
+
     Q_PROPERTY(double compass READ GetCompassAngle  NOTIFY compassAngleChanged)
     Q_PROPERTY(double roll READ GetRollAngle  NOTIFY rollAngleChanged)
     Q_PROPERTY(double pitch READ GetPitchAngle  NOTIFY pitchAngleChanged)
@@ -255,7 +254,6 @@ protected:
     double GetLat()const;
     double GetLon()const;
     Q_INVOKABLE VGVehicleMission *beginOperation(VGMissionPlan *fr);
-    Q_INVOKABLE ParamtersModel *getParamtersModel()const;
     void timerEvent(QTimerEvent *e)override;
 signals:
     void flightModeChanged();

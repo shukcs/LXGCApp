@@ -3,6 +3,7 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QDomNode>
+#include "ParamtersModel.h"
 
 ParametersMgr::ParametersMgr(QObject *parent) : QObject(parent)
 {
@@ -38,6 +39,12 @@ QVariant ParametersMgr::stringToVariant(const QString &id, const QString &val) c
         if (parm->IsScope() && (ret > parm->GetBiggest() || ret < parm->Getleast()))
             return QVariant();
     }
+    else
+    {
+        auto v = m_curParams->Value(id);
+        if (v.isValid())
+            return ParaLimitAbs::ValueFromString(val, v.type());
+    }
  
     return ret;
 }
@@ -57,12 +64,105 @@ QStringList ParametersMgr::getParams(const QString &group) const
     return ret;
 }
 
-ParaLimitAbs::ParamType ParametersMgr::getType(const QString &id) const
+QString ParametersMgr::typeName(const QVariant &v)
+{
+    switch (v.type())
+    {
+    case QVariant::Bool:
+        return "Bool";
+    case QVariant::Int:
+        return "Int";
+    case QVariant::UInt:
+        return "Uint";
+    case QMetaType::UChar:
+        return "Uint8";
+    case QMetaType::SChar:
+        return "Int8";
+    case QMetaType::Float:
+        return "Float";
+    case QMetaType::Short:
+        return "Int16";
+    case QMetaType::UShort:
+        return "Uint16";
+    default:
+        break;
+    }
+    return "Unfef";
+}
+
+QVariant ParametersMgr::typProp(const QVariant &v)
+{
+    switch (v.type())
+    {
+    case QMetaType::UChar:
+        return (unsigned)v.value<uint8_t>();
+    case QMetaType::SChar:
+        return (int)v.value<int8_t>();
+    default:
+        break;
+    }
+    return v;
+}
+
+void ParametersMgr::SetParasModel(ParamtersModel *m)
+{
+    if (m_curParams != m)
+    {
+        m_curParams = m;
+        if (m_curParams)
+            m_curParams->Update();
+        emit parasChanged();
+    }
+}
+
+bool ParametersMgr::IsShowParam(const QString &paramID) const
+{
+    if (!m_search.isEmpty() && m_search != "_")
+        return paramID.contains(m_search, Qt::CaseInsensitive);
+    else if (!m_curButton.isEmpty())
+        return paramID.startsWith(m_curButton);
+
+    return false;
+}
+
+QString ParametersMgr::GetButton() const
+{
+    return m_curButton;
+}
+
+void ParametersMgr::SetButton(const QString &str)
+{
+    if (m_curButton != str)
+    {
+        m_curButton = str;
+        emit buttonChanged(str);
+        if (m_curParams)
+            m_curParams->Update();
+    }
+}
+
+QString ParametersMgr::GetSearch() const
+{
+    return m_search;
+}
+
+void ParametersMgr::SetSearch(const QString &str)
+{
+    if (m_search != str)
+    {
+        m_search = str;
+        emit searchChanged();
+        if (m_curParams)
+            m_curParams->Update();
+    }
+}
+
+ParametersMgr::ParamType ParametersMgr::getType(const QString &id) const
 {
     if (auto parm = _getParemeterLimit(id))
-        return (ParaLimitAbs::ParamType)parm->GetType();
+        return (ParamType)parm->GetType();
 
-    return ParaLimitAbs::ParamUnknow;
+    return ParamUnknow;
 }
 
 QString ParametersMgr::getName(const QString &id) const
@@ -116,6 +216,11 @@ QStringList ParametersMgr::getDscribes(const QString &id) const
         return parm->GetDescribes();
 
     return QStringList();
+}
+
+ParamtersModel * ParametersMgr::GetParasModel() const
+{
+    return m_curParams;
 }
 
 int ParametersMgr::getVarIndex(const QString &id, const QVariant &val) const
@@ -200,11 +305,17 @@ void ParametersMgr::parseParameterLimit(const QDomElement &e)
     if ("float" == str)
         param = new ParameterFloat;
     else if ("int" == str)
-        param = new ParameterInt;
+        param = new ParameterI32;
     else if ("uint" == str)
         param = new ParameterU32;
     else if ("bool" == str)
-        param = new ParameterU32;
+        param = new ParameterU8;
+    else if ("int8" == str)
+        param = new ParameterI8;
+    else if ("int16" == str)
+        param = new ParameterI16;
+    else if ("uint16" == str)
+        param = new ParameterU16;
 
     if (param)
     {

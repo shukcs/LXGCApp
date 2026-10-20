@@ -178,6 +178,7 @@ protected:
     void _prcsRcChannels(VGPlantInformation &p, const mavlink_message_t &m);
     void _prcsSupport(VGPlantInformation &p, const mavlink_message_t &msg);
     void _prcsSprayVal(VGPlantInformation &p, const mavlink_message_t &msg);
+    void _prcsStatustext(const QString &id, const mavlink_message_t& message);
 private:
     QList <VGPlantInformation *>    m_plants;
     VGPlantInformation              *m_plantSurvey;                //当前踩点飞机

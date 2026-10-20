@@ -8,7 +8,7 @@
 class VGPlantEventDescribe;
 class QDomElement;
 
-enum Event_Leave {
+enum Event_Leave : int8_t {
     Event_Info,
     Event_SpeakInfo,
     Event_Fatal,
@@ -24,7 +24,8 @@ class VGPlantEvent : public QObject
     Q_PROPERTY(QColor color READ GetEventColor CONSTANT)
     Q_PROPERTY(bool visible READ IsVisible NOTIFY visibleChanged)
 public:
-    VGPlantEvent(const QString &id, VGPlantEventDescribe *evt, int idEvt);
+    VGPlantEvent(const QString &id, VGPlantEventDescribe *evt);
+    VGPlantEvent(const QString &id, const QString &des, Event_Leave lv);
     QString GetDescribe()const;
     Event_Leave GetLeave()const;
     void SetVisible(bool b);
@@ -41,7 +42,8 @@ signals:
 private:
     qint64                  m_time;
     QString                 m_strUav;
-    VGPlantEventDescribe    *m_event;
+    QString                 m_strDesc;
+    Event_Leave             m_leave;
     bool                    m_bVisible;
     int                     m_id;
 };
@@ -75,10 +77,12 @@ public:
 
     void Parse(const QDomElement &e);
     void AddEvent(const QString &id, int evt);
+    void AddEvent(const QString &id, const QString &desc, Event_Leave type=Event_Info);
     QmlObjectListModel *GetEvents();
 protected:
     bool IsShowAll()const;
     void SetShowAll(bool b);
+    void _addEvent(VGPlantEvent *evt);
 protected slots:
     void onEventRemoved(VGPlantEvent *e);
 signals:
