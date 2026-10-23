@@ -42,10 +42,10 @@ Rectangle {
             txtFont:                vgMainPage.font(true)
             anchors {verticalCenter: parent.verticalCenter; left: imgBack.right; leftMargin: 5}
             Component.onCompleted: {
-                addTab(qsTr("Uav parameters"))//"飞机参数"
-                addTab(qsTr("QX account"))//"千寻账号"
+                //addTab(qsTr("Uav parameters"))//"飞机参数"
+                //addTab(qsTr("QX account"))//"千寻账号"
                 addTab(qsTr("Controller correct"))//"遥控器校准"
-                addTab(qsTr("Mission params"))//"换垄设置"
+                //addTab(qsTr("Mission params"))//"换垄设置"
                 addTab(qsTr("All parameters"))//"所有参数"
                 setCurrentIndex(0)
             }
@@ -59,7 +59,7 @@ Rectangle {
             width:  parent.width
         }
     }
-    Flickable {
+/*    Flickable {
         id:                     flickCnt
         anchors {top: rctHeader.bottom; bottom: rowBtn.top; left: parent.left; right: parent.right; margins: 10}
         clip:                   true
@@ -138,13 +138,13 @@ Rectangle {
                 }
             }
         }
-    }
+    }*/
     AllParametersView {
         id:                     rctAllParams
         anchors {top: rctHeader.bottom; bottom: rowBtn.top; left: parent.left; right: parent.right; margins: 10}
-        visible: tabFunc.currentIndex == 4
+        visible: tabFunc.currentIndex == 1
     }
-    Rectangle{
+    /*Rectangle{
         id: rctQX
         anchors {top: rctHeader.bottom; bottom: rowBtn.top; bottomMargin: 5; left: parent.left; right: parent.right}
         visible: tabFunc.currentIndex == 1
@@ -277,11 +277,11 @@ Rectangle {
                 text:               plantManager.currentPlant ? plantManager.currentPlant.qxwzStat : ""
             }
         }
-    }
+    }*/
     Rectangle {
         id:     rctCntlr
         anchors {top: rctHeader.bottom; bottom: rowBtn.top; left: parent.left; right: parent.right}
-        visible: tabFunc.currentIndex == 2
+        visible: tabFunc.currentIndex == 0
         Grid{
             id:     grid
             anchors {top: parent.top; topMargin: 20; horizontalCenter: parent.horizontalCenter}
@@ -352,7 +352,7 @@ Rectangle {
             color:      "#4f1429"
         }
     }
-    Rectangle {
+    /*Rectangle {
         id:     rctMsP
         anchors {top: rctHeader.bottom; bottom: rowBtn.top; left: parent.left; right: parent.right}
         visible: tabFunc.currentIndex == 3
@@ -388,28 +388,28 @@ Rectangle {
                 plantManager.tmRoit = editTm.text
             }
         }
-    }
+    }*/
     Row{
         id:         rowBtn
         anchors    {bottom: parent.bottom; bottomMargin: 15; right: parent.right; rightMargin: 20}
         spacing:    12
 
-        VGTextButton {
+        /*VGTextButton {
             strText:        qsTr("Get")//qsTr("获取")
             visible:        rctQX.visible
             onBtnClicked:   rctNtrip.visible ? plantManager.getQxAccount():plantManager.getQxSdkAccount()
-        }
-        VGTextButton {
+        }*/
+        /*VGTextButton {
             strText:        qsTr("Clear")//qsTr("清除")
             visible:        rctQX.visible
             onBtnClicked:   rctNtrip.visible ? plantManager.clearQxAccount():plantManager.clearQxSdkAccount()
-        }
-        VGTextButton {
+        }*/
+        /*VGTextButton {
             strText:        qsTr("Setting")//qsTr("设置")
             visible:        rctQX.visible
             onBtnClicked:   rctNtrip.visible ? plantManager.setQxAccount(editAcc.text, editPswd.text):
                                             plantManager.setQxSdkAccount(editKey.text, editSecret.text, editID.text, cbbDevType.currentIndex)
-        }
+        }*/
         VGTextButton {
             strText:        qsTr("Start")//qsTr("开始")
             enabled:        controller.step!==VGController.Step_Trim
