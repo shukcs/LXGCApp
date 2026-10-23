@@ -1,4 +1,5 @@
 ﻿#include "ParameterLimit.h"
+#include <QApplication>
 #include <QDomElement>
 #include "ParametersMgr.h"
 
@@ -231,6 +232,8 @@ void ParaLimitAbs::ParseContent(const QDomElement &e)
     SetReadOnly(e.attribute("readonly", "false") == "true");
     SetStrict(e.attribute("strict", "false") == "false");
     parseShowType(e.attribute("show", "normal"));
+    m_desc = e.attribute("desc", QString());
+    m_uint = e.attribute("unit", QString());
     bool bScope = ls.isEmpty() && e.hasAttribute("biggest") && e.hasAttribute("least");
     SetScope(bScope);
     if (bScope)
@@ -251,7 +254,7 @@ void ParaLimitAbs::ParseContent(const QDomElement &e)
     }
 }
 
-QString ParaLimitAbs::ValueToString(const QVariant &val)
+QString ParaLimitAbs::ValueToString(const QVariant &val)const
 {
     int idx = GetIndexOf(val);
     if (idx >= 0)
@@ -305,7 +308,7 @@ QVariant ParaLimitAbs::ValueFromString(const QString &str, int tp)
     return b ? ret : QVariant();
 }
 
-QVariant ParaLimitAbs::ValueFromString(const QString &str)
+QVariant ParaLimitAbs::ValueFromString(const QString &str)const
 {
     bool b = true;
     QVariant ret;
@@ -321,6 +324,36 @@ QVariant ParaLimitAbs::ValueFromString(const QString &str)
     }
 
     return b ? ret : QVariant();
+}
+
+QString ParaLimitAbs::GetTip() const
+{
+    if (!m_desc.isEmpty())
+        return m_desc;
+
+    if (IsScope())
+    {
+        auto str = QApplication::translate("ParaLimitAbs", "Value scope:");
+        return QString("%1, %2 %3--%4").arg(m_name, str, ValueToString(Getleast()), ValueToString(GetBiggest()));
+    }
+    if (!m_vCanValues.isEmpty())
+    {
+        auto ret = QString("%1, %2 ").arg(m_name, QApplication::translate("ParaLimitAbs", "Value Select:"));
+        for (auto &itr : m_vCanValues)
+        {
+            ret += QString("%1: %2; ").arg(ValueToString(itr.first), itr.second);
+        }
+        return ret;
+    }
+    return m_name;
+}
+
+QString ParaLimitAbs::GetUint(const QVariant &v) const
+{
+    if (m_uint.isEmpty())
+        return ParametersMgr::typeName(v);
+
+    return m_uint;
 }
 
 int ParaLimitAbs::GetIndexOf(const QVariant &val)const

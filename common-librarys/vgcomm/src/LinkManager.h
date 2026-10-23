@@ -36,7 +36,6 @@ public:
     // Override from QGCTool
     //virtual void setToolbox(QGCToolbox *toolbox);
     MAVLinkProtocol *getMavlinkProtocol()const;
-    void setConnectUAVStatus(bool isConnect);
     void setUAVRadioBaud(long baud); //set baud rate for UAV radio station
     bool IsOpenUdp()const;
     void SetOpenUdp(bool b);
@@ -102,7 +101,6 @@ private:                 ///< true: Link configurations have been loaded
     uint32_t m_mavlinkChannelsUsedBitMask;
     MAVLinkProtocol *m_mavlinkProtocol;
     int             m_tmLinkCheck;
-    bool            m_bConnectUAV;
     bool            m_bOpenUdp;
     bool            m_bOpenTcp;
     bool            m_bBleAutoLink;

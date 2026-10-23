@@ -34,7 +34,7 @@ Q_DECLARE_LOGGING_CATEGORY(LinkManagerVerboseLog)
 
 
 LinkManager::LinkManager(QObject *parent) : QObject(parent), m_mavlinkChannelsUsedBitMask(0)
-, m_tmLinkCheck(-1), m_mavlinkProtocol(NULL), m_bConnectUAV(false), m_bBleAutoLink(false)
+, m_tmLinkCheck(-1), m_mavlinkProtocol(NULL), m_bBleAutoLink(false)
 , m_bCheckPx4(true), m_UAVRadioBaud(57600)
 {
     m_mavlinkProtocol = new MAVLinkProtocol(this);
@@ -167,8 +167,12 @@ void LinkManager::_updateAutoSerialLinks(QStringList &currentPorts)
             if (portInfo.boardTypeGPS())
                 continue;
 #endif
-            if (_autoconnectCommandOfName(portInfo.systemLocation()))
+            if (auto c = _autoconnectCommandOfName(portInfo.systemLocation()))
+            {
+                if (c->isDisconnect())
+                    c->connectLink();
                 continue;
+            }
 
             if (!m_autoconnectWaitList.contains(portInfo.systemLocation()))
             {
@@ -332,9 +336,6 @@ SerialCommand* LinkManager::_autoconnectCommandOfName(const QString& portName)
 
 void LinkManager::_updateAutoConnectLinks(void)
 {
-    if (m_bConnectUAV)
-        return;
-
     _checkUdpLink();
     _checkTcpLink();
 #ifndef __ios__
@@ -513,11 +514,6 @@ bool LinkManager::isAutoconnectLink(LinkCommand *cmd)const
 MAVLinkProtocol * LinkManager::getMavlinkProtocol() const
 {
     return m_mavlinkProtocol;
-}
-
-void LinkManager::setConnectUAVStatus(bool isConnect)
-{
-    m_bConnectUAV = isConnect;
 }
 
 void LinkManager::setUAVRadioBaud(long baud)

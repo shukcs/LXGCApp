@@ -58,7 +58,7 @@ QList<SerialPortInfo> SerialPortInfo::availablePorts(void)
 {
     QList<SerialPortInfo>    list;
 
-    foreach(QSerialPortInfo portInfo, QSerialPortInfo::availablePorts()) {
+    for (auto &portInfo : QSerialPortInfo::availablePorts()) {
         list << *((SerialPortInfo*)&portInfo);
     }
 

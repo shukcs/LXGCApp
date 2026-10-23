@@ -189,9 +189,6 @@ void VGPlantEvents::AddEvent(const QString &id, const QString &desc, Event_Leave
 {
     if (VGPlantEvent *evt = new VGPlantEvent(id, desc, lv))
     {
-        if (!m_bShowAll && (*m_events)[0])
-            m_events->value<VGPlantEvent*>(0)->SetVisible(false);
-
         _addEvent(evt);
     }
 }
@@ -227,6 +224,8 @@ void VGPlantEvents::SetShowAll(bool b)
 
 void VGPlantEvents::_addEvent(VGPlantEvent *evt)
 {
+    if (!m_bShowAll && !m_events->IsEmpty())
+        m_events->value<VGPlantEvent*>(0)->SetVisible(false);
     m_events->insert(0, evt);
     while (m_events->count() > 100)
     {

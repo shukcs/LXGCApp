@@ -545,7 +545,7 @@ void VGNetManager::sltAckInfo(const QString &name, const QByteArray &byte)
     else if (name == d_p_ClassName(AckDeleteParcelDescription))
         _processDelPDAck(byte);             //删除地块
     else if(name == d_p_ClassName(PostOperationInformation))
-        _processPostInfo(byte);                  //GPS 位置信息
+        _processPostInfo(byte);              //GPS 位置信息
     else if(name == d_p_ClassName(AckPostParcelDescription))
         _processUploadSurveyResult(byte);   //上传测绘信息结果
     else if(name == d_p_ClassName(AckRequestParcelDescriptions))

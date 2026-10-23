@@ -481,7 +481,7 @@ Page {
             iconName: "expand"
             anchors {left: parent.left; leftMargin: 2; verticalCenter: parent.verticalCenter}
             onImgClicked:   {
-                rctRoute.width = parent.width/2-20
+                rctRoute.bShow = true
                 btnShowRctRoute.visible = false
             }
         }
@@ -490,8 +490,9 @@ Page {
             id:         rctRoute
             clip:       true
             visible:    width > 0
+            property bool bShow: true
             anchors {left: parent.left; verticalCenter: parent.verticalCenter}
-            width:  parent.width/2-30
+            width:  bShow ? parent.width/2-30 : 0
             height: parent.height-headerRct.height*2-30
             z:      200
             color:          "#7fffffff"
@@ -542,7 +543,7 @@ Page {
                     }
                     onSelectRoute: routeSelected = rt
                     onListFold: {
-                        rctRoute.width= 0
+                        rctRoute.bShow = false
                         btnShowRctRoute.visible = true
                     }
                 }
@@ -610,9 +611,10 @@ Page {
                         planEdit.save(true)
                         planEdit = null
                         enterMission(false)
+                        mapManager.wpEdit = false
                     }
                     onListFold: {
-                        rctRoute.width= 0
+                        rctRoute.bShow = 0
                         btnShowRctRoute.visible = true
                     }
                 }
@@ -643,7 +645,7 @@ Page {
                     onAddSupport:  setSupportPoint(mapRect.center, bEnter)
                     onBtnMissionClicked:  checkSupport(root)
                     onListFold: {
-                        rctRoute.width= 0
+                        rctRoute.bShow = 0
                         btnShowRctRoute.visible = true
                     }
                 }
@@ -651,8 +653,9 @@ Page {
         }
         UavEvents{
             z:      199
-            anchors {left: rctRoute.visible?rctRoute.right:parent.left; leftMargin: 15; top:headerRct.bottom; topMargin: 20; bottom: parent.bottom; bottomMargin: 50}
-            width: parent.width*2/5
+            anchors {left: rctRoute.visible ? rctRoute.right : parent.left; leftMargin: 15; top:headerRct.bottom; topMargin: 20}
+            width:  parent.width*1/3
+            height: plantEvents.showAll ? parent.height-65-headerRct.height : 25
         }
         Rectangle{
             id:     rctBottom

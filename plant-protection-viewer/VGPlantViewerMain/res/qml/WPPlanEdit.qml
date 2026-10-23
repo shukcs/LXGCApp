@@ -19,6 +19,7 @@ Rectangle{
     function initial(bEdit) {
         idWpEd.curMission = wplan.mission
         bEditValue = bEdit
+        mapManager.wpEdit = true
     }
     Rectangle{
         id: rectHeader
@@ -31,7 +32,10 @@ Rectangle{
             width:      30
             height:     width
             iconName:   "backb"
-            onImgClicked: {emit:exitPlan()}
+            onImgClicked: {
+                mapManager.wpEdit = false
+                emit:exitPlan()
+            }
         }
         VGTabHeader {
             id:                     tabFunc

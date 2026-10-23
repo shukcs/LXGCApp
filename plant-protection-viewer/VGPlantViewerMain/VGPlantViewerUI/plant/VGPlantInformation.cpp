@@ -1180,6 +1180,7 @@ void VGPlantInformation::ClearWay()
 
 void VGPlantInformation::SetVihevleMisson(const QList<MissionItem*> &items)
 {
+    if (items.isEmpty())return;
     if (auto landMgr = !m_uploadVm ? qvgApp->landManager() : nullptr)
     {
         auto wpp = new VGWayPointPlan(landMgr, tr("%1 download waypoints").arg(planeId()));

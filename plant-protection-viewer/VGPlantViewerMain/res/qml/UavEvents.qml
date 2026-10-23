@@ -4,9 +4,10 @@ import QtQuick.Dialogs  1.2
 
 import VGGroundControl                       1.0
 
-Item {
+Rectangle {
     id:         root
     visible:    plantEvents.events.count>0
+    color:      "transparent"
     Row {
         id:  rowSz
         anchors {top:parent.top; left: parent.left}
@@ -30,13 +31,13 @@ Item {
     Flickable {
         id:                     flick
         clip:                   true
-        anchors {left: parent.left; right: parent.right; bottom: parent.bottom; top:rowSz.bottom; topMargin: 10}
+        anchors {left: rowSz.right; right: parent.right; bottom: parent.bottom; top:rowSz.top; leftMargin: 6}
         contentHeight:          colEvents.height
         contentWidth:           parent.width
         flickableDirection:     Flickable.VerticalFlick
         Column{
             id:                         colEvents
-            spacing:                    10
+            spacing:                    4
             width:                      parent.width
             Repeater{
                 model:                  plantEvents.events
@@ -48,7 +49,7 @@ Item {
                     VGImage {
                         id:        close
                         anchors {left: parent.left; rightMargin: 10; verticalCenter: parent.verticalCenter}
-                        width:     24
+                        width:     20
                         height:    width
                         iconName: "close"
                         onImgClicked: object.remove()
@@ -62,10 +63,6 @@ Item {
                     }
                 }
             }
-        }
-        onContentHeightChanged: {
-            if (contentHeight>height)
-                contentY = contentHeight-height
         }
     }
 }

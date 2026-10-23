@@ -5,6 +5,9 @@
 #include <QDomNode>
 #include "ParamtersModel.h"
 
+/******************************************************************
+* ParametersMgr
+*******************************************************************/
 ParametersMgr::ParametersMgr(QObject *parent) : QObject(parent)
 {
 }
@@ -123,6 +126,22 @@ bool ParametersMgr::IsShowParam(const QString &paramID) const
         return paramID.startsWith(m_curButton);
 
     return false;
+}
+
+QString ParametersMgr::GetDescribe(const QString &paramID) const
+{
+    if (auto parm = _getParemeterLimit(paramID))
+        return parm->GetTip();
+
+    return QString();
+}
+
+QString ParametersMgr::GetTypeCmt(const QString &paramID, const QVariant &v) const
+{
+    if (auto parm = _getParemeterLimit(paramID))
+        return parm->GetUint(v);
+
+    return typeName(v);
 }
 
 QString ParametersMgr::GetButton() const

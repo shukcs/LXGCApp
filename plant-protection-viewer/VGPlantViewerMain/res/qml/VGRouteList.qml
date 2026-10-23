@@ -170,12 +170,11 @@ Rectangle{
                             emit:selectRoute(object)
                         }
                     }
-                    VGImage{
+                    VGTextButton{
                         anchors {right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter}
-                        width:      parent.height-10
-                        height:     width
-                        iconName:	"detail"
-                        onImgClicked: {
+                        strText:    qsTr("Modify")
+                        onBtnClicked: {
+                            mapManager.wpEdit = true
                             object.selected = true
                             emit:detailRout(object)
                         }

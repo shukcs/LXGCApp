@@ -16,7 +16,7 @@ public:
     const QVariant  &Value(const QString &key)const;
     const QVariant &operator[](const QString &)const;
     bool Contains(const QString &)const;
-    int indexOf(const QString &str);
+    int indexOf(const QString &str, bool upBound=false);
     void SetMax(int count);
     bool IsFull()const;
     const QMap<QString, QVariant> &AllQObject()const;
@@ -32,8 +32,8 @@ protected:
 signals:
     void idSChanged();
 private:
-    QMap<QString, QVariant> m_parameters;
-    QMap<QString, QVariant> m_visParameters;
+    QMap<QString, QVariant>         m_parameters;
+    QList<QPair<QString, QVariant>> m_visParameters;
     int m_maxItem = 1;
 };
 

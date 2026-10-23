@@ -275,8 +275,6 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, const QByteArray &b)
                 // Start loggin on first heartbeat
                 _startLogging(_filename);
 #endif
-
-                _linkMgr->setConnectUAVStatus(true);
                 mavlink_heartbeat_t heartbeat;
                 mavlink_msg_heartbeat_decode(&message, &heartbeat);
                 emit vehicleHeartbeatInfo(link, message.sysid, heartbeat.mavlink_version, heartbeat.autopilot, heartbeat.type);

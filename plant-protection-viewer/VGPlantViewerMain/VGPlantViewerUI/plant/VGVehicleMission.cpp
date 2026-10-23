@@ -873,9 +873,7 @@ void VGVehicleMission::onItemChanged()
 {
     if (auto obj = dynamic_cast<VGMissionItem*>(sender()))
     {
-        auto idx = m_missionItems->indexOf(obj);
-        if (idx >= 0)
-            m_path[idx] = QVariant::fromValue(obj->GetCoordinate());
+        _genPath();
         emit pathChanged(m_path);
     }
 }
@@ -919,7 +917,7 @@ void VGVehicleMission::_genMissionItem(const QList<VGCoordinate*> &coors)
     QObjectList ls = { new VGMissionItem(new MissionItem(seqNum++,
         MAV_CMD_NAV_TAKEOFF,                   //起飞
         MAV_FRAME_GLOBAL_RELATIVE_ALT,         //相对高度
-        GetOpHeight(), 0, 0, 0, 0, 0, GetOpHeight(), true, false), nullptr, VGCoordinate::Route_Start) };
+        GetOpHeight(), 0, 0, 0, 0, 0, m_enterHeight, true, false), nullptr, VGCoordinate::Route_Start) };
     if (c.isValid())
     {
         MissionItem* item = new MissionItem(seqNum++,
@@ -943,14 +941,6 @@ void VGVehicleMission::_genMissionItem(const QList<VGCoordinate*> &coors)
         bSprink = VGGlobalFunc::checkSprink(*coor);
         ls << new VGMissionItem(item, nullptr, coor->GetId());
     }
-
-    MissionItem* item = new MissionItem(seqNum++,
-        MAV_CMD_NAV_RETURN_TO_LAUNCH,           //航迹点
-        MAV_FRAME_GLOBAL_RELATIVE_ALT,          //相对高度
-        0, 0, 0, 0,
-        c.latitude(), c.longitude(), GetOpHeight(),
-        true, false);
-    ls << new VGMissionItem(item, this, VGCoordinate::RouteEnd);
 
     m_missionItems->insertList(ls);
     _genPath();

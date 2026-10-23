@@ -106,6 +106,11 @@ Rectangle {
                         validator:  "Float"===valType ? valDouble : valInt
                         onEditingFinished: plantManager.setParameter(idText, text)
                     }
+                    Label {
+                        anchors {verticalCenter: parent.verticalCenter}
+                        width: 220
+                        text: desc
+                    }
                 }
             }
         }

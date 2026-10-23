@@ -123,7 +123,7 @@ void VGPlantManager::addNewPlant(const QString &planeId, bool bMnt)
 
 void VGPlantManager::clearTmpPlant()
 {
-    foreach(VGPlantInformation *planeInfo, m_plants)
+    for (auto planeInfo : m_plants)
     {
         if (planeInfo->DirectLink() || m_mntPants.contains(planeInfo->planeId()))
             continue;

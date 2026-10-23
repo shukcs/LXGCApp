@@ -22,21 +22,21 @@ void ParamtersModel::insert(const QString &key, const QVariant &v)
     if (!qvgApp->parameters()->IsShowParam(key))
         return;
 
-    auto itr = m_visParameters.find(key);
-    if (itr==m_visParameters.end())
-        auto itr = m_visParameters.upperBound(key);
-
-    if (itr!=m_visParameters.end() && itr.key()==key && v!=itr.value())
+    int idxUpbound = indexOf(key);
+    auto ptr = idxUpbound >= 0 ? &m_visParameters[idxUpbound] : nullptr;
+    if (ptr && ptr->first==key)
     {
-        auto idx = indexOf(key);
-        itr.value() = v;
-        emit dataChanged(index(idx), index(idx));
+        if (v != ptr->second)
+        {
+            ptr->second = v;
+            emit dataChanged(index(idxUpbound), index(idxUpbound));
+        }
     }
-    else if (itr == m_visParameters.end())
+    else
     {
-        auto idx = itr == m_visParameters.end() ? m_visParameters.count():indexOf(itr.key());
+        auto idx = ptr ? idxUpbound : m_visParameters.count();
         beginInsertRows(QModelIndex(), idx, idx);
-        m_visParameters[key] = v;
+        m_visParameters.insert(idx, QPair<QString, QVariant>(key, v));
         endInsertRows();
         emit idSChanged();
     }
@@ -63,18 +63,17 @@ bool ParamtersModel::Contains(const QString &key) const
     return (itr != m_parameters.end());
 }
 
-int ParamtersModel::indexOf(const QString &str)
+int ParamtersModel::indexOf(const QString &str, bool upBound)
 {
     int ret = 0;
-    for (auto itr = m_visParameters.begin(); itr != m_visParameters.end(); ++itr)
+    for (auto &itr : m_visParameters)
     {
-        if (str == itr.key())
+        if (str < itr.first)
+            return upBound ? ret : -1;
+        if (str == itr.first)
             return ret;
 
-        if (str > itr.key())
-            ++ret;
-        else
-            break;
+        ++ret;
     }
     return -1;
 }
@@ -108,9 +107,7 @@ void ParamtersModel::Update()
     for (auto itr = m_parameters.begin(); itr != m_parameters.end(); ++itr)
     {
         if (qvgApp->parameters()->IsShowParam(itr.key()))
-        {
-            ins[itr.key()] = itr.value();
-        }
+            ins << QPair<QString, QVariant &>(itr.key(), itr.value());
     }
     if (!ins.isEmpty())
     {
@@ -141,17 +138,17 @@ QVariant ParamtersModel::data(const QModelIndex & index, int role /*= Qt::Displa
     if (row < 0 || row >= m_visParameters.count())
         return QVariant();
 
-    auto itr = m_visParameters.begin() + index.row();
+    auto &itr = m_visParameters.at(row);
     switch (role)
     {
     case Qt::DisplayRole:
-        return itr.key();
+        return itr.first;
     case ValueRole:
-        return ParametersMgr::typProp(itr.value());
+        return ParametersMgr::typProp(itr.second);
     case ValueType:
-        return ParametersMgr::typeName(itr.value());
-    case VisiRole:
-        return qvgApp->parameters()->IsShowParam(itr.key());
+        return qvgApp->parameters()->GetTypeCmt(itr.first, itr.second);
+    case Qt::ToolTipRole:
+        return qvgApp->parameters()->GetDescribe(itr.first);
     default:
         break;
     }
@@ -160,6 +157,8 @@ QVariant ParamtersModel::data(const QModelIndex & index, int role /*= Qt::Displa
 
 QHash<int, QByteArray> ParamtersModel::roleNames(void) const
 {
-    static QHash<int, QByteArray> hash = { { ValueRole ,"object" },{ Qt::DisplayRole,"idText" }, { ValueType, "valType"}};
+    static QHash<int, QByteArray> hash = { { ValueRole ,"object" },{ Qt::DisplayRole,"idText" }
+        , { ValueType, "valType"}, { Qt::ToolTipRole, "desc"}
+    };
     return hash;
 }

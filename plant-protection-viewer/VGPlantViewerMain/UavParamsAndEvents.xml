@@ -37,23 +37,23 @@
     <ParameterLimit type="uint" id="SYS_UAV_ID" name="飞机ID" show="base16" group="undef" readonly="true" />
     <ParameterLimit type="int" id="BAT_N_CELLS" name="电池芯数" group="undef" least="1" readonly="true" />
 	
-    <ParameterLimit type="uint" id="HOST_IP" name="云IP" show="ip" group="undef" least="1.0.0.1" biggest="255.0.0.0" />
+    <ParameterLimit type="uint" id="HOST_IP" name="云IP" show="ip" group="undef" least="1.0.0.1" biggest="223.255.255.254" />
     <ParameterLimit type="uint" id="HOST_PORT" name="云Port" group="undef" least="1" biggest="65535" />
+	<ParameterLimit type="int" id="BATT_CAPACITY" name="电池满电电量" least="1000" biggest="9000" unit="mAh" desc="电池满电电量, mAh"/>
+    <ParameterLimit type="float" id="BATT_LOW_VOLT" name="低电压阈值" group="undef" least="10" biggest="50" unit="V" desc="低电压阈值10--50V, 设置0忽略"/>
+    <ParameterLimit type="float" id="BATT_LOW_MAH" name="低电量阈值" group="undef" least="500" biggest="9000" unit="mAh" desc="低电量阈值500--9000mAh, 设置0忽略"/>
+    <ParameterLimit type="float" id="BATT_CRT_VOLT" name="严重低电压阈值" group="undef" least="0" biggest="50" unit="V" desc="低电压阈值10--50V, 设置0忽略"/>
+    <ParameterLimit type="float" id="BATT_CRT_MAH" name="严重低电量阈值" group="undef" least="10" biggest="50" unit="mAh" desc="低电量阈值500--9000mAh, 设置0忽略"/>
+    <ParameterLimit type="float" id="BAT_V_EMER_THR" name="紧急低电压阈值" group="undef" least="3.42" biggest="3.7" unit="V" />
 
-    <ParameterLimit type="float" id="BAT_V_LOW_THR" name="低电压阈值" group="undef" least="3.5" biggest="3.7" />
-    <ParameterLimit type="float" id="BAT_V_CRIT_THR" name="严重低电压阈值" group="undef" least="3.5" biggest="3.7" />
-    <ParameterLimit type="float" id="BAT_V_EMER_THR" name="紧急低电压阈值" group="undef" least="3.42" biggest="3.7" />
-
-    <ParameterLimit type="float" id="GF_MAX_HOR_DIST" name="限距" group="undef" least="0" biggest="5000" />
-    <ParameterLimit type="float" id="GF_MAX_VER_DIST" name="限高" group="undef" least="0" biggest="30" />
-    <ParameterLimit type="float" id="MPC_XY_VEL_MAX" name="限速" group="undef" least="1" biggest="7" />
+    <ParameterLimit type="float" id="GF_MAX_HOR_DIST" name="限距" group="undef" least="0" biggest="5000" unit="m"/>
+    <ParameterLimit type="float" id="GF_MAX_VER_DIST" name="限高" group="undef" least="0" biggest="30" unit="m"/>
+    <ParameterLimit type="float" id="MPC_XY_VEL_MAX" name="限速" group="undef" least="1" biggest="7" /s" />
 
     <ParameterLimit type="int" id="SPRAY_NOWATER" name="无药处理方式" list="0:不处理;1:警告;2:悬停;3:返航"  />
     <ParameterLimit type="int" strict="true" id="COM_LOW_BAT_ACT" name="电量低处理方式" list="0:警告;2:原地降落;3:返航" />
     <ParameterLimit type="int" id="NAV_RCL_ACT" name="遥控器失效处理方式" list="0:不处理;1:悬停;3:着陆" />
-
     <ParameterLimit type="float" id="FLMT_CALI" name="流量计修正系数" group="undef" least="0" biggest="10" />
-
     <ParameterLimit type="float" id="MIS_AB_LINE_DIS" name="AB点喷幅" group="undef" least="0" biggest="10"/>
     <ParameterLimit type="float" id="SPRAY_QUAN" name="亩用量" group="undef" least="0.5" biggest="5"/>
     <ParameterLimit type="float" id="MPC_XY_CRUISE" name="作业速度" group="undef" least="1" biggest="7"/>

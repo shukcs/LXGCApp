@@ -72,6 +72,7 @@ public:
     bool IsAutoConnect()const;
     void SetAutoConnect(bool autoc = true);
     bool isConnect()const;
+    bool isDisconnect()const;
     void write(const char *buff, unsigned len);
 
     virtual LinkType type()const = 0;

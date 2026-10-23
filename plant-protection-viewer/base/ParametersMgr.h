@@ -52,6 +52,8 @@ public:
     static QVariant typProp(const QVariant &v);
     void SetParasModel(ParamtersModel *m);
     bool IsShowParam(const QString &paramID)const;
+    QString GetDescribe(const QString &paramID)const;
+    QString GetTypeCmt(const QString &paramID, const QVariant &v)const;
 protected:
     Q_INVOKABLE ParamType getType(const QString &id)const;
     Q_INVOKABLE QString getName(const QString &id)const;

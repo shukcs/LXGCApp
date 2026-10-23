@@ -48,9 +48,11 @@ public:
     virtual int GetType()const = 0;
     virtual int GetPropertyIndex(const QVariant &val)const = 0;
     static QVariant ValueFromString(const QString &val, int tp);
+    QString GetTip()const;
+    QString GetUint(const QVariant &v)const;
 public:
-    QString ValueToString(const QVariant &val);
-    QVariant ValueFromString(const QString &str);
+    QString ValueToString(const QVariant &val)const;
+    QVariant ValueFromString(const QString &str)const;
 protected:
     void setShowType(int tp);
     void parseShowType(const QString &s);
@@ -59,6 +61,8 @@ protected:
     uint32_t                m_stat;
     QString                 m_id;
     QString                 m_name;
+    QString                 m_desc;
+    QString                 m_uint;
     QList<ValuePair>        m_vCanValues;
 };
 

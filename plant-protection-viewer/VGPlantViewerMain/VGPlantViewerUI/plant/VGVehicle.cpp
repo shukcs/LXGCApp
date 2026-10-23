@@ -310,10 +310,7 @@ void VGVehicle::disconnectInactiveVehicle(void)
     for (LinkInterface *link : m_links)
     {
         if (link)
-        {
             linkMgr->DeleteLink(link); 
-            linkMgr->setConnectUAVStatus(false);
-        }
     }
     m_links.clear();
     m_uavID = QString();

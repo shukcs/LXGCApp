@@ -56,16 +56,21 @@ void LinkCommand::connectLink()
     if (!m_link)
     {
         if (m_link = CreateLink())
+        {
             connect(m_link, &LinkInterface::linkConnected, this, &LinkCommand::onLinkConnected);
+            connect(m_link, &LinkInterface::destroyed, this, [=]{
+                m_link = nullptr;
+                SetLinkStat(St_Disconnected);
+            });
+        }
     }
     else
     {
         m_link->_disconnect();
     }
 
-    SetLinkStat(St_Connecting);
     if (m_link)
-        m_link->_connect();
+        SetLinkStat(m_link->_connect() ? St_Connecting : St_Disconnected);
 }
 
 void LinkCommand::disconnectLink()
@@ -117,6 +122,11 @@ void LinkCommand::SetAutoConnect(bool autoc /*= true*/)
 bool LinkCommand::isConnect() const
 {
     return m_stLink == St_Connected;
+}
+
+bool LinkCommand::isDisconnect() const
+{
+    return m_stLink == St_Disconnected;
 }
 
 void LinkCommand::write(const char *buff, unsigned len)

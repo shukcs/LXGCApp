@@ -55,7 +55,7 @@ bool SerialLink::_isBootloader()
         return false;
     }
     QString name = devName();
-    foreach (const QSerialPortInfo &info, portList)
+    for (auto &info : portList)
     {
         QString description = info.description().toLower();
         if ( info.portName().trimmed() == name &&
@@ -87,7 +87,7 @@ void SerialLink::_disconnect(void)
     {
         _port->close();
         delete _port;
-        _port = NULL;
+        _port = nullptr;
         emit linkConnected(false);
     }
 #ifdef __android__
@@ -128,7 +128,7 @@ bool SerialLink::_hardwareConnect(QSerialPort::SerialPortError& error, QString& 
         _port->close();
         QThread::sleep(50000);
         delete _port;
-        _port = NULL;
+        _port = nullptr;
     }
 
     if (_isBootloader())
@@ -179,7 +179,7 @@ bool SerialLink::_hardwareConnect(QSerialPort::SerialPortError& error, QString& 
         errorString = _port->errorString();
         _port->close();
         delete _port;
-        _port = NULL;
+        _port = nullptr;
         return false; // couldn't open serial port
     }
 
