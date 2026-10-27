@@ -14,13 +14,12 @@ import VGGroundControl   1.0
   *
 */
 Page {
-    id:root
+    id: opRoot
     property var planEdit: null
     property var routeSelected: null
     property bool bShowCenter: false
     property var curPlant: plantManager.currentPlant
     property var shrinkPage: null
-
     property var pageParam: null
     function clearShowMsgItem() {
         vgPopupMsg.clearItem()
@@ -60,8 +59,10 @@ Page {
             plantManager.disarm()
         }
         else if (id === 4 && accept) {
-            if (!pageParam)
-                pageParam = parameterCom.createObject(root)
+            if (!pageParam) {//作为自页存在
+                pageParam = parameterCom.createObject(opRoot)
+                vgMainPage.addQmlObject(pageParam, opRoot)
+            }
             vgMainPage.curQmlPage = pageParam
         }
     }
@@ -98,7 +99,7 @@ Page {
     Component{
         id: routeDetailCom
         LandRouteOption {
-            contendWidth:   root.width/2
+            contendWidth:   opRoot.width/2
             onOpration:  {
                 routeSelected = flyRoute
                 enterMission(true)
@@ -166,7 +167,7 @@ Page {
         //bDrawCenter:    missionCtrl.visible && missionCtrl.curOp===2
         function prcsClickBtn(txt) {
             if (txt === "blueTooth"){
-                var page = bltSettingsCom.createObject(root)
+                var page = bltSettingsCom.createObject(opRoot)
                 vgMainPage.curQmlPage = page
             }
             else if (txt === "clear") {
@@ -183,7 +184,7 @@ Page {
                 enterMission(false)
             }
             else if (txt === "shutdown") {
-                var v = vgTipCom.createObject(root)
+                var v = vgTipCom.createObject(opRoot)
                 v.strTip = qsTr("Uav reboot, Do you confirm?")//"是否确认重启飞控？"
                 v.idTip = 1
                 vgMainPage.curQmlPage = v
@@ -192,10 +193,10 @@ Page {
                 plantManager.testPump()
             }
             else if (txt === qsTr("Test motor")) {//"测试电机"
-                vgMainPage.curQmlPage = testMotorCom.createObject(root)
+                vgMainPage.curQmlPage = testMotorCom.createObject(opRoot)
             }
             else if (txt === qsTr("Disarm")) {//加锁
-                var vLock = vgTipCom.createObject(root)
+                var vLock = vgTipCom.createObject(opRoot)
                 vLock.strTip = qsTr("Is Uav disarm?")//"是否确认加锁？"
                 vLock.idTip = 3
                 vgMainPage.curQmlPage = vLock
@@ -209,15 +210,13 @@ Page {
                     curPlant.flightMode = "Hold"
             }
             else if (txt === qsTr("Parameter setting")) {//参数设置
-                if (!pageParam)
-                    pageParam = parameterCom.createObject(root)
-                vgMainPage.curQmlPage = pageParam
+                finish(true, 4)
             }
             else if (txt === qsTr("Imitation setting")) {//"仿地设置"
-               vgMainPage.curQmlPage =  groundSetting.createObject(root)
+               vgMainPage.curQmlPage =  groundSetting.createObject(opRoot)
             }
             else if (txt === qsTr("Auto magic correct")) {//"空中校磁"
-               vgMainPage.curQmlPage =  magneticTip.createObject(root)
+               vgMainPage.curQmlPage =  magneticTip.createObject(opRoot)
             }
         }
         signal shrinkEdgeSelected()
@@ -529,13 +528,13 @@ Page {
                     visible:        !planEdit && !mapManager.showMission
                     onCreateClick:  {
                         if (tp === MapAbstractItem.Type_MissionInfo)
-                            vgMainPage.curQmlPage = routeInfoCom.createObject(root)
+                            vgMainPage.curQmlPage = routeInfoCom.createObject(opRoot)
                         else if(tp === MapAbstractItem.Type_WayPointPlan)
-                            vgMainPage.curQmlPage = wpPlanEditCom.createObject(root)
+                            vgMainPage.curQmlPage = wpPlanEditCom.createObject(opRoot)
                     }
                     onDetailRout: {
                         if (rt.itemType === MapAbstractItem.Type_MissionInfo) {
-                            var page = routeDetailCom.createObject(root)
+                            var page = routeDetailCom.createObject(opRoot)
                             page.flyRoute = rt
                             vgMainPage.curQmlPage = page
                         }
@@ -558,7 +557,7 @@ Page {
                     visible:        planEdit && planEdit.itemType===MapAbstractItem.Type_MissionInfo
                     onExitPlan:  {
                         if (planEdit) {
-                            var page = vgTipCom.createObject(root)
+                            var page = vgTipCom.createObject(opRoot)
                             page.strTip = qsTr("Do you drop current plan？")//"确认取消创建任务？"
                             page.idTip = 0
                             vgMainPage.curQmlPage = page
@@ -573,15 +572,15 @@ Page {
                         enterMission(false)
                     }
                     onEditRouteInfo:    {
-                        var page = routeInfoCom.createObject(root)
+                        var page = routeInfoCom.createObject(opRoot)
                         page.setMissionPlan(rt)
                         vgMainPage.curQmlPage = page
                     }
-                    onSelectBoundary:  vgMainPage.curQmlPage = bounarySelctCom.createObject(root.parent)
+                    onSelectBoundary:  vgMainPage.curQmlPage = bounarySelctCom.createObject(opRoot.parent)
                     onEditShrink: {
                         if (null===shrinkPage) {
                             shrinkPage = shrinkEdgeCom.createObject(planCtrl)
-                            vgMainPage.addQmlObject(shrinkPage, root)
+                            vgMainPage.addQmlObject(shrinkPage, opRoot)
                         }
                         vgMainPage.curQmlPage = shrinkPage
                         shrinkPage.setRoute(rt)
@@ -593,7 +592,7 @@ Page {
                     visible:        planEdit && planEdit.itemType===MapAbstractItem.Type_WayPointPlan
                     onExitPlan:  {
                         if (planEdit && planEdit.newPlan) {
-                            var page = vgTipCom.createObject(root)
+                            var page = vgTipCom.createObject(opRoot)
                             page.strTip = qsTr("Do you drop current plan？")//"确认取消创建任务？"
                             page.idTip = 0
                             vgMainPage.curQmlPage = page
@@ -603,7 +602,7 @@ Page {
                         }
                     }
                     onEditRouteInfo:    {
-                        var page = wpPlanEditCom.createObject(root)
+                        var page = wpPlanEditCom.createObject(opRoot)
                         page.setWayPointPlan(rt)
                         vgMainPage.curQmlPage = page
                     }
@@ -632,7 +631,7 @@ Page {
                         planEdit = null
                     }
                     onStartMission: {
-                        var v = vgTipCom.createObject(root)
+                        var v = vgTipCom.createObject(opRoot)
                         if (curPlant && (curPlant.restrain || plantManager.sps)) {
 							if (curPlant.restrain)
 								v.strTip = qsTr("Do u let Uav excute mission?")//"是否执行作业任务？"
@@ -647,7 +646,7 @@ Page {
                         vgMainPage.curQmlPage = v
                     }
                     onAddSupport:  setSupportPoint(mapRect.center, bEnter)
-                    onBtnMissionClicked:  checkSupport(root)
+                    onBtnMissionClicked:  checkSupport(opRoot)
                     onListFold: {
                         rctRoute.bShow = 0
                         btnShowRctRoute.visible = true
@@ -817,11 +816,11 @@ Page {
     Connections{
         target: vgMainPage
         onSigBack: {
-            if (root === page)
+            if (opRoot === page)
                 backQml()
         }
         onSigShowPage: {
-            if (root === page) {
+            if (opRoot === page) {
                 mapRect.center = mapManager.mapCenter
                 mapManager.showLand = true
                 mapManager.showPlane = true
@@ -830,7 +829,7 @@ Page {
                     routList.initail(routList.bLsRp)
             }
 
-            var vis = vgMainPage.isVisible(root);
+            var vis = vgMainPage.isVisible(opRoot);
             if (vis) {
                 vgMainPage.titleVisible = false
                 vgMainPage.scrHoriz = true
@@ -842,7 +841,7 @@ Page {
                 if (wpPlanCtrl.visible || planCtrl.visible)
                     finish(true, 0)
             }
-            root.visible = vis
+            opRoot.visible = vis
         }
     }
 }

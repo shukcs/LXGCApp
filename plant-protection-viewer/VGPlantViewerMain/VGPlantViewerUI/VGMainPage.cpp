@@ -75,13 +75,13 @@ VGQmlViewItem *VGQmlViewItem::FindQmlObjectItem(const QObject *item)
     if (VGQmlViewItem *tmp = findQmlObjectItem(item))
         return tmp;
 
-    foreach(VGQmlViewItem *itr, m_children)
+    for (auto itr : m_children)
     {
         if (VGQmlViewItem *tmp = itr->FindQmlObjectItem(item))
             return tmp;
     }
 
-    return NULL;
+    return nullptr;
 }
 QString VGQmlViewItem::GetName()const
 {
@@ -107,7 +107,7 @@ void VGQmlViewItem::RemoveItem(QObject *qmlObj)
 
 VGQmlViewItem *VGQmlViewItem::findQmlObjectItem(const QObject *item)const
 {
-    foreach(VGQmlViewItem *itr, m_children)
+    for (auto itr : m_children)
     {
         if (item == itr->m_qmlObject)
             return itr;
