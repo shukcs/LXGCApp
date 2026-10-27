@@ -29,7 +29,11 @@ VGLandPolygon::VGLandPolygon(VGLandPolygon &polygon) : MapAbstractItem(polygon)
 
 VGLandPolygon::~VGLandPolygon()
 {
-    qDeleteAll(m_coors);
+    for (auto itr : m_coors)
+    {
+        disconnect(itr, &VGCoordinate::destroyed, this, &VGLandPolygon::onPointDelete);
+        delete itr;
+    }
 }
 
 QVariantList VGLandPolygon::GetPath() const

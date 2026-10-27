@@ -67,25 +67,25 @@ Rectangle{
         onImgClicked:       {emit:listFold()}
    }
     Flickable {
-        id:                     routeCol
+        id:                     flickRoute
         clip:                   false
         anchors {top: btnCreate.bottom; topMargin: 2; left: parent.left; right: parent.right; bottom: parent.bottom}
-        contentHeight:          colBoundary.height
+        contentHeight:          colRoutList.height
         contentWidth:           width
         flickableDirection:     Flickable.VerticalFlick
         Column{
-            id: colBoundary
+            id: colRoutList
             visible:                    rbRP.checked
             spacing:                    4
             Rectangle{
                 color:      "transparent"
-                width:      routeCol.width
+                width:      flickRoute.width
                 height:     1
             }
             Repeater{
                 model: mapManager.getSpecItems(MapAbstractItem.Type_MissionInfo)
                 delegate: Rectangle{
-                    width:          routeCol.width
+                    width:          flickRoute.width
                     height:         itemLand1.height+10
                     color:          object.itemColor
                     visible:        object.visible
@@ -151,13 +151,13 @@ Rectangle{
             spacing:                    4
             Rectangle{
                 color:      "transparent"
-                width:      routeCol.width
+                width:      flickRoute.width
                 height:     1
             }
             Repeater{
                 model: mapManager.getSpecItems(MapAbstractItem.Type_WayPointPlan)
                 delegate: Rectangle{
-                    width:          routeCol.width
+                    width:          flickRoute.width
                     height:         colWp1.height+10
                     color:          object.itemColor
                     visible:        object.visible
@@ -183,7 +183,7 @@ Rectangle{
                         id:         colWp1
                         clip:       true
                         spacing:    4
-                        anchors {left: parent.left; leftMargin: 10}
+                        anchors {left: parent.left; leftMargin: 10; top:parent.top; topMargin: 5}
                         width: parent.width/4
                         Text {
                             text:               object.name
@@ -200,7 +200,7 @@ Rectangle{
                         id:         colWp2
                         clip:       true
                         spacing:    4
-                        anchors {left: colWp1.right; leftMargin: 10}
+                        anchors {left: colWp1.right; leftMargin: 10; top:colWp1.top}
                         width: parent.width/3
                         Text {
                             text:               qsTr("Comment: ")+object.comment

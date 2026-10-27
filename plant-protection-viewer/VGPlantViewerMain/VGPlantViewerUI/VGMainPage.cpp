@@ -367,7 +367,7 @@ void VGMainPage::setHeaderName(const QString &name)
 
 void VGMainPage::SetCurrentQmlPage(QObject *qmlPage)
 {
-    if (qmlPage && (!m_qmlViewStack.count()||m_qmlViewStack.last()!=qmlPage))
+    if (qmlPage && (m_qmlViewStack.isEmpty()||m_qmlViewStack.last()!=qmlPage))
     {
         m_qmlViewStack.push_back(qmlPage);
         emit sigShowPage(qmlPage);

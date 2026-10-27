@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QGeoCoordinate>
 #include <QDateTime>
+#include <QDataStream>
 #include "VGLandInformation.h"
 #include "VGLandPolygon.h"
 #include "VGCoordinate.h"

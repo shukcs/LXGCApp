@@ -132,7 +132,10 @@ Rectangle{
                 vgMainPage.titleVisible = true
                 vgMainPage.headerName = qsTr("ground constrol app")//qsTr("农飞宝")
                 mapPage.center = mapManager.mapCenter
-                mapManager.mgrObj = 0
+                mapManager.showLand = false
+                mapManager.showMission = false
+                mapManager.wpEdit = false
+                mapManager.onlyStreet = true
             }
         }
         onDestroyedQmlObject:{

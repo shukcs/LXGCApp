@@ -216,7 +216,8 @@ Page {
             root.visible = vis
             if (root ===page) {
                 mapPage.center = mapManager.mapCenter
-                mapManager.mgrObj = VGMapManager.Map_Land
+                mapManager.showLand = true
+                mapManager.onlyStreet = false
             }
             if (vis)
                 vgMainPage.titleVisible = false

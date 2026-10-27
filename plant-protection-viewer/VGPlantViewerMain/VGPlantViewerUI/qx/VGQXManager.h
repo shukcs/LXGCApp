@@ -13,7 +13,7 @@ class VGQXManager : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString url READ GetUrl WRITE SetUrl NOTIFY urlChanged)
-    Q_PROPERTY(quint16 port READ GetPort WRITE SetPort NOTIFY portChanged)
+    Q_PROPERTY(quint16 port READ GetPort WRITE SetPortA NOTIFY portChanged)
     Q_PROPERTY(QString acc READ GetAccount WRITE SetAccount NOTIFY accChanged)
     Q_PROPERTY(QString pswd READ GetPassword WRITE SetPassword NOTIFY pswdChanged)
     Q_PROPERTY(bool started READ GetStart WRITE  SetStart NOTIFY startedChanged)
@@ -41,7 +41,7 @@ public:
 protected:
     void SetUrl(const QString &url);
     QString GetUrl()const;
-    void SetPort(quint16 p);
+    void SetPortA(quint16 p);
     quint16 GetPort()const;
     void SetAccount(const QString &acc);
     QString GetAccount()const;

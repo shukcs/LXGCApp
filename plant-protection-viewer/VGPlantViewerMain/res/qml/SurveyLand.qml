@@ -292,8 +292,7 @@ Page {
 
     Connections{
         target: vgMainPage
-        onSigShowPage:
-        {
+        onSigShowPage: {
             var b = vgMainPage.isVisible(root)
             root.visible = b
             if (root === page) {
@@ -303,7 +302,7 @@ Page {
                     vgMainPage.destroyQmlObject(root)
                 }
                 root.bSaving = false
-                mapManager.mgrObj = VGMapManager.Map_Land
+                mapManager.showLand = true
             }
             else if (landInfo && surveyPause.visible) {
                 landInfo.surverStat = VGLandInformation.Stat_SurveyPause

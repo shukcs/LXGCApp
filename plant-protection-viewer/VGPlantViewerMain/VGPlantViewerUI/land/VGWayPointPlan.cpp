@@ -69,6 +69,9 @@ QString VGWayPointPlan::GetCreateTime() const
 
 void VGWayPointPlan::SetSelected(bool b)
 {
+    if (GetSelected() == b)
+        return;
+
     MapAbstractItem::SetSelected(b);
     if (!m_route)
         return;

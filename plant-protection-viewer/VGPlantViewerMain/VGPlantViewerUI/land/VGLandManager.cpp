@@ -58,6 +58,12 @@ VGLandManager::VGLandManager(QObject *parent)
     initPlanWork();
     startGetGps(30);
     m_tmId = startTimer(2500);
+    QTimer::singleShot(10, this, [=] {
+        connect(qvgApp->mapManager(), &VGMapManager::wpEditChanged, this, [=] {
+            if (!qvgApp->mapManager()->IsWayPointEdit())
+                SetCurWPPlan(nullptr);
+        });
+    });
 }
 
 VGLandManager::~VGLandManager()

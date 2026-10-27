@@ -62,7 +62,7 @@ Page {
             }
         }
         isInitial = true
-        mapManager.mgrObj = VGMapManager.Map_Land
+        mapManager.showLand = true
     }
     function setSurvey(tp) {
         if (tp === MapAbstractItem.Survey_DrawMap)
@@ -510,6 +510,9 @@ Page {
                 backQml()
         }
         onSigShowPage: {
+            if (page === root)
+                mapManager.onlyStreet = false
+
             var b = vgMainPage.isVisible(root)
             root.visible = b
             if (!b) {

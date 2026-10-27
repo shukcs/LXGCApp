@@ -15,11 +15,16 @@ Rectangle{
     signal exitPlan()
     signal listFold()
     color: "#F6F6F6"
-
+    onVisibleChanged: {
+        if (visible)
+            mapManager.wpEdit = true
+    }
     function initial(bEdit) {
         idWpEd.curMission = wplan.mission
         bEditValue = bEdit
         mapManager.wpEdit = true
+        if (wplan)
+            wplan.selected = true
     }
     Rectangle{
         id: rectHeader

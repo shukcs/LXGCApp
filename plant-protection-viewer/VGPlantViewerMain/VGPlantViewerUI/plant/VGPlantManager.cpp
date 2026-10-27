@@ -575,7 +575,7 @@ void VGPlantManager::startQueryMyPlaneStatus()
 
      connect(info, &QObject::destroyed, this, &VGPlantManager::onChildDestroyed);
      connect(info, &VGPlantInformation::statusChanged, this, &VGPlantManager::onPlantConnectChanged);
-     connect(qvgApp->mapManager(), &VGMapManager::mgrObjChanged, info, &VGPlantInformation::onMissionChange);
+     connect(qvgApp->mapManager(), &VGMapManager::showMissionChanged, info, &VGPlantInformation::onMissionChange);
      info->Show(true);
 
      QString str = info->planeId();

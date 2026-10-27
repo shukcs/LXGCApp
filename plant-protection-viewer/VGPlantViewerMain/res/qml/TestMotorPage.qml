@@ -24,7 +24,9 @@ Rectangle
             width: 30
             height: width
             iconName: "backb"
-            onImgClicked: vgMainPage.onSigBack()
+            onImgClicked: {
+                vgMainPage.destroyQmlObject(root)
+            }
         }
         Text {
             id:                 txtHeader
@@ -292,7 +294,10 @@ Rectangle
     }
     Connections {
         target:         vgMainPage
-        onSigBack:      if (page===root)vgMainPage.onSigBack()
+        onSigBack: {
+            if (page===root)
+                vgMainPage.destroyQmlObject(root)
+        }
         onSigShowPage:  root.visible = vgMainPage.isVisible(root)
     }
 }

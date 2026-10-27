@@ -21,6 +21,7 @@ Page {
     property var curPlant: plantManager.currentPlant
     property var shrinkPage: null
 
+    property var pageParam: null
     function clearShowMsgItem() {
         vgPopupMsg.clearItem()
     }
@@ -38,13 +39,40 @@ Page {
         mapRect.setBtnVisible("operation", bM)
         missionCtrl.curOp = 0
     }
+    function finish(accept, id) {
+        if (id === 0) {
+            if (accept && planEdit) {
+                planEdit.selected = false
+                if (planEdit.itemType!==MapAbstractItem.Type_WayPointPlan)
+                    planEdit.releaseSafe()
+                planEdit = null
+            }
+            if (accept)
+                planCtrl.bEditValue = false
+        }
+        else if (id === 1 && accept) {
+            plantManager.shutdown()
+        }
+        else if (id === 2 && accept) {
+            curPlant.arm = true
+        }
+        else if (id === 3 && accept) {
+            plantManager.disarm()
+        }
+        else if (id === 4 && accept) {
+            if (!pageParam)
+                pageParam = parameterCom.createObject(root)
+            vgMainPage.curQmlPage = pageParam
+        }
+    }
     function backQml() {
-        mapManager.showMission = false
         mapRect.setBtnVisible("mission", true)
         mapRect.setBtnVisible("operation", false)
         routeSelected = null
         landManager.quitOperation()
         vgMainPage.onSigBack()
+        mapManager.showMission = false
+        mapManager.wpEdit = false
     }
     Component{
         id: routeInfoCom
@@ -93,30 +121,7 @@ Page {
         id: vgTipCom
         VGTip {
             strTitle:   qsTr("Tip")//qsTr("提示")
-            onFinished: {
-                if (id === 0) {
-                    if (accept && planEdit) {
-                        planEdit.selected = false
-                        if (planEdit.itemType!==MapAbstractItem.Type_WayPointPlan)
-                            planEdit.releaseSafe()
-                        planEdit = null
-                    }
-                    if (accept)
-                        planCtrl.bEditValue = false
-                }
-                else if (id === 1 && accept) {
-                    plantManager.shutdown()
-                }
-                else if (id === 2 && accept) {
-                    curPlant.arm = true
-                }
-                else if (id === 3 && accept) {
-                    plantManager.disarm()
-                }
-                else if (id === 4 && accept) {
-                    vgMainPage.curQmlPage =  parameterCom.createObject(root)
-                }
-            }
+            onFinished: finish(accept, id)
         }
     }
     Component{
@@ -204,7 +209,9 @@ Page {
                     curPlant.flightMode = "Hold"
             }
             else if (txt === qsTr("Parameter setting")) {//参数设置
-               vgMainPage.curQmlPage =  parameterCom.createObject(root)
+                if (!pageParam)
+                    pageParam = parameterCom.createObject(root)
+                vgMainPage.curQmlPage = pageParam
             }
             else if (txt === qsTr("Imitation setting")) {//"仿地设置"
                vgMainPage.curQmlPage =  groundSetting.createObject(root)
@@ -235,7 +242,6 @@ Page {
             delegate: MapQuickItem{
                 anchorPoint {x: imgCtn.width/2; y: imgCtn.height}
                 coordinate :     object.coordinate
-                visible:         mapManager.mgrObj!==VGMapManager.Map_Land
                 z:               104
                 sourceItem: VGImage {
                     id:         imgCtn
@@ -251,7 +257,6 @@ Page {
             delegate: MapQuickItem{
                 anchorPoint {x: imgABCtn.width/2; y: imgABCtn.height}
                 coordinate :     object.coordinate
-                visible:         mapManager.mgrObj !== VGMapManager.Map_Land
                 z:               104
                 sourceItem: VGImage {
                     id:         imgABCtn
@@ -267,7 +272,6 @@ Page {
             delegate: MapQuickItem{
                 anchorPoint {x: imgAtn.width/2; y: imgAtn.height}
                 coordinate :     object.coordinate
-                visible:         mapManager.mgrObj !== VGMapManager.Map_Land
                 z:               104
                 sourceItem: VGImage {
                     id:         imgAtn
@@ -283,7 +287,6 @@ Page {
             delegate: MapQuickItem{
                 anchorPoint {x: imgBtn.width/2; y: imgBtn.height}
                 coordinate :     object.coordinate
-                visible:         mapManager.mgrObj !== VGMapManager.Map_Land
                 z:               104
                 sourceItem: VGImage {
                     id:         imgBtn
@@ -328,7 +331,7 @@ Page {
             delegate: MapPolyline {
                 path:           object.path
                 line  {color: object.itemColor; width: 3}
-                visible:        object.visible && (mapManager.mgrObj & VGMapManager.Map_Land)
+                visible:        object.visible && mapManager.showLand
                 smooth:         true
                 z:              103
             }
@@ -521,6 +524,7 @@ Page {
                 anchors {fill: parent; leftMargin: 10; topMargin: 3; rightMargin: 10; bottomMargin: 10 }
                 color:          "transparent"
                 VGRouteList{
+                    id:             routList
                     anchors.fill:   parent
                     visible:        !planEdit && !mapManager.showMission
                     onCreateClick:  {
@@ -624,7 +628,7 @@ Page {
                     anchors.fill:   parent
                     onExitMission: {
                         enterMission(false)
-                        mapManager.mgrObj |= VGMapManager.Map_Land
+                        mapManager.showLand = true
                         planEdit = null
                     }
                     onStartMission: {
@@ -817,9 +821,13 @@ Page {
                 backQml()
         }
         onSigShowPage: {
-            if (root ===page) {
+            if (root === page) {
                 mapRect.center = mapManager.mapCenter
-                mapManager.mgrObj |= VGMapManager.Map_Land|VGMapManager.Map_Vehicle
+                mapManager.showLand = true
+                mapManager.showPlane = true
+                mapManager.onlyStreet = false
+                if (routList.visible)
+                    routList.initail(routList.bLsRp)
             }
 
             var vis = vgMainPage.isVisible(root);
@@ -831,6 +839,8 @@ Page {
                 mapManager.saveConfig()
                 plantManager.writeConfig()
                 vgMainPage.scrHoriz = false
+                if (wpPlanCtrl.visible || planCtrl.visible)
+                    finish(true, 0)
             }
             root.visible = vis
         }

@@ -21,7 +21,7 @@ const int s_scaleLengths[] = { 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000,
 VGMapManager::VGMapManager(QObject *parent) : QObject(parent), m_bShowSR(true)
 , m_mapCenter(40.12121, 119.12121), m_mapTypeID(UrlFactory::AMapSatelliteMap)
 , m_zoomLevel(14), m_bMapChanged(false), m_pixLength(0), m_propLength(80)
-, m_mgrObj(0), m_bOnlyStreet(false), m_bCenterVisible(false)
+, m_mgrObj(0), m_bOnlyStreet(false)
 {
 	QTimer::singleShot(10, this, [=]{
 		_readConfig();
@@ -262,15 +262,58 @@ void VGMapManager::SetManagerObj(int n)
 
 bool VGMapManager::IsCenterVisible() const
 {
-    return m_bCenterVisible;
+    return 0 != (Map_Center&m_mgrObj);
 }
 
 void VGMapManager::SetCenterVisible(bool b)
 {
-    if (m_bCenterVisible != b)
+    if ((Map_Center&m_mgrObj) && !b)
     {
-        m_bCenterVisible = b;
+        m_mgrObj &= ~Map_Center;
         emit centerVisibleChanged(b);
+    }
+    else if (0 == (Map_Center&m_mgrObj) && b)
+    {
+        m_mgrObj |= Map_Center;
+        emit centerVisibleChanged(b);
+    }
+}
+
+bool VGMapManager::IsShowLand() const
+{
+    return 0 != (Map_Land&m_mgrObj);
+}
+
+void VGMapManager::SetShowLand(bool b)
+{
+    if ((Map_Land&m_mgrObj) && !b)
+    {
+        m_mgrObj &= ~Map_Land;
+        emit showLandChanged();
+    }
+    else if (0 == (Map_Land&m_mgrObj) && b)
+    {
+        m_mgrObj |= Map_Land;
+        emit showLandChanged();
+    }
+}
+
+bool VGMapManager::IsShowPlane() const
+{
+    return 0 != (Map_Vehicle&m_mgrObj);
+}
+
+void VGMapManager::SetShowPlane(bool b)
+{
+    if ((Map_Vehicle&m_mgrObj) && !b)
+    {
+        m_mgrObj &= ~Map_Vehicle;
+        emit showPlaneChanged();
+    }
+    else if (0 == (Map_Vehicle&m_mgrObj) && b)
+    {
+        m_mgrObj |= Map_Vehicle;
+        emit showPlaneChanged();
     }
 }
 

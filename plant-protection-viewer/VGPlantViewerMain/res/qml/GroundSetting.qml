@@ -82,7 +82,10 @@ Rectangle {
                     id: btnClose
                     anchors {right: parent.right; rightMargin: 15; verticalCenter: parent.verticalCenter}
                     strText: qsTr("Close")//qsTr("关闭")
-                    onBtnClicked: vgMainPage.onSigBack()
+                    onBtnClicked: {
+                        vgMainPage.destroyQmlObject(root)
+                        vgMainPage.onSigBack()
+                    }
                 }
             }
             Component.onCompleted:{
@@ -95,6 +98,12 @@ Rectangle {
         target: vgMainPage
         onSigShowPage: {
             root.visible = root === page
+        }
+        onSigBack: {
+            if (page===root){
+                vgMainPage.onSigBack()
+                vgMainPage.destroyQmlObject(root)
+            }
         }
     }
 }

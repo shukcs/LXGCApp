@@ -6,6 +6,7 @@
 #include <QList>
 #include <QMetaObject>
 #include <QMap>
+#include <QVariant>
 
 #define SAVE_SUCCESS "success"
 #define RELEASEPOINTER(pt)\

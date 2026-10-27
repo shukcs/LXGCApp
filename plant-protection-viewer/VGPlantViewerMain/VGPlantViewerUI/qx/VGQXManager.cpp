@@ -77,7 +77,7 @@ QString VGQXManager::GetUrl() const
     return m_strUrl;
 }
 
-void VGQXManager::SetPort(quint16 p)
+void VGQXManager::SetPortA(quint16 p)
 {
     if (m_port == p)
         return;

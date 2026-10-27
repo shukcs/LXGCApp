@@ -24,10 +24,11 @@ class VGMapManager : public QObject
     Q_PROPERTY(double centerLon READ centerLon WRITE setCenterLon NOTIFY centerLonChanged)
     Q_PROPERTY(double centVis READ IsCenterVisible WRITE SetCenterVisible NOTIFY centerVisibleChanged)
     Q_PROPERTY(int propLength READ GetPropLength NOTIFY propLengthChanged)
-    Q_PROPERTY(int mgrObj READ GetManagerObj WRITE SetManagerObj NOTIFY mgrObjChanged)
     Q_PROPERTY(bool onlyStreet READ IsOnlyStreet WRITE SetOnlyStreet NOTIFY onlyStreetChanged)
     Q_PROPERTY(bool showMission READ IsShowMission WRITE SetShowMission NOTIFY showMissionChanged)
     Q_PROPERTY(bool wpEdit READ IsWayPointEdit WRITE SetWayPointEdit NOTIFY wpEditChanged)
+    Q_PROPERTY(bool showLand READ IsShowLand WRITE SetShowLand NOTIFY showLandChanged)
+    Q_PROPERTY(bool showPlane READ IsShowPlane WRITE SetShowPlane NOTIFY showPlaneChanged)
 public:
     enum ManagerObject {
         Map_None = 0,
@@ -35,6 +36,7 @@ public:
         Map_Vehicle = 0x02,
         Map_Mission = 0x04,
         Map_WPEdit = 0x08,
+        Map_Center = 0x10,
     };
 public:
     VGMapManager(QObject *parent = 0);
@@ -99,6 +101,10 @@ protected:
     void SetManagerObj(int n);
     bool IsCenterVisible()const;
     void SetCenterVisible(bool b);
+    bool IsShowLand()const;
+    void SetShowLand(bool b);
+    bool IsShowPlane()const;
+    void SetShowPlane(bool b);
 signals:
     void mapTypeIDChanged(int mapTypeID);
     void mapCenterChanged();
@@ -121,6 +127,8 @@ signals:
     void centerVisibleChanged(bool);
     void showMissionChanged();
     void wpEditChanged();
+    void showLandChanged();
+    void showPlaneChanged();
 protected slots:
     void _checkSelected(QObject *item);
 private:
@@ -140,9 +148,8 @@ private:
 
     QGeoCoordinate m_mapCenter;
 	bool   m_bShowSR;  //
-	bool   m_bMapChanged;
+    bool   m_bMapChanged;
     bool   m_bOnlyStreet;
-    bool   m_bCenterVisible;
     //qml
     QMap<MapAbstractItem::MapItemType, QmlObjectListModel*> m_mapItems;
     QMap<MapAbstractItem::MapItemType, MapAbstractItem*>    m_mapSelectedItem;
