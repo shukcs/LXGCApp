@@ -46,34 +46,20 @@ public:
     VGPoint &operator/=(double f);
     bool operator==(const VGPoint &oth)const;
     bool operator!=(const VGPoint &oth)const;
-private:
+protected:
     double m_x;
     double m_y;
     double m_z;
 };
 
-class SHARED_DECL VGVertex  //向量
+class SHARED_DECL VGVertex : public VGPoint //向量
 {
 public:
     VGVertex(double x=0, double y=0, double z=0);
     VGVertex(bool b2d, double angleY, double angleXY = 0);
     VGVertex(const VGPoint &beg, const VGPoint &end);
-    VGVertex(const VGVertex &oth);
+    VGVertex(const VGPoint &oth);
 
-    double &X();
-    double &Y();
-    double &Z();
-    double GetX()const;
-    double GetY()const;
-    double GetZ()const;
-    VGVertex operator-(const VGVertex &oth)const;
-    VGVertex &operator-=(const VGVertex &oth);
-    VGVertex operator+(const VGVertex &oth)const;
-    VGVertex &operator+=(const VGVertex &oth);
-    VGVertex operator*(double f)const;
-    VGVertex &operator*=(double f);
-    VGVertex operator/(double f)const;
-    VGVertex &operator/=(double f);
     VGVertex CrossMultiply(const VGVertex &v = VGVertex(0.0, 0, 1))const;
     double  DotMultiply(const VGVertex &v)const;
     bool    IsValid()const;
@@ -297,5 +283,27 @@ protected:
 protected:
     vector<VGPoint> m_points;
 };
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// 轨迹曲线整合(Integrate) —— 两条匀加速轨迹的 C1 连续拼接
+//
+// 曲线方程:
+//   C1(t) = A1 * t^2 / 2 + V1 * t + P1
+//   C2(t) = A2 * t^2 / 2 + V2 * t + P2
+//
+// 求解目标: 存在 t>0 使 C1(t) = C2(t), 且 A2 ∥ V2 (切向加速度约束).
+// 物理含义: 无人机沿 C2 轨迹运动, 加速度 A2 必须与当前速度 V2 共线.
+//
+// 由位置连续可解 A2 = A1 + 2(V1-V2)/t + 2(P1-P2)/t^2.
+// 代入约束 A2 ∥ V2 ⟺ R(t)=A1*t^2+2(V1-V2)*t+2(P1-P2) 与 V2 共线.
+// 叉乘 R(t)×V2 = 0 给出二次方程 a*t^2+b*t+c=0, 取最小正根 t*, 回代 A2.
+//
+// V2=0 特殊情形: C2 起点静止, 假设 A2=0, 位置连续化为 A1*t^2+2V1*t+2(P1-P2)=0.
+//
+// 返回 true 表示存在满足条件的 A2 (t>0); A2 输出最小 t 对应的解.
+///////////////////////////////////////////////////////////////////////////////////////////////
+SHARED_DECL bool CanIntegrate(const VGVertex &A1, const VGVertex &V1, const VGPoint &P1,
+                              const VGVertex &V2, const VGPoint &P2,
+                              VGVertex *A2);
 
 #endif //

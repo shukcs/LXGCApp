@@ -174,7 +174,7 @@ bool VGPoint::operator==(const VGPoint &oth)const
 //VGVertex
 ////////////////////////////////////////////////////////////////
 VGVertex::VGVertex(double x, double y, double z)
-    :m_x(x), m_y(y), m_z(z)
+    : VGPoint(x,y,z)
 {
 }
 
@@ -193,93 +193,11 @@ VGVertex::VGVertex(const VGPoint &beg, const VGPoint &end)
     m_z = end.GetZ() - beg.GetZ();
 }
 
-VGVertex::VGVertex(const VGVertex &oth)
-    : m_x(oth.m_x), m_y(oth.m_y), m_z(oth.m_z)
+VGVertex::VGVertex(const VGPoint &oth)
+    : VGPoint(oth)
 {
 }
 
-double & VGVertex::X()
-{
-    return m_x;
-}
-
-double & VGVertex::Y()
-{
-    return m_y;
-}
-
-double & VGVertex::Z()
-{
-    return m_z;
-}
-
-double VGVertex::GetX() const
-{
-    return m_x;
-}
-
-double VGVertex::GetY() const
-{
-    return m_y;
-}
-
-double VGVertex::GetZ() const
-{
-    return m_z;
-}
-
-VGVertex VGVertex::operator-(const VGVertex &oth) const
-{
-    return VGVertex(m_x - oth.m_x, m_y - oth.m_y, m_z - oth.m_z);
-}
-
-VGVertex & VGVertex::operator-=(const VGVertex &oth)
-{
-    m_x -= oth.m_x;
-    m_y -= oth.m_y;
-    m_z -= oth.m_z;
-    return *this;
-}
-
-VGVertex VGVertex::operator+(const VGVertex &oth) const
-{
-    return VGVertex(m_x + oth.m_x, m_y + oth.m_y, m_z + oth.m_z);
-}
-
-VGVertex & VGVertex::operator+=(const VGVertex &oth)
-{
-
-    m_x += oth.m_x;
-    m_y += oth.m_y;
-    m_z += oth.m_z;
-    return *this;
-}
-
-VGVertex VGVertex::operator*(double f) const
-{
-    return VGVertex(m_x * f, m_y * f , m_z * f);
-}
-
-VGVertex & VGVertex::operator*=(double f)
-{
-    m_x *= f;
-    m_y *= f;
-    m_z *= f;
-    return *this;
-}
-
-VGVertex VGVertex::operator/(double f) const
-{
-    return VGVertex(m_x / f, m_y / f, m_z / f);
-}
-
-VGVertex & VGVertex::operator/=(double f)
-{
-    m_x /= f;
-    m_y /= f;
-    m_z /= f;
-    return *this;
-}
 
 VGVertex VGVertex::CrossMultiply(const VGVertex &v) const
 {
@@ -1615,4 +1533,170 @@ double VGRoute::GetOperateVoyage() const
 const vector<VGRoutePoint> &VGRoute::GetRoutePoints()const
 {
     return RoutePoints();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// CanIntegrate —— 两条匀加速轨迹 C1 / C2 的 C1 连续拼接
+//
+//   C1(t) = A1 * t^2 / 2 + V1 * t + P1
+//   C2(t) = A2 * t^2 / 2 + V2 * t + P2
+//
+// 约束: A2 ∥ V2 (切向加速度与速度共线, 物理上无人机沿航线切向加速/减速)
+// 目标: 求最小 t > 0 使 C1(t) = C2(t), 并输出对应的 A2.
+//
+// 推导:
+//   位置连续  ⟺  A2 = A1 + 2(V1-V2)/t + 2(P1-P2)/t^2         ... (1)
+//   代入约束 A2 ∥ V2  ⟺  R(t) ∥ V2,  其中
+//     R(t) = A1*t^2 + 2(V1-V2)*t + 2(P1-P2)                   ... (2)
+//   共线条件 R(t) × V2 = 0 在 xy 平面给出二次方程:
+//     a*t^2 + b*t + c = 0
+//   其中:
+//     a = A1x*V2y - A1y*V2x
+//     b = 2*((V1x-V2x)*V2y - (V1y-V2y)*V2x)
+//     c = 2*((P1x-P2x)*V2y - (P1y-P2y)*V2x)
+//
+//   V2 ≈ 0 时 C2 起点静止, 令 A2 = 0 (静止点无加速度), 位置连续化为:
+//     A1*t^2 + 2V1*t + 2(P1-P2) = 0                            ... (3)
+//
+// 返回值: true 表示存在最小正根 t, 对应 A2 填入 *A2; false 表示无解.
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+static const double kZeroEps = 1e-12;  // 数值零阈值
+
+bool CanIntegrate(const VGVertex &A1, const VGVertex &V1, const VGPoint &P1,
+                  const VGVertex &V2, const VGPoint &P2,
+                  VGVertex *A2)
+{
+    if (!A2)
+        return false;
+
+    //---- V2 ≈ 0: C2 起点静止, 假设 A2 = 0 ----
+    if (V2.UnitLengthSquare() < kZeroEps)
+    {
+        // A1*t^2 + 2V1*t + 2*(P1-P2) = 0  (三维各分量独立, 需有共同正根)
+        // 取 x 分量解, 然后验证 y/z
+        double a_eq = A1.GetX();
+        double b_eq = 2.0 * V1.GetX();
+        double c_eq = 2.0 * (P1.GetX() - P2.GetX());
+
+        if (fabs(a_eq) < kZeroEps)
+        {
+            // 退化为一次: b*t + c = 0
+            if (fabs(b_eq) < kZeroEps)
+                return false;
+            double t = -c_eq / b_eq;
+            if (t <= kZeroEps)
+                return false;
+
+            // 验证 y / z 分量是否满足同一 t
+            double Ry = A1.GetY()*t*t + 2.0*V1.GetY()*t + 2.0*(P1.GetY()-P2.GetY());
+            double Rz = A1.GetZ()*t*t + 2.0*V1.GetZ()*t + 2.0*(P1.GetZ()-P2.GetZ());
+            if (fabs(Ry) > kZeroEps || fabs(Rz) > kZeroEps)
+                return false;
+
+            *A2 = VGVertex(0.0, 0.0, 0.0);
+            return true;
+        }
+
+        double delta = b_eq*b_eq - 4.0*a_eq*c_eq;
+        if (delta < -kZeroEps)
+            return false;
+        if (delta < 0) delta = 0;
+        double sq = sqrt(delta);
+
+        // 取两个根中较小的正根
+        double t1 = (-b_eq - sq) / (2.0 * a_eq);
+        double t2 = (-b_eq + sq) / (2.0 * a_eq);
+
+        double t = -1;
+        if (t1 > kZeroEps && t2 > kZeroEps)       t = (t1 < t2) ? t1 : t2;
+        else if (t1 > kZeroEps)                  t = t1;
+        else if (t2 > kZeroEps)                  t = t2;
+        if (t <= kZeroEps) return false;
+
+        // 验证 y / z 分量
+        double Ry = A1.GetY()*t*t + 2.0*V1.GetY()*t + 2.0*(P1.GetY()-P2.GetY());
+        double Rz = A1.GetZ()*t*t + 2.0*V1.GetZ()*t + 2.0*(P1.GetZ()-P2.GetZ());
+        if (fabs(Ry) > kZeroEps || fabs(Rz) > kZeroEps)
+            return false;
+
+        *A2 = VGVertex(0.0, 0.0, 0.0);
+        return true;
+    }
+
+    //---- V2 ≠ 0: 解 R(t) ∥ V2 ----
+
+    // R(t) = A1*t^2 + 2(V1-V2)*t + 2(P1-P2)
+    // R(t) × V2 = 0  (xy 平面, z 分量)
+    const double A1x = A1.GetX(), A1y = A1.GetY();
+    const double V1x = V1.GetX(), V1y = V1.GetY();
+    const double V2x = V2.GetX(), V2y = V2.GetY();
+    const double P1x = P1.GetX(), P1y = P1.GetY();
+    const double P2x = P2.GetX(), P2y = P2.GetY();
+
+    // 二次方程系数 a*t^2 + b*t + c = 0
+    const double a_coef = A1x * V2y - A1y * V2x;
+    const double b_coef = 2.0 * ((V1x - V2x) * V2y - (V1y - V2y) * V2x);
+    const double c_coef = 2.0 * ((P1x - P2x) * V2y - (P1y - P2y) * V2x);
+
+    double t = -1;
+
+    if (fabs(a_coef) < kZeroEps)
+    {
+        // 退化: b*t + c = 0
+        if (fabs(b_coef) < kZeroEps)
+            return false;
+        t = -c_coef / b_coef;
+        if (t <= kZeroEps)
+            return false;
+    }
+    else
+    {
+        double delta = b_coef*b_coef - 4.0*a_coef*c_coef;
+        if (delta < -kZeroEps)
+            return false;
+        if (delta < 0) delta = 0;
+        double sq = sqrt(delta);
+
+        double t1 = (-b_coef - sq) / (2.0 * a_coef);
+        double t2 = (-b_coef + sq) / (2.0 * a_coef);
+
+        if (t1 > kZeroEps && t2 > kZeroEps)        t = (t1 < t2) ? t1 : t2;
+        else if (t1 > kZeroEps)                    t = t1;
+        else if (t2 > kZeroEps)                    t = t2;
+        if (t <= kZeroEps) return false;
+    }
+
+    //---- 三维回代验证: R(t) × V2 的三个分量都应接近零 ----
+    double Rz = A1.GetZ()*t*t + 2.0*(V1.GetZ()-V2.GetZ())*t + 2.0*(P1.GetZ()-P2.GetZ());
+    double V2z = V2.GetZ();
+
+    // xy 平面已满足. 检查 R_x * V2z - R_z * V2x ≈ 0 和 R_y * V2z - R_z * V2y ≈ 0
+    // 但 V2z 可能为零 (植保无人机多在 z=0 平面飞行), 此时 R_z * V2x / R_z * V2y 需 ≈ 0
+    if (fabs(V2z) < kZeroEps)
+    {
+        // V2 完全在 xy 平面, 此时要求 Rz ≈ 0 (z 分量也需匹配)
+        if (fabs(Rz) > kZeroEps)
+            return false;
+    }
+    else
+    {
+        double Rx = A1.GetX()*t*t + 2.0*(V1x-V2x)*t + 2.0*(P1x-P2x);
+        double Ry = A1.GetY()*t*t + 2.0*(V1y-V2y)*t + 2.0*(P1y-P2y);
+        double cz1 = Rx * V2z - Rz * V2x;
+        double cz2 = Ry * V2z - Rz * V2y;
+        if (fabs(cz1) > kZeroEps || fabs(cz2) > kZeroEps)
+            return false;
+    }
+
+    //---- 回代 A2 = A1 + 2(V1-V2)/t + 2(P1-P2)/t^2 ----
+    const double inv_t  = 1.0 / t;
+    const double inv_t2 = inv_t * inv_t;
+
+    double A2x = A1x + 2.0*(V1x - V2x)*inv_t + 2.0*(P1x - P2x)*inv_t2;
+    double A2y = A1y + 2.0*(V1y - V2y)*inv_t + 2.0*(P1y - P2y)*inv_t2;
+    double A2z = A1.GetZ() + 2.0*(V1.GetZ()-V2.GetZ())*inv_t + 2.0*(P1.GetZ()-P2.GetZ())*inv_t2;
+
+    *A2 = VGVertex(A2x, A2y, A2z);
+    return true;
 }

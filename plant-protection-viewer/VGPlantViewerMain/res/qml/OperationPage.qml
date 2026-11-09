@@ -431,8 +431,7 @@ Page {
                     color:      (mapManager.wpEdit&&object.selected) ? "#ff8000":object.color
                     Text{
                         id: sequece
-                        anchors.horizontalCenter:   parent.horizontalCenter
-                        anchors.verticalCenter:     parent.verticalCenter
+                        anchors.centerIn:           parent
                         text:                       object.sequence
                         font:                       vgMainPage.font()
                         horizontalAlignment:        Text.AlignHCenter

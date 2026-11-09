@@ -47,21 +47,21 @@ Rectangle
         ExclusiveGroup { id: vcType }
         VGRadioButton {
             id:			kg20
-            text:       qsTr("20Kg")
+            text:       qsTr("8 Motor")
             checked:    true
             ftText:     vgMainPage.font()
             exclusiveGroup: vcType
         }
         VGRadioButton {
             id:			kg10
-            text:       qsTr("10Kg")
+            text:       qsTr("6 Motor")
             checked: false
             ftText:     vgMainPage.font()
             exclusiveGroup: vcType
         }
         VGRadioButton {
             id:			kg5
-            text:       qsTr("5Kg")
+            text:       qsTr("4 Motor")
             checked:    false
             ftText:     vgMainPage.font()
             exclusiveGroup: vcType
@@ -287,7 +287,7 @@ Rectangle
 				count = 8
 			else if (kg10.checked)
 				count = 6
-			plantManager.testMotor(1, txtTime.text, sldPercent.value, count);
+            plantManager.testMotor(0, txtTime.text, sldPercent.value, count);
 		}
     }
     Connections {
