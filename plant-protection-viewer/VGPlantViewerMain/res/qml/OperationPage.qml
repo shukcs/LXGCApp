@@ -203,11 +203,11 @@ Page {
             }
             else if (txt === qsTr("Return")) {//"返航"
                 if (curPlant)
-                    curPlant.flightMode = "Return"
+                    curPlant.flightMode = "RTL"
             }
             else if (txt === qsTr("Hold")) {//"悬停"
                 if (curPlant)
-                    curPlant.flightMode = "Hold"
+                    curPlant.flightMode = "POSHOLD"
             }
             else if (txt === qsTr("Parameter setting")) {//参数设置
                 finish(true, 4)
@@ -800,13 +800,13 @@ Page {
             addBtn("mission", "plant")
             addBtn("operation", "routePlan")
             addBtn("shutdown", "shutdown")
-            addOptionBtn(qsTr("Test pump"), "pump")
+            //addOptionBtn(qsTr("Test pump"), "pump")
             addOptionBtn(qsTr("Test motor"), "motor")
             addOptionBtn(qsTr("Disarm"), "lock")
             addOptionBtn(qsTr("Return"), "return")
             addOptionBtn(qsTr("Hold"), "hold")
-            addOptionBtn(qsTr("Imitation setting"), "imitateGround")
-            addOptionBtn(qsTr("Auto magic correct"), "magnetic")
+            //addOptionBtn(qsTr("Imitation setting"), "imitateGround")
+            //addOptionBtn(qsTr("Auto magic correct"), "magnetic")
             addOptionBtn(qsTr("Parameter setting"), "dataSetting")
             setBtnVisible("operation", false)
         }

@@ -15,6 +15,7 @@
 #include "MAVLinkProtocol.h"
 #include "LinkManager.h"
 #include "LinkInterface.h"
+#include "VGSurveyMonitor.h"
 
 #define PARAM_MAXSPEED_ID "MAX_SPEED_ID"
 #define PARAM_MAXACC_ID "MAX_ACC_ID"
@@ -26,7 +27,7 @@ VGVehicle::VGVehicle(QObject *parent) : QObject(parent), m_sysID(0), m_countTime
 , m_timerId(-1), m_vehicleType(MAV_TYPE_QUADROTOR), m_onboardTimeOffset(0), m_nSatellites(0)
 , m_connectionLostEnabled(true), m_bConnnected(false), m_autoDisconnect(true), m_altitude(0)
 , m_altitudeRelative(0), m_firewareType(MAV_AUTOPILOT_PX4), m_bArm(false), m_bMissionItemInt(false)
-, m_voltage(0), m_mgrMission(new MissionManager(this)), m_mavCommandRetryCount(0), m_countNoGPos(0)
+, m_mgrMission(new MissionManager(this)), m_mavCommandRetryCount(0), m_countNoGPos(0)
 , m_tmLastRtcm(QDateTime::currentMSecsSinceEpoch()), m_tmLastMav(m_tmLastRtcm)
 {
     m_timerId = startTimer(500);
@@ -37,7 +38,7 @@ VGVehicle::VGVehicle(LinkInterface *link, int vehicleId, MAV_AUTOPILOT firmwareT
 : QObject(NULL), m_countTimer(0), m_timerId(-1), m_sysID(vehicleId), m_vehicleType(vehicleType)
 , m_onboardTimeOffset(0), m_nSatellites(0), m_connectionLostEnabled(true), m_bConnnected(true)
 , m_autoDisconnect(true), m_altitude(0), m_altitudeRelative(0), m_firewareType(firmwareType)
-, m_bMissionItemInt(true), m_mgrMission(new MissionManager(this)), m_voltage(0), m_bArm(false)
+, m_bMissionItemInt(true), m_mgrMission(new MissionManager(this)), m_bArm(false)
 , m_countNoGPos(0), m_tmLastRtcm(QDateTime::currentMSecsSinceEpoch()), m_tmLastMav(m_tmLastRtcm)
 , m_mavCommandRetryCount(0)
 {
@@ -105,11 +106,11 @@ void VGVehicle::_mavlinkMessageReceived(LinkInterface *link, const mavlink_messa
     case MAVLINK_MSG_ID_HEARTBEAT: //心跳
         _handleHeartbeat(message); return;
     case MAVLINK_MSG_ID_SYS_STATUS: //系统状态
-        _handleSysStatus(message); break;
+        _handleSysStatus(message); return;
     case MAVLINK_MSG_ID_GPS_RAW_INT:
         _handleGpsSatellite(message); break;
     case MAVLINK_MSG_ID_GPS_STATUS: //GPS状态
-        _handleGpsStatus(message); break;
+        _handleGpsStatus(message); return;
     case MAVLINK_MSG_ID_ATTITUDE_QUATERNION://姿态
         _handleAttitudeQuaternion(message); break;
     case MAVLINK_MSG_ID_LOCAL_POSITION_NED://NED坐标系
@@ -129,6 +130,10 @@ void VGVehicle::_mavlinkMessageReceived(LinkInterface *link, const mavlink_messa
     case MAVLINK_MSG_ID_STATUSTEXT:
         emit recvMavlink(this, message); break;
     case MAVLINK_MSG_ID_SPRAY_VALUE:
+    case MAVLINK_MSG_ID_RAW_IMU:
+    case MAVLINK_MSG_ID_SCALED_IMU2:
+    case MAVLINK_MSG_ID_SCALED_IMU3:
+    case MAVLINK_MSG_ID_PARAM_VALUE:
         emit recvMavlink(this, message); return;
     case MAVLINK_MSG_ID_VFR_HUD://HUD速率等
         _handleVfrHud(message); return;
@@ -148,8 +153,6 @@ void VGVehicle::_mavlinkMessageReceived(LinkInterface *link, const mavlink_messa
         _handleLogEntry(message); return;
     case MAVLINK_MSG_ID_LOG_DATA:   //接收日志数据；
         _handleLogData(message); return;
-    case MAVLINK_MSG_ID_PARAM_VALUE:
-        _handleParameter(message); return;
     case MAVLINK_MSG_ID_INTERRUPT_POINT:
         _handleInterrupt(message); return;
     default:
@@ -313,12 +316,6 @@ void VGVehicle::disconnectInactiveVehicle(void)
             linkMgr->DeleteLink(link); 
     }
     m_links.clear();
-    m_uavID = QString();
-}
-
-QString VGVehicle::uavid() const
-{
-    return m_uavID;
 }
 
 void VGVehicle::SetFlightMode(const QString &fm)
@@ -326,11 +323,6 @@ void VGVehicle::SetFlightMode(const QString &fm)
     mavlink_message_t msg;
 	if (VGMavLinkCode::EncodeSetMode(msg, fm, m_baseMode, priorityLink()->targetComponentId(), sysID()))
 		sendMessageOnLink(priorityLink(), msg);
-}
-
-QStringList VGVehicle::GetFlightModes()
-{
-	return VGMavLinkCode::SurpportModes();
 }
 
 bool VGVehicle::supportsMissionItemInt() const
@@ -756,12 +748,14 @@ void VGVehicle::_handleGlobalPositon(const mavlink_message_t& message)
 
 void VGVehicle::_handleSysStatus(const mavlink_message_t& message)
 {
-    mavlink_sys_status_t sysStatus;
-    mavlink_msg_sys_status_decode(&message, &sysStatus);
-
-    int nBatterry = sysStatus.battery_remaining;
-    m_voltage = sysStatus.voltage_battery;
-    emit batterryStatus(this, nBatterry, m_voltage, sysStatus.errors_count1);
+    if (auto mnt =  vehicleType() == MAVTYPESURVEY ? qvgApp->surveyMonitor() : nullptr)
+    {
+        mavlink_sys_status_t sysStatus;
+        mavlink_msg_sys_status_decode(&message, &sysStatus);
+        mnt->SetPowerPercent(sysStatus.battery_remaining);
+        return;
+    }
+    emit recvMavlink(this, message);
 }
 
 void VGVehicle::_handleGpsSatellite(const mavlink_message_t& message)
@@ -841,11 +835,14 @@ void VGVehicle::_handleVfrHud(const mavlink_message_t& message)
 
 void VGVehicle::_handleBattery(const mavlink_message_t& message)
 {
-    mavlink_battery_status_t bat_status;
-    mavlink_msg_battery_status_decode(&message, &bat_status);
-
-    int nBatterry = bat_status.battery_remaining;
-    emit batterryStatus(this, nBatterry, m_voltage, 255);
+    if (auto mnt = vehicleType() == MAVTYPESURVEY ? qvgApp->surveyMonitor() : nullptr)
+    {
+        mavlink_battery_status_t bat_status;
+        mavlink_msg_battery_status_decode(&message, &bat_status);
+        mnt->SetPowerPercent(bat_status.battery_remaining);
+        return;
+    }
+    emit recvMavlink(this, message);
 }
 
 void VGVehicle::_handleLogEntry(const mavlink_message_t& message)
@@ -861,26 +858,6 @@ void VGVehicle::_handleLogData(const mavlink_message_t& message)
     mavlink_log_data_t log;
     mavlink_msg_log_data_decode(&message, &log);
     emit receivedLogData(this, log.ofs, log.id, log.count, log.data);
-}
-
-void VGVehicle::_handleParameter(const mavlink_message_t& message)
-{
-    QVariant val;
-    QString key = VGMavLinkCode::DecodeParameter(message, val, nullptr);
-    if (!key.isEmpty())
-    {
-        if (key == PARAM_UAV_ID)
-        {
-            QString strUavid = QString("VIGAU:%1").arg(val.toUInt(), 8, 16, QChar('0')).toUpper();
-            if (m_uavID != strUavid)
-            {
-                m_uavID = strUavid;
-                emit vehicleUavIdChanged(this, m_uavID);
-            }
-        }
-        emit recvMavlink(this, message);
-    }
-    _removeParam(key);
 }
 
 void VGVehicle::_handleCommandAck(const mavlink_message_t& message)

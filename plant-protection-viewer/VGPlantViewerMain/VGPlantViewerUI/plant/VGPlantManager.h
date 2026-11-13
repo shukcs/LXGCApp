@@ -35,7 +35,7 @@ namespace das {
 class VGPlantManager : public QObject
 {
     Q_OBJECT
-
+    Q_ENUMS(CalibratType)
     Q_PROPERTY(VGPlantInformation*  surveyUav READ GetSurveyUav WRITE SetSurveyUav NOTIFY surveyUavChanged) //绑定飞机
     Q_PROPERTY(VGPlantInformation* currentPlant READ GetCurrentPlant WRITE SetCurrentPlant NOTIFY currentPlantChanged)//当前选中的飞机
     Q_PROPERTY(bool oneKeyArm READ IsOneKeyArm WRITE SetOneKeyArm NOTIFY oneKeyArmChanged)
@@ -50,6 +50,11 @@ class VGPlantManager : public QObject
     Q_PROPERTY(bool  uTrance READ IsUTrance WRITE SetUTrance NOTIFY uTranceChanged)
     Q_PROPERTY(bool sps READ IsSpsPermission NOTIFY spsChanged) //单点作业
     Q_PROPERTY(bool qxsdk READ IsQXUseSdk NOTIFY qxsdkChanged)  //QX使用SDK
+public:
+    enum CalibratType {
+        Cal_AccM,   ///加标
+        Cal_Compass,///罗盘
+    };
 public:
     explicit VGPlantManager(QObject *parent = 0);
     ~VGPlantManager();
@@ -68,6 +73,8 @@ public:
     Q_INVOKABLE QString getParamValue(const QString &key) const;
     Q_INVOKABLE int getParamIndex(const QString &key) const;
     Q_INVOKABLE void clear();
+    Q_INVOKABLE void uploadParams(const QUrl &file);
+    Q_INVOKABLE void calibratSensor(CalibratType tp, bool bEnd=false);
 
     void    startQueryMyPlaneStatus();
     void    stopQueryMyPlaneStatus();

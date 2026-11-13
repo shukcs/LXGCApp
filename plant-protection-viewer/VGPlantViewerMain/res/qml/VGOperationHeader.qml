@@ -21,7 +21,7 @@ Rectangle{
         id:     rowPlantStat
         anchors {left: imgBack.right; leftMargin: 5; verticalCenter:parent.verticalCenter}
         spacing:    1
-        VGParamView{
+        VGPopupView{
             id:paramMed
             width:      (root.width-imgBack.width-20)/13-1
             iconName:   (curPlant&&!curPlant.landed)?"model2":"model"

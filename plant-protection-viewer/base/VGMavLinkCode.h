@@ -36,7 +36,7 @@
 #define SMART_RTLMod    "SMART_RTL"
 #define FLOWHOLDMod     "SMART_RTL"
 #define FOLLOWMod       "FLOWHOLD"
-#define ZIGZAGMod       "FOLLOW"
+#define ZIGZAGMod       "ZIGZAG"
 #define SYSTEMIDMod     "SYSTEMID"
 #define AUTOROTATEMod   "AUTOROTATE"
 #define AUTO_RTLMod     "AUTO_RTL"

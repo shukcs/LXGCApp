@@ -21,7 +21,7 @@ class MissionItem;
 class VGSupportPolyline;
 class VGBlock;
 class ParamtersModel;
-
+typedef struct __mavlink_message mavlink_message_t;
 class VGPlantInformation : public MapAbstractItem
 {
     Q_OBJECT
@@ -223,6 +223,8 @@ public:
 public:
     static QString GetFlightModeDscb(const QString &str);
     static QString GetQxStatDscb(int stat);
+    Q_INVOKABLE QVariantList canChangedFlyModes();
+    Q_INVOKABLE QString flyModeDesc(int mode);
 public slots:
     void onMissionChange();
 protected:
@@ -317,7 +319,12 @@ private:
     void _showBlocks(bool b);
     void _doParam(const QString &str, const QVariant &var = QVariant());
     void _removeParamOp(const QString &key);
+    void _prcsRawIMU(const mavlink_message_t &msg);
+    void _prcsScaleIMU2(const mavlink_message_t &msg);
+    void _prcsSysStatus(const mavlink_message_t &msg);
+    void _prcsBattaryStatus(const mavlink_message_t &msg);
 private:
+    friend class VGPlantManager;
     VGVehicle       *m_directLink;  //直连设备
     bool            m_bLanded;      //是否降落
     PlantStatus     m_status;

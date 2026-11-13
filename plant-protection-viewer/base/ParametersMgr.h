@@ -45,17 +45,17 @@ public:
     QStringList GetLables()const;
     void ParameterAdd(const QString &id);
 
-    Q_INVOKABLE bool isParamReadonly(const QString &id)const;
     bool hasParam(const QString &id, const QString &group = QString())const;
-    Q_INVOKABLE QStringList getParams(const QString &group)const;
     static QString typeName(const QVariant &v);
     static QVariant typProp(const QVariant &v);
     void SetParasModel(ParamtersModel *m);
     bool IsShowParam(const QString &paramID)const;
     QString GetDescribe(const QString &paramID)const;
     QString GetTypeCmt(const QString &paramID, const QVariant &v)const;
-protected:
+    Q_INVOKABLE bool isParamReadonly(const QString &id)const;
+    Q_INVOKABLE QStringList getParams(const QString &group)const;
     Q_INVOKABLE ParamType getType(const QString &id)const;
+protected:
     Q_INVOKABLE QString getName(const QString &id)const;
     Q_INVOKABLE bool isScope(const QString &id)const;
     Q_INVOKABLE QString getLeast(const QString &id)const;

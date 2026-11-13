@@ -41,7 +41,6 @@ private slots:
     void onPosTypeChanged(VGVehicle *vehicle, int fix);
     void onVehicelAltitudeChanged(VGVehicle* vehicle, double altitude);
     void onGndHeightChanged(VGVehicle* vehicle, double height);
-    void onVehicelBatteryStatus(VGVehicle* vehicle, int batterry, uint16_t mv, uint8_t warn);
     void onPrecisionChanged(VGVehicle* vehicle, double pre);
     void sltSetActiveVehiclePhase2(void);        //延迟设定当前生效飞机
     void sltSendVGHeartbeat();                   //定时向飞控发送心跳包
@@ -51,7 +50,6 @@ private slots:
     void onModeChanged(const QString &mode);
     void onMavCommandResult(MAV_CMD cmd, bool res);
     void onMissionPrcs(double par, bool b);
-    void onVehicleUavIdChanged(VGVehicle *v, const QString &uavid);
     void onSyschFinish(bool error);
     void onSysStatus(uint8_t st);
     void onRecvSuspend(const QGeoCoordinate &c, int type);
@@ -65,7 +63,6 @@ private:
 
     QTimer              _vgsHeartbeatTimer;             ///< Timer to emit heartbeats
     bool                _vgsHeartbeatEnabled;           ///< Enabled/disable heartbeat emission
-    int                 m_nBatteryAlarm;
     int                 m_bAlarmFirst;
 };
 

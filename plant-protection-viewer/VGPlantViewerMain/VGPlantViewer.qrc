@@ -78,6 +78,7 @@
         <file alias="WayPointEdit.qml">res/qml/WayPointEdit.qml</file>
         <file alias="WPPlanInfoEdit.qml">res/qml/WPPlanInfoEdit.qml</file>
         <file alias="WPPlanEdit.qml">res/qml/WPPlanEdit.qml</file>
+        <file alias="VGPopupView.qml">res/qml/VGPopupView.qml</file>
     </qresource>
     <qresource prefix="/res">
         <file alias="USBBoardInfo.json">res/USBBoardInfo.json</file>

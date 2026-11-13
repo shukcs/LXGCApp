@@ -2699,17 +2699,17 @@
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1357"/>
         <source>STABILIZE</source>
-        <translation>手动</translation>
+        <translation>全手动</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1357"/>
         <source>ACRO</source>
-        <translation>手动</translation>
+        <translation>特技</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1358"/>
         <source>ALT_HOLD</source>
-        <translation>手动悬停</translation>
+        <translation>定高</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1358"/>
@@ -2719,12 +2719,12 @@
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1359"/>
         <source>GUIDED</source>
-        <translation>任务</translation>
+        <translation>导引</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1359"/>
         <source>LOITER</source>
-        <translation>转弯</translation>
+        <translation>转向</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1360"/>
@@ -2734,7 +2734,7 @@
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1361"/>
         <source>DRIFT</source>
-        <translation type="unfinished"></translation>
+        <translation>半自动</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1362"/>
@@ -2744,7 +2744,7 @@
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1362"/>
         <source>FLIP</source>
-        <translation type="unfinished"></translation>
+        <translation>自翻滚</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1363"/>
@@ -2754,22 +2754,22 @@
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1364"/>
         <source>BRAKE</source>
-        <translation type="unfinished"></translation>
+        <translation>刹车</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1364"/>
         <source>THROW</source>
-        <translation type="unfinished"></translation>
+        <translation>发射</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1365"/>
         <source>AVOID_ADSB</source>
-        <translation type="unfinished"></translation>
+        <translation>避障</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1365"/>
         <source>GUIDED_NOGPS</source>
-        <translation type="unfinished"></translation>
+        <translation>导引控制</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1366"/>
@@ -2779,7 +2779,7 @@
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1366"/>
         <source>FLOWHOLD</source>
-        <translation type="unfinished"></translation>
+        <translation>光流跟随</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1367"/>
@@ -2789,12 +2789,12 @@
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1367"/>
         <source>ZIGZAG</source>
-        <translation type="unfinished"></translation>
+        <translation>Z字飞行</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1368"/>
         <source>SYSTEMID</source>
-        <translation type="unfinished"></translation>
+        <translation>系统识别</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1368"/>
@@ -2804,7 +2804,7 @@
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1369"/>
         <source>TURTLE</source>
-        <translation type="unfinished"></translation>
+        <translation>碰撞翻转</translation>
     </message>
     <message>
         <location filename="VGPlantViewerUI/plant/VGPlantInformation.cpp" line="1381"/>

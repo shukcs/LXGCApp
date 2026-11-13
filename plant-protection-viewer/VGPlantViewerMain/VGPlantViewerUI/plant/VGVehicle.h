@@ -66,7 +66,6 @@ public:
     void setAutoDisconnect(bool autoDisconnect);
     void disconnectInactiveVehicle(void);       //断开链接
 
-    QString uavid()const;
 	void SetFlightMode(const QString &fm);
 	bool supportsMissionItemInt()const;
     bool syncPlanFlight(VGVehicleMission *mission, bool bBdr=false);
@@ -85,8 +84,6 @@ public:
     void getParameter(int idx);
 	QString flightMode()const;
     void getParametesList();
-public:
-    static QStringList	GetFlightModes();
 protected:
     void timerEvent(QTimerEvent *event);
     void _prcsParameters();
@@ -129,7 +126,6 @@ private:
     void _handleBattery(const mavlink_message_t& message);
     void _handleLogEntry(const mavlink_message_t& message);
     void _handleLogData(const mavlink_message_t& message);
-    void _handleParameter(const mavlink_message_t& message);
     void _handleCommandAck(const mavlink_message_t& message);
     void _handleSupport(const mavlink_message_t& message);
     void _handleInterrupt(const mavlink_message_t& message);
@@ -139,7 +135,6 @@ signals:
     void    postionChanged(double lat, double lon, double alti, int nSatNum);
     void    altitudeChanged(VGVehicle* vehicle, double altitude);
     void    gndHeightChanged(VGVehicle* vehicle, double height);
-    void    batterryStatus(VGVehicle* vehicle, int battery, uint16_t v, uint8_t btrWarn);
     void    precisionChanged(VGVehicle* vehicle, double pre);
     void    mavCommandResult(MAV_CMD command, bool bSuc);
     //断开链接
@@ -148,7 +143,6 @@ signals:
     void    updateLogList(VGVehicle* vehicle, uint32_t time_utc, uint32_t size, uint16_t id, uint16_t num_logs);
     void    receivedLogData(VGVehicle* vehicle, uint32_t ofs, uint16_t id, uint8_t count, const uint8_t* data);
 
-    void    vehicleUavIdChanged(VGVehicle *v, const QString &uavid);
 	void	flightModeChanged(const QString &);
     void    sysAvalibleChanged(bool b);
     void    posTypeChanged(VGVehicle *v, int fix);
@@ -158,7 +152,7 @@ signals:
     void    recvMavlink(VGVehicle *v, const mavlink_message_t& msg);
 private:
     friend class VGVehicleManager;
-
+    friend class VGPlantInformation;
     int             m_sysID;		    ///mavlink system ID, vehicle id
     int             m_timerId;
     unsigned        m_countTimer;
@@ -181,7 +175,6 @@ private:
     double          m_altitude;            ///绝对高度（海平面高度）
 
     uint8_t				m_baseMode;
-    uint16_t		    m_voltage;
 	uint32_t			m_customMode;
     // Lost connection handling
     bool                m_connectionLostEnabled;     ///是否启用断线检测
@@ -193,7 +186,6 @@ private:
     MissionManager		*m_mgrMission;				///mavlink任务管理，如上传下载航迹
     int                 m_mavCommandRetryCount;
     QGeoCoordinate      m_homePosition;             ///home坐标
-    QString             m_uavID;
     QList<LinkInterface*>           m_links;
     QList<MavCommandQueueEntry_t>   m_mavCommandQueue;
     QList<PairParameter>            m_mavParameterQue;

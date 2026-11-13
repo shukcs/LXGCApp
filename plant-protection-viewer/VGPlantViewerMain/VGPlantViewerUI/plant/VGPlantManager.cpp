@@ -252,6 +252,41 @@ void VGPlantManager::clear()
         m_plantCur->ClearWay();
 }
 
+void VGPlantManager::uploadParams(const QUrl &file)
+{
+    auto str = file.toLocalFile();
+    QFile f(str);
+    if (f.open(QIODevice::ReadOnly))
+    {
+        QTextStream st(&f);
+        while (!st.atEnd())
+        {
+            auto ls = st.readLine(128).split(",");
+            if (ls.size() == 2)
+                setParameter(ls.first(), ls.last());
+        }
+    }
+}
+
+void VGPlantManager::calibratSensor(CalibratType tp, bool bEnd/*=false*/)
+{
+    if (VGPlantInformation *info = GetCurrentPlant())
+    {
+        int magCal = 0;
+        int accelCal = 0;
+
+        switch (tp)
+        {
+        case Cal_AccM:
+            magCal = bEnd ? 0:1; break;
+        case Cal_Compass:
+            magCal = bEnd ? 0 : 1; break;
+        }
+
+        info->sendCommand(MAV_CMD_PREFLIGHT_CALIBRATION, 0, magCal, 0, 0, accelCal, 0, 0);
+    }
+}
+
 void VGPlantManager::writeConfig()
 {
      _writeConfig();
@@ -737,6 +772,12 @@ void VGPlantManager::prcsUavMavlink(VGPlantInformation *info, const mavlink_mess
         _prcsMissionCur(*info, msg); break;
     case MAVLINK_MSG_ID_PARAM_VALUE:
         _prcsParamVal(*info, msg); break;
+    case MAVLINK_MSG_ID_SYS_STATUS:
+        info->_prcsSysStatus(msg); break;
+    case MAVLINK_MSG_ID_BATTERY_STATUS:
+        info->_prcsBattaryStatus(msg); break;
+    case MAVLINK_MSG_ID_RAW_IMU:
+        info->_prcsRawIMU(msg); break;
     case MAVLINK_MSG_ID_ATTITUDE:
         _prcsAttitude(*info, msg); break;
     case MAVLINK_MSG_ID_MISSION_COUNT:

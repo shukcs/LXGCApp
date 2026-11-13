@@ -22,7 +22,6 @@ Item {
     Text {
         id:     name
         anchors {bottom: parent.bottom; horizontalCenter: parent.horizontalCenter}
-        text:                   strText
         font:                   vgMainPage.font()
         height:                 vgMainPage.fontHeight(font)
         horizontalAlignment:    Text.AlignHCenter

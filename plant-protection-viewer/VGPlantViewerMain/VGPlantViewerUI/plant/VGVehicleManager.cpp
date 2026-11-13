@@ -20,15 +20,8 @@ VGVehicleManager::VGVehicleManager(QObject *parent) : QObject(parent)
   , _activeVehicleAvailable(false)
   , _vehicleBeingSetActive(NULL)
   , _vgsHeartbeatEnabled(true)
-  , m_nBatteryAlarm(0)
   , m_bAlarmFirst(true)
 {
-    if (QSettings *settings = qvgApp->GetSettings())
-    {
-        settings->beginGroup("config");
-        m_nBatteryAlarm = settings->value("batteryAlarm", 30.0).toDouble();
-        settings->endGroup();
-    }
     _vgsHeartbeatTimer.setInterval(VGSHeartbeatRateMSecs);
     _vgsHeartbeatTimer.setSingleShot(false);
     connect(&_vgsHeartbeatTimer, &QTimer::timeout, this, &VGVehicleManager::sltSendVGHeartbeat);
@@ -50,19 +43,16 @@ void VGVehicleManager::onHeartbeat(LinkInterface *link, int vehicleId, int, int 
     VGVehicle* vehicle = new VGVehicle(link, vehicleId, (MAV_AUTOPILOT)vehicleFirmwareType, (MAV_TYPE)vehicleType);
     vehicle->setAutoDisconnect(true);
     connect(this, &VGVehicleManager::sigMavlinkMessageReceived, vehicle, &VGVehicle::_mavlinkMessageReceived);
-    qRegisterMetaType<VGVehicle*>("VGVehicle");
     connect(vehicle, &VGVehicle::altitudeChanged, this, &VGVehicleManager::onVehicelAltitudeChanged);
     connect(vehicle, &VGVehicle::gndHeightChanged, this, &VGVehicleManager::onGndHeightChanged);
     connect(vehicle, &VGVehicle::speedChanged, this, &VGVehicleManager::onVehicelSpeedChanged);
     connect(vehicle, &VGVehicle::postionChanged, this, &VGVehicleManager::onVehicelGpsChanged);
     connect(vehicle, &VGVehicle::posTypeChanged, this, &VGVehicleManager::onPosTypeChanged);
     connect(vehicle, &VGVehicle::precisionChanged, this, &VGVehicleManager::onPrecisionChanged);
-    connect(vehicle, &VGVehicle::batterryStatus, this, &VGVehicleManager::onVehicelBatteryStatus);
 
     connect(vehicle, &VGVehicle::connectionLostChanged, this, &VGVehicleManager::onConnectionLostChanged);
     connect(vehicle, &VGVehicle::updateLogList, this, &VGVehicleManager::sltUpdateLogList);
     connect(vehicle, &VGVehicle::receivedLogData, this, &VGVehicleManager::sltReceiveLogData);
-    connect(vehicle, &VGVehicle::vehicleUavIdChanged, this, &VGVehicleManager::onVehicleUavIdChanged);
     connect(vehicle, &VGVehicle::sysAvalibleChanged, this, &VGVehicleManager::onSysAvalibleChange);
     connect(vehicle, &VGVehicle::flightModeChanged, this, &VGVehicleManager::onModeChanged);
     connect(vehicle, &VGVehicle::mavCommandResult, this, &VGVehicleManager::onMavCommandResult);
@@ -159,7 +149,6 @@ void VGVehicleManager::sltSetActiveVehiclePhase2(void)
 
         _activeVehicleAvailable = true;
         emit sigActiveVehicleAvailableChanged(true);
-        onVehicleUavIdChanged(_activeVehicle, _activeVehicle->uavid());
     } 
     else
     {
@@ -256,15 +245,6 @@ void VGVehicleManager::onMissionPrcs(double par, bool bs)
             qvgApp->SetQmlTip(tr("Download mission (%1%)").arg(QString::number(par * 100, 10, 1)));//下载设备航线(%1%)
         else
             qvgApp->SetQmlTip(tr("Synchronize mission (%1%)").arg(QString::number(par * 100, 10, 1)));//"同步航线到设备(%1%)"
-    }
-}
-
-void VGVehicleManager::onVehicleUavIdChanged(VGVehicle *v, const QString &uavid)
-{
-    if (v && !uavid.isEmpty())
-    {
-        if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect(v))
-            plant->setPlaneId(uavid);
     }
 }
 
@@ -414,32 +394,6 @@ void VGVehicleManager::onVehicelSpeedChanged(VGVehicle *vehicle, double speedX, 
     {
         plant->SetSpeedHor(speedX);
         plant->SetSpeedVer(speedY);
-    }
-}
-
-void VGVehicleManager::onVehicelBatteryStatus(VGVehicle *vehicle, int batterry, uint16_t mv, uint8_t warn)
-{
-    if (!vehicle)
-        return;
-
-    if (vehicle != _activeVehicle && vehicle->vehicleType() != MAVTYPESURVEY)
-        return;
-
-    if (vehicle->vehicleType() == MAVTYPESURVEY)
-    {
-        if (VGSurveyMonitor *mnt = qvgApp->surveyMonitor())
-            mnt->SetPowerPercent(batterry);
-    }
-    else if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect(vehicle))
-    {
-        plant->SetPowerPercent(batterry, batterry<=m_nBatteryAlarm && m_bAlarmFirst);
-        if (batterry <= m_nBatteryAlarm)
-            m_bAlarmFirst = false;
-
-        if (warn<=16)
-            plant->SetVoltErr(warn);
-
-        plant->SetVoltage(mv);
     }
 }
 

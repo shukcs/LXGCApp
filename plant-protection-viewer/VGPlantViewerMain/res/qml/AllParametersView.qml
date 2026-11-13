@@ -3,12 +3,27 @@ import QtQuick.Controls 2.0
 import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.1
+import QtQuick.Dialogs 1.0
 
 import VGGroundControl   1.0
 
 Rectangle {
     id:                     rctAllParams
     clip:                   true
+    FileDialog {
+        id: fileDialog
+        title: qsTr("Please select a parameters file") //"请选择一个文件"
+        nameFilters: ["Parameters file(*.param)"]//参数文件
+        onAccepted: plantManager.uploadParams(fileUrl)
+    }
+    VGTextButton    {
+        id: btnLoad
+        anchors {top:parent.top; right: parent.right; rightMargin: 10}
+        strText: qsTr("Upload paramters file")
+        onBtnClicked: {
+            fileDialog.open()
+        }
+    }
     Column {
         id: colLabel
         anchors {top:parent.top; bottom: parent.bottom; left: parent.left}
@@ -68,7 +83,7 @@ Rectangle {
     }
     Flickable {
         id:                     flickParas
-        anchors {top: parent.top; bottom: parent.bottom; right:parent.right; left: colLabel.right; leftMargin: 20; rightMargin: 12}
+        anchors {top: parent.top; bottom: parent.bottom; right:btnLoad.left; left: colLabel.right; leftMargin: 20; rightMargin: 12}
         clip:                   true
         contentWidth:           width
         contentHeight:          colParas.height

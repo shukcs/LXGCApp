@@ -155,7 +155,7 @@ void ParametersMgr::SetButton(const QString &str)
     {
         m_curButton = str;
         emit buttonChanged(str);
-        if (m_curParams)
+        if (m_curParams && m_search.isEmpty())
             m_curParams->Update();
     }
 }

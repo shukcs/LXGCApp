@@ -22,6 +22,7 @@
 #include "VGWayPointPlan.h"
 #include "VGLandManager.h"
 #include "ParamtersModel.h"
+#include "px4_custom_mode.h"
 
 #define MAXHEIGHT 1000
 #define DOUBLELIIM 1000000
@@ -1420,12 +1421,25 @@ QString VGPlantInformation::GetQxStatDscb(int stat)
     return strStat;
 }
 
+QVariantList VGPlantInformation::canChangedFlyModes()
+{
+    static QVariantList sRet = { (int)APM::STABILIZE, (int)APM::AUTO, (int)APM::POSHOLD
+        , (int)APM::GUIDED, (int)APM::GUIDED_NOGPS };
+    return sRet;
+}
+
+QString VGPlantInformation::flyModeDesc(int mod)
+{
+    return GetFlightModeDscb(VGMavLinkCode::GetFlightModeName(mod));
+}
+
 bool VGPlantInformation::DealPlantParameter(const QString &key, const QVariant &v, int count)
 {
     m_params->SetMax(count);
     _removeParamOp(key);
+    if (!m_params->Contains(key))
+        qvgApp->parameters()->ParameterAdd(key);
     m_params->insert(key, v);
-    qvgApp->parameters()->ParameterAdd(key);
     m_lastParamTm = QDateTime::currentMSecsSinceEpoch();
     if (qvgApp->parameters()->hasParam(key))
     {
@@ -2001,4 +2015,29 @@ void VGPlantInformation::_removeParamOp(const QString &key)
             return;
         }
     }
+}
+
+void VGPlantInformation::_prcsRawIMU(const mavlink_message_t &msg)
+{
+    mavlink_raw_imu_t raw_imu;
+    mavlink_msg_raw_imu_decode(&msg, &raw_imu);
+}
+
+void VGPlantInformation::_prcsSysStatus(const mavlink_message_t &msg)
+{
+    mavlink_sys_status_t sysStatus;
+    mavlink_msg_sys_status_decode(&msg, &sysStatus);
+
+    SetPowerPercent(sysStatus.battery_remaining);
+    if (sysStatus.errors_count1 <= 16)
+        SetVoltErr(sysStatus.errors_count1);
+
+    SetVoltage(sysStatus.voltage_battery);
+}
+
+void VGPlantInformation::_prcsBattaryStatus(const mavlink_message_t &msg)
+{
+    mavlink_battery_status_t bat_status;
+    mavlink_msg_battery_status_decode(&msg, &bat_status);
+    SetPowerPercent(bat_status.battery_remaining);
 }
