@@ -55,23 +55,23 @@ static QString getStringFormBool(bool b)
 
 static QString getStatDescribe(int stat, MAV_CMD cmd)
 {
-    if (cmd == MAV_CMD_SET_START_POINT)
-    {
-        OperateStat stTmp = OperateStat(stat & 0xff);
-        if (SetSupport == stTmp)
-            return VGPlantInformation::tr("setting enter support");//"设置起飞辅助点"
-        else if (ClearSupport == stTmp)
-            return VGPlantInformation::tr("clear enter support");//"清除起飞辅助点"
-    }
-    else if (cmd == MAV_CMD_SET_END_POINT)
-    {
-        stat >>= 8;
-        OperateStat stTmp = OperateStat(stat & 0xff);
-        if (SetSupport == stTmp)
-            return VGPlantInformation::tr("setting return support");//设置返航辅助点"
-        else if (ClearSupport == stTmp)
-            return VGPlantInformation::tr("clear return support");//""清除返航辅助点"
-    }
+    //if (cmd == MAV_CMD_SET_START_POINT)
+    //{
+    //    OperateStat stTmp = OperateStat(stat & 0xff);
+    //    if (SetSupport == stTmp)
+    //        return VGPlantInformation::tr("setting enter support");//"设置起飞辅助点"
+    //    else if (ClearSupport == stTmp)
+    //        return VGPlantInformation::tr("clear enter support");//"清除起飞辅助点"
+    //}
+    //else if (cmd == MAV_CMD_SET_END_POINT)
+    //{
+    //    stat >>= 8;
+    //    OperateStat stTmp = OperateStat(stat & 0xff);
+    //    if (SetSupport == stTmp)
+    //        return VGPlantInformation::tr("setting return support");//设置返航辅助点"
+    //    else if (ClearSupport == stTmp)
+    //        return VGPlantInformation::tr("clear return support");//""清除返航辅助点"
+    //}
     return QString();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,7 +222,7 @@ void VGPlantInformation::setLastConnected()
     m_lastLacalTime = QDateTime::currentMSecsSinceEpoch();
     SetStatus(Connected);
     VGMissionPlan *rt = m_uploadVm ? m_uploadVm->GetMissionPlan() : NULL;
-    if (rt && m_flightMode == GetFlightModeDscb(MissionMod))
+    if (rt && m_flightMode == GetFlightModeDscb(AUTOMod))
     {
         float tmp = rt->GetSprinkleWidth();
         if (GetParamValue("SPRAY_SWAT") != tmp)
@@ -604,9 +604,9 @@ void VGPlantInformation::PrcsCommandRes(unsigned short cmd, bool res)
         _prcsArmOrDisarm(res); break;
     case MAV_CMD_DO_SET_MODE:
         _prcsFligtMode(res); break;
-    case MAV_CMD_SET_START_POINT:
-    case MAV_CMD_SET_END_POINT:
-        _prcsSetAssist(cmd, res); break;
+    //case MAV_CMD_SET_START_POINT:
+    //case MAV_CMD_SET_END_POINT:
+    //    _prcsSetAssist(cmd, res); break;
     case MAV_CMD_GET_HOME_POSITION:
         m_statSupport &= ~UAVGetHome; break;
     case MAV_CMD_DO_SET_HOME:
@@ -639,7 +639,7 @@ void VGPlantInformation::SetFlightMode(const QString &mod)
         return;
 
     m_flightModeSet = mod;
-    if (IsMissionValible() || m_flightMode != GetFlightModeDscb(MissionMod))
+    if (IsMissionValible() || m_flightMode != GetFlightModeDscb(AUTOMod))
         _sysFlightMode();
 }
 
@@ -654,17 +654,17 @@ void VGPlantInformation::SetMissionValible(bool b, int tp)
     if (IsMissionValible())
         _sysFlightMode();
 
-    MissionManager *mm = dynamic_cast<MissionManager *>(sender());
-    if (mm && MAV_MISSION_TYPE_AOBPATH == tp)
-    {
-        SetDownMisson(true);
-        SetMissionCount(mm->missionItems().count(), false);
-        for (MissionItem *itr : mm->missionItems())
-        {
-            SetMissionItem(*itr, false);
-        }
-        SetDownMisson(false);
-    }
+    //MissionManager *mm = dynamic_cast<MissionManager *>(sender());
+    //if (mm && MAV_MISSION_TYPE_AOBPATH == tp)
+    //{
+    //    SetDownMisson(true);
+    //    SetMissionCount(mm->missionItems().count(), false);
+    //    for (MissionItem *itr : mm->missionItems())
+    //    {
+    //        SetMissionItem(*itr, false);
+    //    }
+    //    SetDownMisson(false);
+    //}
 }
 
 void VGPlantInformation::SetCurrentExecuteItem(int idx)
@@ -808,7 +808,7 @@ void VGPlantInformation::SendSupport(bool bEnter, VGCoordinate *spt)
         return;
     }
 
-    MAV_CMD cmd = bEnter ? MAV_CMD_SET_START_POINT : MAV_CMD_SET_END_POINT;
+   /* MAV_CMD cmd = bEnter ? MAV_CMD_SET_START_POINT : MAV_CMD_SET_END_POINT;
     int lat = 0;
     int lon = 0;
     float alt = 0;
@@ -836,7 +836,7 @@ void VGPlantInformation::SendSupport(bool bEnter, VGCoordinate *spt)
         stat = (stat << 8) | (m_statSupport & 0xff);
     else
         stat |= (m_statSupport & 0xff00);
-    m_statSupport = stat;
+    m_statSupport = stat;*/
 }
 
 void VGPlantInformation::SetSysStatus(uint8_t st)
@@ -1011,16 +1011,16 @@ void VGPlantInformation::GetQxAccount()
     {
         if (MAVLinkProtocol *p = qvgApp->mavLink())
         {
-            mavlink_message_t message;
-            mavlink_msg_qx_acc_cmd_pack(p->getSystemId(), p->getComponentId(), &message, MAV_QX_ACC_CMD_READ);
-            m_directLink->sendMessage(message);
+            //mavlink_message_t message;
+            //mavlink_msg_qx_acc_cmd_pack(p->getSystemId(), p->getComponentId(), &message, MAV_QX_ACC_CMD_READ);
+            //m_directLink->sendMessage(message);
         }
     }
     else if (VGNetManager *nm = qvgApp->netManager())
     {
-        mavlink_message_t message;
-        mavlink_msg_qx_acc_cmd_pack(0, 0, &message, MAV_QX_ACC_CMD_READ);
-        nm->SendControlUav(m_planeId, message);
+        //mavlink_message_t message;
+        //mavlink_msg_qx_acc_cmd_pack(0, 0, &message, MAV_QX_ACC_CMD_READ);
+        //nm->SendControlUav(m_planeId, message);
     }
 }
 
@@ -1028,7 +1028,7 @@ void VGPlantInformation::ClearQxAccount(bool bSend)
 {
     if (bSend)
     {
-        if (m_directLink)
+        /*if (m_directLink)
         {
             if (MAVLinkProtocol *p = qvgApp->mavLink())
             {
@@ -1042,7 +1042,7 @@ void VGPlantInformation::ClearQxAccount(bool bSend)
             mavlink_message_t message;
             mavlink_msg_qx_acc_cmd_pack(0, 0, &message, MAV_QX_ACC_CMD_CLEAR);
             nm->SendControlUav(m_planeId, message);
-        }
+        }*/
     }
     else
     {
@@ -1065,16 +1065,16 @@ void VGPlantInformation::GetQXSdkAccount()
     {
         if (MAVLinkProtocol *p = qvgApp->mavLink())
         {
-            mavlink_message_t message;
-            mavlink_msg_qxsdk_acc_cmd_pack(p->getSystemId(), p->getComponentId(), &message, MAV_QX_ACC_CMD_READ);
-            m_directLink->sendMessage(message);
+            //mavlink_message_t message;
+            //mavlink_msg_qxsdk_acc_cmd_pack(p->getSystemId(), p->getComponentId(), &message, MAV_QX_ACC_CMD_READ);
+            //m_directLink->sendMessage(message);
         }
     }
     else if (VGNetManager *nm = qvgApp->netManager())
     {
-        mavlink_message_t message;
-        mavlink_msg_qxsdk_acc_cmd_pack(0, 0, &message, MAV_QX_ACC_CMD_READ);
-        nm->SendControlUav(m_planeId, message);
+        //mavlink_message_t message;
+        //mavlink_msg_qxsdk_acc_cmd_pack(0, 0, &message, MAV_QX_ACC_CMD_READ);
+        //nm->SendControlUav(m_planeId, message);
     }
 }
 
@@ -1106,23 +1106,23 @@ void VGPlantInformation::SetQxSdkAccount(const QString &key, const QString &secr
 
 void VGPlantInformation::ClearQxSdkAccount(bool bSend)
 {
-    if (bSend)
+    /*if (bSend)
     {
-        if (m_directLink)
-        {
-            if (MAVLinkProtocol *p = qvgApp->mavLink())
-            {
-                mavlink_message_t message;
-                mavlink_msg_qxsdk_acc_cmd_pack(p->getSystemId(), p->getComponentId(), &message, MAV_QXSDK_ACC_CMD_CLEAR);
-                m_directLink->sendMessage(message);
-            }
-        }
-        else if (VGNetManager *nm = qvgApp->netManager())
-        {
-            mavlink_message_t message;
-            mavlink_msg_qxsdk_acc_cmd_pack(0, 0, &message, MAV_QXSDK_ACC_CMD_CLEAR);
-            nm->SendControlUav(m_planeId, message);
-        }
+        //if (m_directLink)
+        //{
+        //    if (MAVLinkProtocol *p = qvgApp->mavLink())
+        //    {
+        //        mavlink_message_t message;
+        //        mavlink_msg_qxsdk_acc_cmd_pack(p->getSystemId(), p->getComponentId(), &message, MAV_QXSDK_ACC_CMD_CLEAR);
+        //        m_directLink->sendMessage(message);
+        //    }
+        //}
+        //else if (VGNetManager *nm = qvgApp->netManager())
+        //{
+        //    mavlink_message_t message;
+        //    mavlink_msg_qxsdk_acc_cmd_pack(0, 0, &message, MAV_QXSDK_ACC_CMD_CLEAR);
+        //    nm->SendControlUav(m_planeId, message);
+        //}
     }
     else
     {
@@ -1134,7 +1134,7 @@ void VGPlantInformation::ClearQxSdkAccount(bool bSend)
         emit appsecretChanged();
         emit devidChanged();
         emit devtypeChanged();
-    }
+    }*/
 }
 
 void VGPlantInformation::PrcsBlocks(const QList<VGPlantInformation::BlockInfo> &blocks)
@@ -1337,6 +1337,13 @@ VGVehicleMission *VGPlantInformation::beginOperation(VGMissionPlan *fr)
     return m_prepareVm;
 }
 
+void VGPlantInformation::setFlyMode(int md)
+{
+    auto mod = VGMavLinkCode::GetFlightModeName(md);
+    if (!mod.isEmpty())
+        SetFlightMode(mod);
+}
+
 void VGPlantInformation::timerEvent(QTimerEvent *e)
 {
     if (m_directLink && e->timerId()==m_idTimer && QDateTime::currentMSecsSinceEpoch()-m_lastParamTm>1000)
@@ -1351,11 +1358,7 @@ void VGPlantInformation::timerEvent(QTimerEvent *e)
 
 QString VGPlantInformation::GetFlightModeDscb(const QString &str)
 {
-    static QMap<QString, QString> trans = { { DenyMod, tr("deny") }, { MissionMod, tr("Mission") },
-        { ManualMod, tr("Manual") }, { HoldMod, tr("Hold") },
-        { ReturnMod, tr("Return") },{ MagMission, tr("Magic correct") },
-        { Landing, tr("Landing") },{ ABPMod, tr("ABPoint") },
-        { STABILIZEMod, tr("STABILIZE") },{ ACROMod, tr("ACRO") },
+    static QMap<QString, QString> trans = { { STABILIZEMod, tr("STABILIZE") },{ ACROMod, tr("ACRO") },
         { ALT_HOLDMod, tr("ALT_HOLD") },{ AUTOMod, tr("AUTO Mod") },
         { GUIDEDMod, tr("GUIDED") },{ LOITERMod, tr("LOITER") },
         { RTLMod, tr("Return") },{ CIRCLEMod, tr("CIRCLE") },
@@ -1419,18 +1422,6 @@ QString VGPlantInformation::GetQxStatDscb(int stat)
     else if(stat == QXWZ_SDKSENDGGA_ST)
         strStat = tr("QXWZ SDKSENDGGA");//"千寻SDK方式正发送GGA"
     return strStat;
-}
-
-QVariantList VGPlantInformation::canChangedFlyModes()
-{
-    static QVariantList sRet = { (int)APM::STABILIZE, (int)APM::AUTO, (int)APM::POSHOLD
-        , (int)APM::GUIDED, (int)APM::GUIDED_NOGPS };
-    return sRet;
-}
-
-QString VGPlantInformation::flyModeDesc(int mod)
-{
-    return GetFlightModeDscb(VGMavLinkCode::GetFlightModeName(mod));
 }
 
 bool VGPlantInformation::DealPlantParameter(const QString &key, const QVariant &v, int count)
@@ -1505,7 +1496,7 @@ void VGPlantInformation::LoadFromVehicle()
 
 void VGPlantInformation::TestPump()
 {
-    sendCommand(MAV_CMD_VAGA_TEST, 1);
+    //sendCommand(MAV_CMD_VAGA_TEST, 1);
 }
 
 void VGPlantInformation::TestMotor(int idx, int s, int pcn, int count)
@@ -1585,10 +1576,10 @@ void VGPlantInformation::SetArm(bool b)
     if(b)
     {
         m_bSetArm = b;
-        if (m_flightMode == GetFlightModeDscb(MissionMod))
+        if (m_flightMode == GetFlightModeDscb(AUTOMod))
             _arm(b);
         else
-            SetFlightMode(MissionMod);
+            SetFlightMode(AUTOMod);
     }
 
     emit armChanged();
@@ -1674,7 +1665,7 @@ void VGPlantInformation::_arm(bool bArm)
 
 void VGPlantInformation::_sysFlightMode()
 {
-    if ((m_flightModeSet!=MissionMod || IsMissionValible()) && !m_flightModeSet.isEmpty())
+    if ((m_flightModeSet!=AUTOMod || IsMissionValible()) && !m_flightModeSet.isEmpty())
     {
         if (m_directLink)
         {
@@ -1704,12 +1695,12 @@ void VGPlantInformation::onContentDestroied(QObject *o)
 void VGPlantInformation::setMissionRun()
 {
     bool bShow = qvgApp->mapManager()->IsShowMission() && GetSelected();
-    bool bMission = m_flightMode == GetFlightModeDscb(MissionMod);
+    bool bMission = m_flightMode == GetFlightModeDscb(AUTOMod);
     if(m_uploadVm)
         m_uploadVm->showSquences(bShow && !IsLanded() && !IsLanded());
 
     _showContinue(GetSelected());
-    if (!m_planMissionLine && (bMission || m_flightMode==GetFlightModeDscb(ABPMod)))
+    if (!m_planMissionLine && bMission)
     {
         m_planMissionLine = new VGLandPolyline(this, VGLandPolygon::NoPoint);
         m_planMissionLine->SetBorderColor(QColor("#F01010"));//"#F01010"
@@ -1824,22 +1815,20 @@ void VGPlantInformation::prcsSupportAndHome()
     if ((m_statSupport&SetHomePos) && m_homeCoor && m_homeCoor->GetId() == VGCoordinate::HomeSet)
         sendSetHome(false, VGGlobalFunc::toGps(m_homeCoor->GetCoordinate()));
 
-    OperateStat stTmp1 = OperateStat(m_statSupport & 0xff);
-    if (SetSupport == stTmp1 && m_uploadVm && m_uploadVm->GetSupportEnter())
-        SendSupport(true, m_uploadVm->GetSupportEnter());
-    else if (ClearSupport == stTmp1)
-        SendSupport(true, NULL);
-    OperateStat stTmp2 = OperateStat((m_statSupport >> 8) & 0xff);
-    if (SetSupport == stTmp1 && m_uploadVm && m_uploadVm->GetSupportReturn())
-        SendSupport(false, m_uploadVm->GetSupportReturn());
-    else if (ClearSupport == stTmp2)
-        SendSupport(false, NULL);
+    //OperateStat stTmp1 = OperateStat(m_statSupport & 0xff);
+    //if (SetSupport == stTmp1 && m_uploadVm && m_uploadVm->GetSupportEnter())
+    //    SendSupport(true, m_uploadVm->GetSupportEnter());
+    //else if (ClearSupport == stTmp1)
+    //    SendSupport(true, NULL);
+    //OperateStat stTmp2 = OperateStat((m_statSupport >> 8) & 0xff);
+    //if (SetSupport == stTmp1 && m_uploadVm && m_uploadVm->GetSupportReturn())
+    //    SendSupport(false, m_uploadVm->GetSupportReturn());
+    //else if (ClearSupport == stTmp2)
+    //    SendSupport(false, NULL);
 
-    if ((m_statSupport&GetSupport) && m_flightMode == GetFlightModeDscb(MissionMod))
-        requestFromUav(MAV_CMD_GET_START_POINT);
+    //if ((m_statSupport&GetSupport) && m_flightMode == GetFlightModeDscb(AUTOMod))
+    //    requestFromUav(MAV_CMD_GET_START_POINT);
 
-    if(!m_aPointCoor && !m_bPointCoor && m_flightMode == GetFlightModeDscb(ABPMod))
-        requestFromUav(MAV_CMD_GET_AB_POINT);
 }
 
 void VGPlantInformation::requestFromUav(uint32_t mavType)
@@ -1848,7 +1837,7 @@ void VGPlantInformation::requestFromUav(uint32_t mavType)
     {
         if (mavType >= MAV_CMD_ENUM_END)
             return;
-        m_directLink->sendMavCommandInt(MAV_CMD_GET_START_POINT);
+        //m_directLink->sendMavCommandInt(MAV_CMD_GET_START_POINT);
     }
     else if (VGNetManager *nm = qvgApp->netManager())
     {
@@ -1881,7 +1870,7 @@ void VGPlantInformation::_prcsFligtMode(bool res)
 {
     if (res)
     {
-        if (m_flightModeSet == MissionMod && m_uploadVm)
+        if (m_flightModeSet==AUTOMod && m_uploadVm)
         {
             QVariant tmp((float)m_uploadVm->GetOpHeight());
             setParameter("MPC_WORK_MIN_ALT", tmp);
@@ -1889,16 +1878,15 @@ void VGPlantInformation::_prcsFligtMode(bool res)
             setParameter("MIS_TAKEOFF_ALT", tmp);
             setParameter("EKF2_ALT1_SAFETY", QVariant(m_uploadVm->MaxWorkAlt() + 3), true);
         }
-        else if (m_flightModeSet == MagMission)
-        {
-            setParameter("MIS_TAKEOFF_ALT", QVariant::fromValue<float>(3), true);
-        }
+        //else if (m_flightModeSet == MagMission)
+        //{
+        //    setParameter("MIS_TAKEOFF_ALT", QVariant::fromValue<float>(3), true);
+        //}
     }
 
     if (!res)
         qvgApp->SetQmlTip(tr("change flight model fail"), true);//"设置飞行模式失败"
-
-    else if (m_bSetArm || m_flightModeSet == MagMission)
+    else if (m_bSetArm)
         _arm(true);
 
     m_flightModeSet = QString();
@@ -1910,10 +1898,10 @@ void VGPlantInformation::_prcsSetAssist(int cmd, bool res)
     if (!str.isEmpty())
         qvgApp->SetQmlTip(str + getStringFormBool(res) + "!", !res);
 
-    if (cmd == MAV_CMD_SET_START_POINT)
-        m_statSupport &= ~0xff;
-    else
-        m_statSupport &= ~0xff00;
+    //if (cmd == MAV_CMD_SET_START_POINT)
+    //    m_statSupport &= ~0xff;
+    //else
+    //    m_statSupport &= ~0xff00;
 }
 
 void VGPlantInformation::_prcsSetHome(bool res)
@@ -1923,7 +1911,7 @@ void VGPlantInformation::_prcsSetHome(bool res)
 
     if(res && m_bSetArm)
     {
-        if (m_flightMode == GetFlightModeDscb(MissionMod) && m_bMissionValible)
+        if (m_flightMode == GetFlightModeDscb(AUTOMod) && m_bMissionValible)
             _arm(true);
         else
             _sysFlightMode();
@@ -1979,8 +1967,7 @@ void VGPlantInformation::_showContinue(bool b)
         m_cntnCoor->Show(false);
         return;
     }
-    auto tp = GetFlightModeDscb(ABPMod) == m_flightMode ? VGCoordinate::ABContinueFly : VGCoordinate::ContinueFly;
-    m_cntnCoor->Show(m_cntnCoor->GetId() == tp);
+    m_cntnCoor->Show(m_cntnCoor->GetId() == VGCoordinate::ContinueFly);
 }
 
 void VGPlantInformation::_showBlocks(bool b)
@@ -2023,6 +2010,11 @@ void VGPlantInformation::_prcsRawIMU(const mavlink_message_t &msg)
     mavlink_msg_raw_imu_decode(&msg, &raw_imu);
 }
 
+void VGPlantInformation::_prcsScaleIMU(const mavlink_message_t &msg)
+{
+
+}
+
 void VGPlantInformation::_prcsSysStatus(const mavlink_message_t &msg)
 {
     mavlink_sys_status_t sysStatus;
@@ -2040,4 +2032,10 @@ void VGPlantInformation::_prcsBattaryStatus(const mavlink_message_t &msg)
     mavlink_battery_status_t bat_status;
     mavlink_msg_battery_status_decode(&msg, &bat_status);
     SetPowerPercent(bat_status.battery_remaining);
+}
+
+void VGPlantInformation::_prcsXMT_STATUS(const mavlink_message_t &msg)
+{
+    mavlink_xmt_status_t xmtStat;
+    mavlink_msg_xmt_status_decode(&msg, &xmtStat);
 }

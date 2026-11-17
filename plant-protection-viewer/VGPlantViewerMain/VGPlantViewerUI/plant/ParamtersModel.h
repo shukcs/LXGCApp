@@ -7,7 +7,6 @@
 class ParamtersModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList idS READ GetAllIds NOTIFY idSChanged)
 public:
     ParamtersModel(QObject* parent = nullptr);
     ~ParamtersModel();
@@ -22,15 +21,12 @@ public:
     const QMap<QString, QVariant> &AllQObject()const;
     void Update();
 protected:
-    Q_INVOKABLE QVariant getValue(const QString &key)const;
-    QStringList GetAllIds()const;
+    QVariant getValue(const QString &key)const;
 protected:
     int	rowCount(const QModelIndex & parent = QModelIndex())const override;
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole)const override;
     QHash<int, QByteArray> roleNames(void) const override;
     //bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole)override;
-signals:
-    void idSChanged();
 private:
     QMap<QString, QVariant>         m_parameters;
     QList<QPair<QString, QVariant>> m_visParameters;

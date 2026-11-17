@@ -21,8 +21,8 @@ CONFIG += qt \
     thread \
     c++11
 
-INCLUDEPATH +=  $$PWD/../../mavlink/v2.0/common \
-                $$PWD/../../mavlink/v2.0 \
+INCLUDEPATH +=  $$PWD/../../mavlink/gen \
+                $$PWD/../../mavlink/gen/xmt \
                 $$PWD/../../common-librarys/vgbase/src \
                 $$PWD/../../common-librarys/vgcomm/src \
                 $$PWD/../../protobuf \
@@ -99,6 +99,8 @@ AndroidBuild {
     lng.files += VigaApp.qm
     lng.path = /assets/lng
     INSTALLS += xml lng
+}else {
+	ICONS = android/res/drawable-hdpi/icon.png
 }
 
 CONFIG(debug, debug|release) {

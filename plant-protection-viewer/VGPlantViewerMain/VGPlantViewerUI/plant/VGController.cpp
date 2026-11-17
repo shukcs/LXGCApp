@@ -1,11 +1,12 @@
-﻿#include <mavlink.h>
-#include "VGController.h"
+﻿#include "VGController.h"
 #include "VGPlantManager.h"
 #include "VGPlantInformation.h"
 #include "VGApplication.h"
 #include "ParametersMgr.h"
 #include "ParameterLimit.h"
 #include <math.h>
+#include "mavlink_types.h"
+#include "mavlink.h"
 
 static bool s_bInitRCParms = false;
 static QStringList s_strLsRCParms;

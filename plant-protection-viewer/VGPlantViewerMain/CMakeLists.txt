@@ -133,7 +133,7 @@ list(APPEND VG_HEADERS
 # 可执行目标 (qmake app 模板, Windows 下为窗口程序)
 #----------------------------------------------------------------------
 if(WIN32)
-    add_executable(VGPlantViewerMain WIN32 ${VG_SOURCES} ${VG_HEADERS} VGPlantViewer.qrc)
+    add_executable(VGPlantViewerMain WIN32 ${VG_SOURCES} ${VG_HEADERS} VGPlantViewer.qrc VGPantViewerMain.rc)
 elseif(APPLE)
     add_executable(VGPlantViewerMain MACOSX_BUNDLE ${VG_SOURCES} ${VG_HEADERS} VGPlantViewer.qrc)
 else()
@@ -145,8 +145,8 @@ endif()
 #----------------------------------------------------------------------
 target_include_directories(VGPlantViewerMain PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/mavlink/v2.0/common
-    ${CMAKE_SOURCE_DIR}/mavlink/v2.0
+    ${CMAKE_SOURCE_DIR}/mavlink/gen
+    ${CMAKE_SOURCE_DIR}/mavlink/gen/xmt
     ${CMAKE_SOURCE_DIR}/common-librarys/vgbase/src
     ${CMAKE_SOURCE_DIR}/common-librarys/vgcomm/src
     ${CMAKE_SOURCE_DIR}/protobuf

@@ -248,7 +248,10 @@ Rectangle{
         VGTextButton {
             enabled: curPlant && curPlant.missionValible
             strText:qsTr("Operation start")//启动作业
-            onBtnClicked: root.btnMissionClicked()
+            onBtnClicked: {
+                plantManager.currentPlant.flightMode = "AUTO"
+                plantManager.currentPlant.arm = true
+            }
         }
     }
 }

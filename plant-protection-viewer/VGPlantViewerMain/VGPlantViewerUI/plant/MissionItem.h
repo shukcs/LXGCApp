@@ -18,6 +18,7 @@
 #include <QJsonObject>
 #include <QGeoCoordinate>
 
+#include "mavlink_types.h"
 #include "mavlink.h"
 //#include "QGC.h"
 //#include "MavlinkQmlSingleton.h"

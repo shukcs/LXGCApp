@@ -1,6 +1,7 @@
 ﻿#include "VGPlantManager.h"
 #include <QSettings>
 #include <QDateTime>
+#include <QStandardItemModel>
 #include <QtCore/private/qnumeric_p.h>
 
 #include "VGApplication.h"
@@ -15,6 +16,7 @@
 #include "VGMapManager.h"
 #include "VGController.h"
 #include "VGVehicleMission.h"
+#include "px4_custom_mode.h"
 
 #define d_p_ClassName(_cls) _cls::descriptor()->full_name().c_str()
 using namespace das::proto;
@@ -71,6 +73,38 @@ static void _parseGPS(QGeoCoordinate &coor, const GpsInformation &gpsInfo)
     coor.setAltitude(altitude);
 }
 
+class FlyModesModel : public QStringListModel
+{
+public:
+    FlyModesModel(QObject *parent = nullptr) : QStringListModel(parent)
+    {
+        m_flyType = { APM::STABILIZE, APM::AUTO, APM::POSHOLD, APM::GUIDED, APM::GUIDED_NOGPS };
+        for (auto itr : m_flyType)
+        {
+            auto row = rowCount();
+            insertRow(row);
+            setData(index(row), VGPlantInformation::GetFlightModeDscb(VGMavLinkCode::GetFlightModeName(itr)));
+            setData(index(row), itr, Qt::UserRole + 1);
+        }
+    }
+protected:
+    QVariant data(const QModelIndex &index, int role)const override
+    {
+        if (Qt::UserRole + 1 == role)
+            return m_flyType[index.row()];
+        return QStringListModel::data(index, role);
+    }
+    QHash<int, QByteArray> roleNames(void) const override
+    {
+        static QHash<int, QByteArray> hash = { { Qt::DisplayRole ,"flyName" },{ Qt::UserRole + 1, "flyType" } };
+        return hash;
+    }
+private:
+    QVector<int> m_flyType;
+};
+/*
+*VGPlantManager
+*/
 VGPlantManager::VGPlantManager(QObject *parent /*= 0*/) : QObject(parent)
 , m_plantSurvey(NULL), m_plantCur(NULL), m_bExistBound(false), m_idTimerQureryPlant(-1)
 , m_bInitNet(false), m_bOneKeyArm(false), m_voice(0), m_bMission(false)
@@ -314,6 +348,12 @@ void VGPlantManager::clearQxSdkAccount()
 {
     if (VGPlantInformation *info = GetCurrentPlant())
         info->ClearQxSdkAccount(true);
+}
+
+QAbstractItemModel *VGPlantManager::flyModes()
+{
+    static auto sRet = new FlyModesModel(this);
+    return sRet;
 }
 
 void VGPlantManager::getQxAccount()
@@ -778,6 +818,9 @@ void VGPlantManager::prcsUavMavlink(VGPlantInformation *info, const mavlink_mess
         info->_prcsBattaryStatus(msg); break;
     case MAVLINK_MSG_ID_RAW_IMU:
         info->_prcsRawIMU(msg); break;
+    case MAVLINK_MSG_ID_SCALED_IMU2:
+    case MAVLINK_MSG_ID_SCALED_IMU3:
+        info->_prcsScaleIMU(msg); break;
     case MAVLINK_MSG_ID_ATTITUDE:
         _prcsAttitude(*info, msg); break;
     case MAVLINK_MSG_ID_MISSION_COUNT:
@@ -787,24 +830,26 @@ void VGPlantManager::prcsUavMavlink(VGPlantInformation *info, const mavlink_mess
         _prcsMissionItem(*info, msg, finish); break;
     case MAVLINK_MSG_ID_HOME_POSITION:
         _prcsHome(*info, msg); break;
-    case MAVLINK_MSG_ID_VIGA_EVENT:
-        _prcsUavEvent(info->planeId(), msg); break;
-    case MAVLINK_MSG_ID_QX_ACCOUNT:
-        _prcsQXAccount(*info, msg); break;
-    case MAVLINK_MSG_ID_QX_ACC_CMD:
-        _prcsQXCmd(*info, msg); break;
-    case MAVLINK_MSG_ID_QXSDK_ACCOUNT:
-        _prcsQXSdkAcc(*info, msg); break;
-    case MAVLINK_MSG_ID_QXSDK_ACC_CMD:
-        _prcsQXSdkCmd(*info, msg); break;
-    case MAVLINK_MSG_ID_ASSIST_POSITION:
-        _prcsSupport(*info, msg);  break;
-    case MAVLINK_MSG_ID_RC_CHANNELS:
-        _prcsRcChannels(*info, msg); break;
-    case MAVLINK_MSG_ID_SPRAY_VALUE:
-        _prcsSprayVal(*info, msg); break;
+    //case MAVLINK_MSG_ID_VIGA_EVENT:
+    //    _prcsUavEvent(info->planeId(), msg); break;
+    //case MAVLINK_MSG_ID_QX_ACCOUNT:
+    //    _prcsQXAccount(*info, msg); break;
+    //case MAVLINK_MSG_ID_QX_ACC_CMD:
+    //    _prcsQXCmd(*info, msg); break;
+    //case MAVLINK_MSG_ID_QXSDK_ACCOUNT:
+    //    _prcsQXSdkAcc(*info, msg); break;
+    //case MAVLINK_MSG_ID_QXSDK_ACC_CMD:
+    //    _prcsQXSdkCmd(*info, msg); break;
+    //case MAVLINK_MSG_ID_ASSIST_POSITION:
+    //    _prcsSupport(*info, msg);  break;
+    //case MAVLINK_MSG_ID_RC_CHANNELS:
+    //    _prcsRcChannels(*info, msg); break;
+    //case MAVLINK_MSG_ID_SPRAY_VALUE:
+    //    _prcsSprayVal(*info, msg); break;
     case MAVLINK_MSG_ID_STATUSTEXT:
         _prcsStatustext(info->planeId(), msg); break;
+    case MAVLINK_MSG_ID_XMT_STATUS:
+        info->_prcsXMT_STATUS(msg);
     default:
         break;
     }
@@ -1268,50 +1313,50 @@ void VGPlantManager::_prcsHome(VGPlantInformation &p, const mavlink_message_t &m
 
 void VGPlantManager::_prcsUavEvent(const QString &id, const mavlink_message_t &msg)
 {
-    mavlink_viga_event_t e;
-    mavlink_msg_viga_event_decode(&msg, &e);
-    qvgApp->plantEvents()->AddEvent(id, e.viga_event);
-    VGPlantInformation *pl = GetPlantById(id);
-    if (pl && 63 == e.viga_event)
-        pl->GetPlantParammeter(Imitation_Mode);
+    //mavlink_viga_event_t e;
+    //mavlink_msg_viga_event_decode(&msg, &e);
+    //qvgApp->plantEvents()->AddEvent(id, e.viga_event);
+    //VGPlantInformation *pl = GetPlantById(id);
+    //if (pl && 63 == e.viga_event)
+    //    pl->GetPlantParammeter(Imitation_Mode);
 }
 
 void VGPlantManager::_prcsQXCmd(VGPlantInformation &plant, const mavlink_message_t &msg)
 {
-    mavlink_qx_acc_cmd_t qxcmd = { 0 };
-    mavlink_msg_qx_acc_cmd_decode(&msg, &qxcmd);
-    if (qxcmd.cmd == 2 || qxcmd.cmd == 3)
-    {
-        QString str = qxcmd.cmd == 2 ? tr("Set QX account success!") : tr("Clear QX account success!");//设置千寻账号成功！" "清除千寻账号成功！"
-        qvgApp->SetQmlTip(str);
-        qvgApp->speakNotice(str);
-        if (qxcmd.cmd == 3)
-            plant.ClearQxAccount(false);
-    }
+    //mavlink_qx_acc_cmd_t qxcmd = { 0 };
+    //mavlink_msg_qx_acc_cmd_decode(&msg, &qxcmd);
+    //if (qxcmd.cmd == 2 || qxcmd.cmd == 3)
+    //{
+    //    QString str = qxcmd.cmd == 2 ? tr("Set QX account success!") : tr("Clear QX account success!");//设置千寻账号成功！" "清除千寻账号成功！"
+    //    qvgApp->SetQmlTip(str);
+    //    qvgApp->speakNotice(str);
+    //    if (qxcmd.cmd == 3)
+    //        plant.ClearQxAccount(false);
+    //}
 }
 
 void VGPlantManager::_prcsQXSdkAcc(VGPlantInformation &p, const mavlink_message_t &m)
 {
-    QString acc;
-    QString key;
-    QString id;
-    QString type;
-    if (VGMavLinkCode::DecodeQXSDKAccount(m, acc, key, id, type))
-        p.SetQxSdkAccount(acc, key, id, type.toInt() - 1, false);
+    //QString acc;
+    //QString key;
+    //QString id;
+    //QString type;
+    //if (VGMavLinkCode::DecodeQXSDKAccount(m, acc, key, id, type))
+    //    p.SetQxSdkAccount(acc, key, id, type.toInt() - 1, false);
 }
 
 void VGPlantManager::_prcsQXSdkCmd(VGPlantInformation &plant, const mavlink_message_t &msg)
 {
-    mavlink_qxsdk_acc_cmd_t qxsdkcmd = { 0 };
-    mavlink_msg_qxsdk_acc_cmd_decode(&msg, &qxsdkcmd);
-    if (qxsdkcmd.sdkcmd == 2 || qxsdkcmd.sdkcmd == 3)
-    {
-        QString str = qxsdkcmd.sdkcmd == 2 ? tr("Set QXSdk account success!") : tr("Clear QXSdk account success!");//设置千寻账号成功！" "清除千寻账号成功！"
-        qvgApp->SetQmlTip(str);
-        qvgApp->speakNotice(str);
-        if (qxsdkcmd.sdkcmd == 3)
-            plant.ClearQxSdkAccount(false);
-    }
+    //mavlink_qxsdk_acc_cmd_t qxsdkcmd = { 0 };
+    //mavlink_msg_qxsdk_acc_cmd_decode(&msg, &qxsdkcmd);
+    //if (qxsdkcmd.sdkcmd == 2 || qxsdkcmd.sdkcmd == 3)
+    //{
+    //    QString str = qxsdkcmd.sdkcmd == 2 ? tr("Set QXSdk account success!") : tr("Clear QXSdk account success!");//设置千寻账号成功！" "清除千寻账号成功！"
+    //    qvgApp->SetQmlTip(str);
+    //    qvgApp->speakNotice(str);
+    //    if (qxsdkcmd.sdkcmd == 3)
+    //        plant.ClearQxSdkAccount(false);
+    //}
 }
 
 void VGPlantManager::_prcsRcChannels(VGPlantInformation &p, const mavlink_message_t &m)

@@ -42,7 +42,8 @@ This file is part of the QGROUNDCONTROL project
 #include "LinkInterface.h"
 #include "base.h"
 #include "vgcomm_global.h"
-#include <mavlink.h>
+#include "mavlink_types.h"
+#include "mavlink.h"
 
 class LinkManager;
 

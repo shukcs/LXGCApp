@@ -13,35 +13,11 @@ static QMap<QString, px4_custom_mode> &GetModeMap()
     if (s_Map.size() == 0)
     {
         px4_custom_mode mode;
-        mode.data = 0;
-        mode.main_mode = PX4_CUSTOM_MAIN_MODE_AUTO;
-        mode.sub_mode = PX4_CUSTOM_SUB_MODE_AUTO_MISSION;
-        s_Map[MissionMod] = mode;
-
-        mode.data = 0;
-        mode.main_mode = PX4_CUSTOM_MAIN_MODE_AUTO;
-        mode.sub_mode = PX4_CUSTOM_SUB_MODE_AUTO_LOITER;
-        s_Map[HoldMod] = mode;
-
-        mode.data = 0;
-        mode.main_mode = PX4_CUSTOM_MAIN_MODE_MANUAL;
-        mode.sub_mode = 0;
-        s_Map[ManualMod] = mode;
-
-		mode.data = 0;
-		mode.main_mode = PX4_CUSTOM_MAIN_MODE_AUTO;
-		mode.sub_mode = PX4_CUSTOM_SUB_MODE_AUTO_RTL;
-        s_Map[ReturnMod] = mode;
 
         mode.data = 0;
         mode.main_mode = PX4_CUSTOM_MAIN_MODE_AUTO;
         mode.sub_mode = PX4_CUSTOM_SUB_MODE_AUTO_MAG_MISSION;
         s_Map[MagMission] = mode;
-
-        mode.data = 0;
-        mode.main_mode = PX4_CUSTOM_MAIN_MODE_AUTO;
-        mode.sub_mode = PX4_CUSTOM_SUB_MODE_AUTO_LAND;
-        s_Map[Landing] = mode;
 
         QSet<int> noMods = {8, 10, 12};
         auto itr = VGMavLinkCode::APMModes().begin();
@@ -59,12 +35,12 @@ static QMap<QString, px4_custom_mode> &GetModeMap()
 
 uint32_t VGMavLinkCode::GetFlightModeByString(const QString &mode)
 {
-        QMap<QString, px4_custom_mode> &modes = GetModeMap();
-        QMap<QString, px4_custom_mode>::const_iterator itr = modes.find(mode);
-        if (itr != modes.end())
-            return itr.value().data;
+    QMap<QString, px4_custom_mode> &modes = GetModeMap();
+    QMap<QString, px4_custom_mode>::const_iterator itr = modes.find(mode);
+    if (itr != modes.end())
+        return itr.value().data;
 
-        return 0;
+    return 0xffffffff;
 }
 
 QString VGMavLinkCode::GetFlightModeName(uint32_t mode)
@@ -116,17 +92,6 @@ void VGMavLinkCode::EncodeRTCM(mavlink_message_t &msg, const QByteArray arr, int
     mavlink_msg_gps_rtcm_data_encode_chan(p ? p->getSystemId() : 0,
         p ? p->getComponentId() : 0
         ,ch , &msg, &packet_in);
-}
-
-void VGMavLinkCode::EncodeHartbeat(mavlink_message_t &msg, int cpnt, int sysId, const mavlink_heartbeat_t *h)
-{
-    if (!h)
-    {
-        mavlink_heartbeat_t state = { 0 };
-        mavlink_msg_heartbeat_encode(sysId, cpnt, &msg, &state);
-        return;
-    }
-    mavlink_msg_heartbeat_encode(sysId, cpnt, &msg, h);
 }
 
 void VGMavLinkCode::EncodeCommandSt(mavlink_message_t &msg, int cpnt, MAV_CMD cmd,
@@ -307,12 +272,13 @@ bool VGMavLinkCode::EncodeGetParameter(mavlink_message_t &msg, const QString &ke
 
 bool VGMavLinkCode::EncodeSetMode(mavlink_message_t &msg, const QString &mod, uint8_t baseMod, int ch, int sysId)
 {
-    if (uint32_t cstmMode = VGMavLinkCode::GetFlightModeByString(mod))
+    uint32_t cstmMode = VGMavLinkCode::GetFlightModeByString(mod);
+    if (cstmMode != 0xffffffff)
     {
         // setFlightMode will only set MAV_MODE_FLAG_CUSTOM_MODE_ENABLED in base_mode, we need to move back in the existing
         uint8_t baseMode = baseMod & ~MAV_MODE_FLAG_DECODE_POSITION_CUSTOM_MODE;
         baseMode |= MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
-        if (mod == MissionMod)
+        if (mod == AUTOMod)
             baseMode |= MAV_MODE_FLAG_GUIDED_ENABLED;
 
         EncodeCommandInt(msg, 0, MAV_CMD_DO_SET_MODE, ch, sysId, baseMod, cstmMode);
@@ -357,18 +323,18 @@ void VGMavLinkCode::EncodeReadItem(mavlink_message_t &msg, int seq, bool bInt, M
 
 void VGMavLinkCode::EncodeQXAccount(mavlink_message_t &msg, const QString &acc, const QString &pswd, int ch /*= 0*/)
 {
-    auto p = qvgApp->mavLink();
-    mavlink_msg_qx_account_pack_chan(p ? p->getSystemId() : 0,
-        p ? p->getComponentId() : 0, ch, &msg, (uint8_t*)acc.toUtf8().data()
-        , (uint8_t*)pswd.toUtf8().data(), 0);
+    //auto p = qvgApp->mavLink();
+    //mavlink_msg_qx_account_pack_chan(p ? p->getSystemId() : 0,
+    //    p ? p->getComponentId() : 0, ch, &msg, (uint8_t*)acc.toUtf8().data()
+    //    , (uint8_t*)pswd.toUtf8().data(), 0);
 }
 
 void VGMavLinkCode::EncodeQXSdkAccount(mavlink_message_t &msg, const QString &key, const QString &secret, const QString &id, const QString &type, int ch /*= 0*/)
 {
-    auto p = qvgApp->mavLink();
-    mavlink_msg_qxsdk_account_pack_chan(p ? p->getSystemId() : 0,
-        p ? p->getComponentId() : 0, ch, &msg, key.toUtf8().data()
-        , secret.toUtf8().data(), id.toUtf8().data(), type.toUtf8().data(), 0);
+    //auto p = qvgApp->mavLink();
+    //mavlink_msg_qxsdk_account_pack_chan(p ? p->getSystemId() : 0,
+    //    p ? p->getComponentId() : 0, ch, &msg, key.toUtf8().data()
+    //    , secret.toUtf8().data(), id.toUtf8().data(), type.toUtf8().data(), 0);
 }
 
 QString VGMavLinkCode::DecodeParameter(const mavlink_message_t &msg, QVariant &v, int *count)
@@ -509,22 +475,22 @@ bool VGMavLinkCode::DecodeHomePos(const mavlink_message_t &msg, QGeoCoordinate &
 
 int VGMavLinkCode::DecodeSupport(const mavlink_message_t &msg, QGeoCoordinate &cE, QGeoCoordinate &cR)
 {
-    if (MAVLINK_MSG_ID_ASSIST_POSITION != msg.msgid)
+    //if (MAVLINK_MSG_ID_ASSIST_POSITION != msg.msgid)
         return -1;
 
-    mavlink_assist_position_t supports;
-    mavlink_msg_assist_position_decode(&msg, &supports);
-    double lat = supports.start_latitude*1e-7;
-    double lon = supports.start_longitude*1e-7;
-    double alt = supports.start_altitude*1e-3;
-    cE = QGeoCoordinate(lat, lon, alt);
+    //mavlink_assist_position_t supports;
+    //mavlink_msg_assist_position_decode(&msg, &supports);
+    //double lat = supports.start_latitude*1e-7;
+    //double lon = supports.start_longitude*1e-7;
+    //double alt = supports.start_altitude*1e-3;
+    //cE = QGeoCoordinate(lat, lon, alt);
 
-    lat = supports.end_latitude*1e-7;
-    lon = supports.end_longitude*1e-7;
-    alt = supports.end_altitude*1e-3;
-    cR = QGeoCoordinate(lat, lon, alt);
+    //lat = supports.end_latitude*1e-7;
+    //lon = supports.end_longitude*1e-7;
+    //alt = supports.end_altitude*1e-3;
+    //cR = QGeoCoordinate(lat, lon, alt);
 
-    return supports.assist_state;
+    //return supports.assist_state;
 }
 
 bool VGMavLinkCode::DecodeGlobalPos(const mavlink_message_t &msg, QGeoCoordinate &posG, double &vHor, double &vVer, double &alt)
@@ -566,39 +532,40 @@ bool VGMavLinkCode::DecodeGpsSatlate(const mavlink_message_t &msg, QGeoCoordinat
 
 bool VGMavLinkCode::DecodeSpray(const mavlink_message_t &msg, double &speed, double &volumeSprayed, uint8_t &stat, uint8_t &mode)
 {
-    if (MAVLINK_MSG_ID_SPRAY_VALUE != msg.msgid)
-        return false;
+    //if (MAVLINK_MSG_ID_SPRAY_VALUE != msg.msgid)
+    //    return false;
 
-    mavlink_spray_value_t spray;
-    mavlink_msg_spray_value_decode(&msg, &spray);
-    speed = spray.spray_speed;
-    volumeSprayed = spray.volume_sprayed;
-    stat = spray.spray_state;
-    mode = spray.spray_mode;
+    //mavlink_spray_value_t spray;
+    //mavlink_msg_spray_value_decode(&msg, &spray);
+    //speed = spray.spray_speed;
+    //volumeSprayed = spray.volume_sprayed;
+    //stat = spray.spray_state;
+    //mode = spray.spray_mode;
     return true;
 }
 
 QString VGMavLinkCode::DecodeQXAccount(const mavlink_message_t &msg, QString &pswd)
 {
-    if (msg.msgid != MAVLINK_MSG_ID_QX_ACCOUNT)
-        return QString();
+    //if (msg.msgid != MAVLINK_MSG_ID_QX_ACCOUNT)
+    //    return QString();
 
-    mavlink_qx_account_t qxacc = { 0 };
-    mavlink_msg_qx_account_decode(&msg, &qxacc);
-    pswd = (char*)qxacc.pswd;
-    return QString((char*)qxacc.acc);
+    //mavlink_qx_account_t qxacc = { 0 };
+    //mavlink_msg_qx_account_decode(&msg, &qxacc);
+    //pswd = (char*)qxacc.pswd;
+    //return QString((char*)qxacc.acc);
+    return QString();
 }
 
 bool VGMavLinkCode::DecodeQXSDKAccount(const mavlink_message_t &msg, QString &key, QString &secret, QString &id, QString &type)
 {
-    if (msg.msgid != MAVLINK_MSG_ID_QXSDK_ACCOUNT)
-        return false;
+    //if (msg.msgid != MAVLINK_MSG_ID_QXSDK_ACCOUNT)
+    //    return false;
 
-    mavlink_qxsdk_account_t qxsdk= { 0 };
-    mavlink_msg_qxsdk_account_decode(&msg, &qxsdk);
-    key = (char*)qxsdk.akey;
-    secret = (char *)qxsdk.asec;
-    id = (char *)qxsdk.devid;
-    type = (char *)qxsdk.type;
+    //mavlink_qxsdk_account_t qxsdk= { 0 };
+    //mavlink_msg_qxsdk_account_decode(&msg, &qxsdk);
+    //key = (char*)qxsdk.akey;
+    //secret = (char *)qxsdk.asec;
+    //id = (char *)qxsdk.devid;
+    //type = (char *)qxsdk.type;
     return true;
 }

@@ -21,6 +21,7 @@ class MissionItem;
 class VGSupportPolyline;
 class VGBlock;
 class ParamtersModel;
+class QAbstractItemModel;
 typedef struct __mavlink_message mavlink_message_t;
 class VGPlantInformation : public MapAbstractItem
 {
@@ -223,8 +224,6 @@ public:
 public:
     static QString GetFlightModeDscb(const QString &str);
     static QString GetQxStatDscb(int stat);
-    Q_INVOKABLE QVariantList canChangedFlyModes();
-    Q_INVOKABLE QString flyModeDesc(int mode);
 public slots:
     void onMissionChange();
 protected:
@@ -256,6 +255,7 @@ protected:
     double GetLat()const;
     double GetLon()const;
     Q_INVOKABLE VGVehicleMission *beginOperation(VGMissionPlan *fr);
+    Q_INVOKABLE void setFlyMode(int);
     void timerEvent(QTimerEvent *e)override;
 signals:
     void flightModeChanged();
@@ -320,9 +320,10 @@ private:
     void _doParam(const QString &str, const QVariant &var = QVariant());
     void _removeParamOp(const QString &key);
     void _prcsRawIMU(const mavlink_message_t &msg);
-    void _prcsScaleIMU2(const mavlink_message_t &msg);
+    void _prcsScaleIMU(const mavlink_message_t &msg);
     void _prcsSysStatus(const mavlink_message_t &msg);
     void _prcsBattaryStatus(const mavlink_message_t &msg);
+    void _prcsXMT_STATUS(const mavlink_message_t &msg);
 private:
     friend class VGPlantManager;
     VGVehicle       *m_directLink;  //直连设备

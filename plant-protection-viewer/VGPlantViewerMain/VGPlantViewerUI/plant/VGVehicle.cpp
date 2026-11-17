@@ -105,8 +105,6 @@ void VGVehicle::_mavlinkMessageReceived(LinkInterface *link, const mavlink_messa
     {
     case MAVLINK_MSG_ID_HEARTBEAT: //心跳
         _handleHeartbeat(message); return;
-    case MAVLINK_MSG_ID_SYS_STATUS: //系统状态
-        _handleSysStatus(message); return;
     case MAVLINK_MSG_ID_GPS_RAW_INT:
         _handleGpsSatellite(message); break;
     case MAVLINK_MSG_ID_GPS_STATUS: //GPS状态
@@ -119,21 +117,16 @@ void VGVehicle::_mavlinkMessageReceived(LinkInterface *link, const mavlink_messa
         _handleGlobalPositon(message); break;
     case MAVLINK_MSG_ID_ATTITUDE://姿态
     case MAVLINK_MSG_ID_RC_CHANNELS:
-    case MAVLINK_MSG_ID_VIGA_EVENT:
     case MAVLINK_MSG_ID_HOME_POSITION://home點
-    case MAVLINK_MSG_ID_QX_ACCOUNT:
-    case MAVLINK_MSG_ID_QX_ACC_CMD:
-    case MAVLINK_MSG_ID_QXSDK_ACCOUNT:
-    case MAVLINK_MSG_ID_OBSTACLE_INFO:
-    case MAVLINK_MSG_ID_ASSIST_POSITION:
     case MAVLINK_MSG_ID_MISSION_CURRENT:
     case MAVLINK_MSG_ID_STATUSTEXT:
         emit recvMavlink(this, message); break;
-    case MAVLINK_MSG_ID_SPRAY_VALUE:
+    case MAVLINK_MSG_ID_SYS_STATUS: //系统状态
     case MAVLINK_MSG_ID_RAW_IMU:
     case MAVLINK_MSG_ID_SCALED_IMU2:
     case MAVLINK_MSG_ID_SCALED_IMU3:
     case MAVLINK_MSG_ID_PARAM_VALUE:
+    case MAVLINK_MSG_ID_XMT_STATUS:
         emit recvMavlink(this, message); return;
     case MAVLINK_MSG_ID_VFR_HUD://HUD速率等
         _handleVfrHud(message); return;
@@ -153,8 +146,8 @@ void VGVehicle::_mavlinkMessageReceived(LinkInterface *link, const mavlink_messa
         _handleLogEntry(message); return;
     case MAVLINK_MSG_ID_LOG_DATA:   //接收日志数据；
         _handleLogData(message); return;
-    case MAVLINK_MSG_ID_INTERRUPT_POINT:
-        _handleInterrupt(message); return;
+    //case MAVLINK_MSG_ID_INTERRUPT_POINT:
+    //    _handleInterrupt(message); return;
     default:
         break;
     }
@@ -280,8 +273,8 @@ void VGVehicle::_handleHeartbeat(const mavlink_message_t &message)
     }
     m_bArm = MAV_STATE_ACTIVE == (MAV_STATE_ACTIVE & heartbeat.system_status);
     emit sysStatus(heartbeat.system_status);
-    if (heartbeat.system_status & 0x20)
-        loadFromVehicle(MAV_MISSION_TYPE_AOBPATH);
+//    if (heartbeat.system_status & 0x20)
+//        loadFromVehicle(MAV_MISSION_TYPE_AOBPATH);
 }
 
 void VGVehicle::setAutoDisconnect(bool autoDisconnect)
@@ -344,8 +337,8 @@ void VGVehicle::_onMissionSych(bool bError)
             m_mgrMission->writeMissionItems(ms.first->MissionItems());
         else if (ms.first->CountBlock() > 0)
             m_mgrMission->writeMissionItems(ms.first->BoundaryItems());
-        else if (m_mgrMission)
-            m_mgrMission->removeAllWorker(MAV_MISSION_TYPE_OBSTACLE);
+        //else if (m_mgrMission)
+        //    m_mgrMission->removeAllWorker(MAV_MISSION_TYPE_OBSTACLE);
     }
 }
 
@@ -594,7 +587,7 @@ void VGVehicle::setArmed(bool armed)
 LinkInterface* VGVehicle::priorityLink(void)
 {
 #ifndef __ios__
-    foreach (LinkInterface* link, m_links) {
+    for (LinkInterface* link : m_links) {
         if (link->isConnected())
 		{
 			if (link->linkType()== LinkCommand::TypeSerial)
@@ -746,18 +739,6 @@ void VGVehicle::_handleGlobalPositon(const mavlink_message_t& message)
     }
 }
 
-void VGVehicle::_handleSysStatus(const mavlink_message_t& message)
-{
-    if (auto mnt =  vehicleType() == MAVTYPESURVEY ? qvgApp->surveyMonitor() : nullptr)
-    {
-        mavlink_sys_status_t sysStatus;
-        mavlink_msg_sys_status_decode(&message, &sysStatus);
-        mnt->SetPowerPercent(sysStatus.battery_remaining);
-        return;
-    }
-    emit recvMavlink(this, message);
-}
-
 void VGVehicle::_handleGpsSatellite(const mavlink_message_t& message)
 {
     QGeoCoordinate newPosition;
@@ -877,14 +858,14 @@ void VGVehicle::_handleCommandAck(const mavlink_message_t& message)
 
 void VGVehicle::_handleInterrupt(const mavlink_message_t& message)
 {
-    mavlink_interrupt_point_t suspend;
-    mavlink_msg_interrupt_point_decode(&message, &suspend);
-    QGeoCoordinate c(suspend.int_latitude / 1e7, suspend.int_longitude / 1e7, suspend.int_altitude / 1e3);
-    emit recvSuspend(c, suspend.int_type);
-    if (auto p = qvgApp->mavLink())
-    {
-        mavlink_message_t msg;
-        mavlink_msg_interrupt_point_ack_pack_chan(p->getSystemId(), p->getComponentId(), sysID(), &msg, suspend.int_type);
-        emit sendMessageOnLink(priorityLink(), msg);
-    }
+    //mavlink_interrupt_point_t suspend;
+    //mavlink_msg_interrupt_point_decode(&message, &suspend);
+    //QGeoCoordinate c(suspend.int_latitude / 1e7, suspend.int_longitude / 1e7, suspend.int_altitude / 1e3);
+    //emit recvSuspend(c, suspend.int_type);
+    //if (auto p = qvgApp->mavLink())
+    //{
+    //    mavlink_message_t msg;
+    //    mavlink_msg_interrupt_point_ack_pack_chan(p->getSystemId(), p->getComponentId(), sysID(), &msg, suspend.int_type);
+    //    emit sendMessageOnLink(priorityLink(), msg);
+    //}
 }

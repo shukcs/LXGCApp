@@ -1095,7 +1095,7 @@ void VGNetManager::requestFromUav(const QString &uav, uint32_t mavType)
         cmdRUS.add_uavid(uav.toUtf8().data());
         SendNetWork(cmdRUS);
     }
-    else if (MAV_CMD_GET_START_POINT == mavType || MAV_CMD_GET_END_POINT == mavType)
+    /*else if (MAV_CMD_GET_START_POINT == mavType || MAV_CMD_GET_END_POINT == mavType)
     {
         RequestOperationAssist cmdRUS;
         _checSeq();
@@ -1118,7 +1118,7 @@ void VGNetManager::requestFromUav(const QString &uav, uint32_t mavType)
         cmdRUS.set_seqno(m_seqno);
         cmdRUS.set_uavid(uav.toUtf8().data());
         SendNetWork(cmdRUS);
-    }
+    }*/
 }
 
 void VGNetManager::requestBindUav(const QString &uavId, int type)

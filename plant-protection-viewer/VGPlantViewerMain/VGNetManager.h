@@ -7,7 +7,6 @@
 #include "VGTcpClient.h"
 #include "VGMacro.h"
 #include "VGPlantInformation.h"
-#include "mavlink_types.h"
 
 class VGLandInformation;
 class VGLandBoundary;

@@ -3,13 +3,14 @@
 
 #include <QObject>
 #include "VGPlantInformation.h"
-#include "mavlink_types.h"
 
 //QML飞机管理
 class VGNetManager;
 class QGeoCoordinate;
 class VGVehicleMission;
 class VGVehicle;
+class QStandardItemModel;
+typedef struct __mavlink_message mavlink_message_t;
 
 namespace google {
     namespace protobuf {
@@ -128,6 +129,7 @@ protected:
     Q_INVOKABLE void setQxSdkAccount(const QString &key, const QString &secret,  const QString &devid, int tp);
     Q_INVOKABLE void getQxSdkAccount();
     Q_INVOKABLE void clearQxSdkAccount();
+    Q_INVOKABLE QAbstractItemModel *flyModes();
 
     void processOperationInformation(const das::proto::PostOperationInformation &pi);
     void processMavlink(const das::proto::PostStatus2GroundStation &mav);

@@ -56,8 +56,8 @@ void VGVehicleManager::onHeartbeat(LinkInterface *link, int vehicleId, int, int 
     connect(vehicle, &VGVehicle::sysAvalibleChanged, this, &VGVehicleManager::onSysAvalibleChange);
     connect(vehicle, &VGVehicle::flightModeChanged, this, &VGVehicleManager::onModeChanged);
     connect(vehicle, &VGVehicle::mavCommandResult, this, &VGVehicleManager::onMavCommandResult);
+    connect(vehicle, &VGVehicle::recvMavlink, this, &VGVehicleManager::OnRecvMavlink);
 	
-
     if (bVehivle)
     {
         MissionManager *mm = vehicle->missionManager();
@@ -66,7 +66,6 @@ void VGVehicleManager::onHeartbeat(LinkInterface *link, int vehicleId, int, int 
         connect(mm, &MissionManager::sendComplete, this, &VGVehicleManager::onSyschFinish);
         connect(vehicle, &VGVehicle::sysStatus, this, &VGVehicleManager::onSysStatus);
         connect(vehicle, &VGVehicle::recvSuspend, this, &VGVehicleManager::onRecvSuspend);
-        connect(vehicle, &VGVehicle::recvMavlink, this, &VGVehicleManager::OnRecvMavlink);
         connect(vehicle, &QObject::destroyed, this, &VGVehicleManager::onVehicleDestroyed);
 
         setActiveVehicle(vehicle);
@@ -128,11 +127,24 @@ void VGVehicleManager::setActiveVehicle(VGVehicle* vehicle)
 
 void VGVehicleManager::processSurveysMavLink(const mavlink_message_t &msg)
 {
-    if (msg.msgid == MAVLINK_MSG_ID_PARAM_VALUE)
+    switch (msg.msgid)
+    {
+    case MAVLINK_MSG_ID_PARAM_VALUE:
     {
         QVariant v;
         QString id = VGMavLinkCode::DecodeParameter(msg, v, nullptr);
         qvgApp->surveyMonitor()->DealParam(id, v);
+    }
+        break;
+    case MAVLINK_MSG_ID_SYS_STATUS:
+    {
+        mavlink_sys_status_t sysStatus;
+        mavlink_msg_sys_status_decode(&msg, &sysStatus);
+        qvgApp->surveyMonitor()->SetPowerPercent(sysStatus.battery_remaining);
+    }
+        break;
+    default:
+        break;
     }
 }
 
@@ -220,7 +232,7 @@ void VGVehicleManager::onSysAvalibleChange(bool)
 void VGVehicleManager::onModeChanged(const QString &mode)
 {
     auto v = qobject_cast<VGVehicle*>(sender());
-    if (v)
+    if (!v)
         return;
 
     if (VGPlantInformation *plant = qvgApp->plantManager()->GetPlantViaDrect(v))
@@ -316,13 +328,11 @@ void VGVehicleManager::onVehicelAltitudeChanged(VGVehicle *vehicle, double altit
 
     if (vehicle->vehicleType() == MAVTYPESURVEY)
     {
-        if (VGSurveyMonitor *mnt = qvgApp->surveyMonitor())
-            mnt->SetAltitude(altitude);
+        qvgApp->surveyMonitor()->SetAltitude(altitude);
     }
-    else if (VGPlantManager *mgr = qvgApp->plantManager())
+    else if (auto plant = qvgApp->plantManager()->GetPlantViaDrect(vehicle))
     {
-        if (VGPlantInformation *plant = mgr->GetPlantViaDrect(vehicle))
-            plant->SetAltitude(altitude);
+        plant->SetAltitude(altitude);
     }
 }
 

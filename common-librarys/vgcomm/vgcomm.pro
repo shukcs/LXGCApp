@@ -18,8 +18,8 @@ INCLUDEPATH += .
 
 INCLUDEPATH += src \
     ../vgbase/src \
-    ../../mavlink/v2.0/common \
-    ../../mavlink/v2.0
+    ../../mavlink/gen \
+    ../../mavlink/gen/xmt
 
 SOURCES += \
     src/LinkCommand.cc \

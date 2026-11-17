@@ -5,7 +5,6 @@
 #include <QDateTime>
 #include <QFileInfo>
 #include <QDir>
-#include "mavlink.h"
 #include "VGApplication.h"
 
 static QLocale g_kLocale;

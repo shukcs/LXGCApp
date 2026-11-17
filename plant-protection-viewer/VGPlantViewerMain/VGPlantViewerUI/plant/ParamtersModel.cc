@@ -38,7 +38,6 @@ void ParamtersModel::insert(const QString &key, const QVariant &v)
         beginInsertRows(QModelIndex(), idx, idx);
         m_visParameters.insert(idx, QPair<QString, QVariant>(key, v));
         endInsertRows();
-        emit idSChanged();
     }
 }
 
@@ -120,11 +119,6 @@ void ParamtersModel::Update()
 QVariant ParamtersModel::getValue(const QString &key) const
 {
     return Value(key);
-}
-
-QStringList ParamtersModel::GetAllIds() const
-{
-    return m_parameters.keys();
 }
 
 int ParamtersModel::rowCount(const QModelIndex &/*= QModelIndex()*/) const

@@ -31,8 +31,8 @@ target_compile_definitions(vgcomm PRIVATE VGCOMM_LIBRARY)
 target_include_directories(vgcomm
     PUBLIC
         src
-        ${CMAKE_SOURCE_DIR}/mavlink/v2.0/common
-        ${CMAKE_SOURCE_DIR}/mavlink/v2.0
+        ${CMAKE_SOURCE_DIR}/mavlink/gen
+		${CMAKE_SOURCE_DIR}/mavlink/gen/xmt
     PRIVATE
         .
 )

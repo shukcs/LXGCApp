@@ -118,7 +118,6 @@ private:
     void _handleAttitudeQuaternion(const mavlink_message_t& message);
     void _handleAutopilotVersion(LinkInterface* link, const mavlink_message_t& message);
     void _handleGlobalPositon(const mavlink_message_t& message);
-    void _handleSysStatus(const mavlink_message_t& message);
     void _handleGpsSatellite(const mavlink_message_t& message);
     void _handleGpsStatus(const mavlink_message_t& message);
     void _handleAltitude(const mavlink_message_t& message);

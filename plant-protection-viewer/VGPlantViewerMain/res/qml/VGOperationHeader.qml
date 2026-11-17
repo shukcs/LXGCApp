@@ -1,7 +1,6 @@
 ﻿import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
-
 import VGGroundControl   1.0
 
 Rectangle{
@@ -9,6 +8,7 @@ Rectangle{
     color:  "#7FFFFFFF"
     height: rowPlantStat.height+6
     signal backClickd()
+    property var curPlant: plantManager.currentPlant
     VGImage {
         id: imgBack
         anchors {left: parent.left; leftMargin:5; verticalCenter:parent.verticalCenter}

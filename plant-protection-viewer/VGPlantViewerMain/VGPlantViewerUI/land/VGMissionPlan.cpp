@@ -629,8 +629,8 @@ void VGMissionPlan::_calculateSafeBoundary()
         int i = 0;
         for (const QGeoCoordinate &coor : itrLs)
         {
-            m_safeBdrs << new MissionItem(seq++, MAV_CMD_NAV_WAYPOINT, MAV_FRAME_GLOBAL
-                , 0, id, i++, 0, coor.latitude(), coor.longitude(), 0, false, false, MAV_MISSION_TYPE_OBSTACLE);
+            //m_safeBdrs << new MissionItem(seq++, MAV_CMD_NAV_WAYPOINT, MAV_FRAME_GLOBAL
+            //    , 0, id, i++, 0, coor.latitude(), coor.longitude(), 0, false, false, MAV_MISSION_TYPE_OBSTACLE);
         }
         id++;
     }

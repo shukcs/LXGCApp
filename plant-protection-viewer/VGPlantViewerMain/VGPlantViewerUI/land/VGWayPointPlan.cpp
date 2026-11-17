@@ -1,6 +1,5 @@
 ﻿#include "VGWayPointPlan.h"
 #include <QDateTime>
-#include <mavlink.h>
 #include "MapItemFactory.h"
 #include "VGCoordinate.h"
 #include "VGApplication.h"
@@ -10,6 +9,8 @@
 #include "VGMainPage.h"
 #include "QmlObjectListModel.h"
 #include "VGLandManager.h"
+#include "mavlink_types.h"
+#include "mavlink.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //VGWayPointPlangetDiscsItem
