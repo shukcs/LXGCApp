@@ -119,8 +119,8 @@ void VGVehicle::_mavlinkMessageReceived(LinkInterface *link, const mavlink_messa
     case MAVLINK_MSG_ID_RC_CHANNELS:
     case MAVLINK_MSG_ID_HOME_POSITION://home點
     case MAVLINK_MSG_ID_MISSION_CURRENT:
-    case MAVLINK_MSG_ID_STATUSTEXT:
         emit recvMavlink(this, message); break;
+    case MAVLINK_MSG_ID_STATUSTEXT:
     case MAVLINK_MSG_ID_SYS_STATUS: //系统状态
     case MAVLINK_MSG_ID_RAW_IMU:
     case MAVLINK_MSG_ID_SCALED_IMU2:
@@ -702,6 +702,31 @@ void VGVehicle::getParametesList()
 
         sendMessageOnLink(link, msg);
     }
+}
+
+void VGVehicle::requestDataStream(MAV_DATA_STREAM tp, uint16_t rate)
+{
+    LinkInterface *link = priorityLink();
+    if (!link)
+        return;
+
+    mavlink_message_t               msg = { 0 };
+    mavlink_request_data_stream_t   dataStream;
+
+    dataStream.req_stream_id = tp;
+    dataStream.req_message_rate = rate;
+    dataStream.start_stop = 1;  // start
+    dataStream.target_system = sysID();
+    dataStream.target_component = link->targetComponentId();
+
+    auto p = qvgApp->mavLink();
+    mavlink_msg_request_data_stream_encode_chan(p->getSystemId(),
+        p->getComponentId(),
+        link->getMavlinkChannel(),
+        &msg,
+        &dataStream);
+
+    sendMessageOnLink(link, msg);
 }
 
 void VGVehicle::_handleAttitudeQuaternion(const mavlink_message_t& message)

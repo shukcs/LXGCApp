@@ -742,9 +742,6 @@
     <None Include="..\..\..\LXGCApp\plant-protection-viewer\VGPlantViewerMain\res\image\arrow.png">
       <Filter>res\image</Filter>
     </None>
-    <None Include="..\..\..\LXGCApp\plant-protection-viewer\VGPlantViewerMain\res\image\arrow_down.png">
-      <Filter>res\image</Filter>
-    </None>
     <None Include="..\..\..\LXGCApp\plant-protection-viewer\VGPlantViewerMain\res\image\arrow_down.svg">
       <Filter>res\image</Filter>
     </None>

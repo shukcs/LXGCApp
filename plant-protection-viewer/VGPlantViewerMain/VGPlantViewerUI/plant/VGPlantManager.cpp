@@ -816,11 +816,6 @@ void VGPlantManager::prcsUavMavlink(VGPlantInformation *info, const mavlink_mess
         info->_prcsSysStatus(msg); break;
     case MAVLINK_MSG_ID_BATTERY_STATUS:
         info->_prcsBattaryStatus(msg); break;
-    case MAVLINK_MSG_ID_RAW_IMU:
-        info->_prcsRawIMU(msg); break;
-    case MAVLINK_MSG_ID_SCALED_IMU2:
-    case MAVLINK_MSG_ID_SCALED_IMU3:
-        info->_prcsScaleIMU(msg); break;
     case MAVLINK_MSG_ID_ATTITUDE:
         _prcsAttitude(*info, msg); break;
     case MAVLINK_MSG_ID_MISSION_COUNT:
@@ -1414,7 +1409,7 @@ void VGPlantManager::_prcsStatustext(const QString &id, const mavlink_message_t&
 
 void VGPlantManager::_prcsQXAccount(VGPlantInformation &plant, const mavlink_message_t &msg)
 {
-    QString pswd;
-    QString acc = VGMavLinkCode::DecodeQXAccount(msg, pswd);
-    plant.SetQxAccount(acc, pswd, false);
+    //QString pswd;
+    //QString acc = VGMavLinkCode::DecodeQXAccount(msg, pswd);
+    //plant.SetQxAccount(acc, pswd, false);
 }

@@ -68,7 +68,8 @@ SOURCES += main.cpp \
     ../base/VGGlobalFun.cpp \
     ../base/VGMavLinkCode.cpp \
     ../base/ParameterLimit.cpp \
-    ../base/ParametersMgr.cpp
+    ../base/ParametersMgr.cpp \
+    ../base/APMCompassCal.cpp
 
 RESOURCES += VGPlantViewer.qrc
 
@@ -85,7 +86,8 @@ HEADERS += \
     ../base/QLog.h \
     ../base/VGGlobalFun.h \
     ../base/ParameterLimit.h \
-    ../base/ParametersMgr.h
+    ../base/ParametersMgr.h \
+    ../base/APMCompassCal.h
     
 AndroidBuild {
     OTHER_FILES += \

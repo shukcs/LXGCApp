@@ -30,13 +30,22 @@ Item {
         Row {
             id: rowCmb
             anchors.centerIn: rct
-            spacing: 2
+            spacing: 4
             Text {
                 id: name
                 font:                   vgMainPage.font()
                 height:                 vgMainPage.fontHeight(font)
                 horizontalAlignment:    Text.AlignHCenter
                 verticalAlignment:      Text.AlignVCenter
+            }
+            VGImage {
+                anchors.verticalCenter: name.verticalCenter
+                rotation:   tmRotate.indRotate
+                width:      height
+                height:     12
+                iconName:   "arrow_down"
+                bImgNormal: enabled
+                bMosEnable: false
             }
             Timer{
                 id: tmRotate
@@ -54,14 +63,6 @@ Item {
                         stop()
                     }
                 }
-            }
-            VGImage {
-                rotation:   tmRotate.indRotate
-                width:      height
-                height:     20
-                iconName:   "arrow_down"
-                bImgNormal: enabled
-                bMosEnable: false
             }
         }
         MouseArea {

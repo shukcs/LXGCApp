@@ -40,13 +40,15 @@
 #include "friends/VGFriend.h"
 #include "VGMissionHistory.h"
 #include "ParamtersModel.h"
+#include "APMCompassCal.h"
 
 VGUIInstance::VGUIInstance(QObject* parent) : QObject(parent)
 , m_mapManager(new VGMapManager(this)), m_vgMainPage(new VGMainPage(this))
 , m_plantManager(new VGPlantManager(this)), m_logDataObject(new VGLogDataObject(this))
 , m_landManager(new VGLandManager(this)), m_vgNetManager(new VGNetManager)
 , m_qmlEngine(new QQmlApplicationEngine(this)), m_surveyMonitor(new VGSurveyMonitor(this))
-,m_friendsManager(new VGFriendsManager(this)), m_missionHistory(new VGMissionHistory(this))
+, m_friendsManager(new VGFriendsManager(this)), m_missionHistory(new VGMissionHistory(this))
+, m_compassCal(new APMCompassCal)
 {
     qmlRegisterType<VGPolylineMapItem>("VGGroundControl", 1, 0, "VGPolylineMapItem");
 
@@ -87,6 +89,7 @@ VGUIInstance::VGUIInstance(QObject* parent) : QObject(parent)
     qmlRegisterUncreatableType<VGFriend>("VGGroundControl", 1, 0, "VGFriend", "Reference only");
     qmlRegisterUncreatableType<VGGSMessage>("VGGroundControl", 1, 0, "VGGSMessage", "Reference only");
     qmlRegisterUncreatableType<VGMissionHistory>("VGGroundControl", 1, 0, "VGMissionHistory", "Reference only");
+    qmlRegisterUncreatableType<APMCompassCal>("VGGroundControl", 1, 0, "APMCompassCal", "Reference only");
 
     qRegisterMetaType<QList<double>>("QList<double>");
 
@@ -137,6 +140,7 @@ void VGUIInstance::createQml()
     m_qmlEngine->rootContext()->setContextProperty("plantEvents", qvgApp->plantEvents());
     m_qmlEngine->rootContext()->setContextProperty("controller", qvgApp->controller());
     m_qmlEngine->rootContext()->setContextProperty("missionHistory", m_missionHistory);
+    m_qmlEngine->rootContext()->setContextProperty("compassCalibrate", m_compassCal);
 
 	m_qmlEngine->load(QUrl("qrc:/qml/main.qml"));
 
@@ -226,6 +230,11 @@ VGFriendsManager *VGUIInstance::friendsManager() const
 VGMissionHistory * VGUIInstance::missionHistory() const
 {
     return m_missionHistory;
+}
+
+APMCompassCal * VGUIInstance::getAPMCompassCal() const
+{
+    return m_compassCal;
 }
 
 void VGUIInstance::sltSetUIErrorInfo(const QString &title, const QString &notes)

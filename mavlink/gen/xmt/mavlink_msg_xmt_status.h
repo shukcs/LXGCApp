@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define MAVLINK_MSG_ID_XMT_STATUS 13000
+#define MAVLINK_MSG_ID_XMT_STATUS 385
 
 
 typedef struct __mavlink_xmt_status_t {
@@ -41,17 +41,17 @@ typedef struct __mavlink_xmt_status_t {
 
 #define MAVLINK_MSG_ID_XMT_STATUS_LEN 72
 #define MAVLINK_MSG_ID_XMT_STATUS_MIN_LEN 72
-#define MAVLINK_MSG_ID_13000_LEN 72
-#define MAVLINK_MSG_ID_13000_MIN_LEN 72
+#define MAVLINK_MSG_ID_385_LEN 72
+#define MAVLINK_MSG_ID_385_MIN_LEN 72
 
 #define MAVLINK_MSG_ID_XMT_STATUS_CRC 9
-#define MAVLINK_MSG_ID_13000_CRC 9
+#define MAVLINK_MSG_ID_385_CRC 9
 
 
 
 #if MAVLINK_COMMAND_24BIT
 #define MAVLINK_MESSAGE_INFO_XMT_STATUS { \
-    13000, \
+    385, \
     "XMT_STATUS", \
     30, \
     {  { "time_boot_ms", NULL, MAVLINK_TYPE_UINT32_T, 0, 0, offsetof(mavlink_xmt_status_t, time_boot_ms) }, \
@@ -279,10 +279,7 @@ static inline uint16_t mavlink_msg_xmt_status_pack(uint32_t system_id, uint8_t c
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_xmt_status_pack_status(uint32_t system_id, uint8_t component_id, mavlink_status_t *_status, mavlink_message_t* msg,
-            uint32_t time_boot_ms, int32_t lat, int32_t lon, uint16_t atitude, int16_t speed_N, int16_t speed_E, int16_t speed_G, int16_t yaw, int16_t pitch,
-            int16_t campass, int16_t acc_N, int16_t acc_E, int16_t acc_G, int16_t angu_vel_X, int16_t angu_vel_Y, int16_t angu_vel_Z, int16_t ctrl_rudder_1,
-            int16_t ctrl_rudder_2, int16_t ctrl_rudder_3, int16_t ctrl_rudder_4, int16_t fdbk_rudder_1, int16_t fdbk_rudder_2, int16_t fdbk_rudder_3,
-            int16_t fdbk_rudder_4, int16_t attack_angu, int16_t side_slip_angu, int16_t throttle, uint32_t target_dis, uint32_t sys_stat, uint32_t sys_data)
+                               uint32_t time_boot_ms, int32_t lat, int32_t lon, uint16_t atitude, int16_t speed_N, int16_t speed_E, int16_t speed_G, int16_t yaw, int16_t pitch, int16_t campass, int16_t acc_N, int16_t acc_E, int16_t acc_G, int16_t angu_vel_X, int16_t angu_vel_Y, int16_t angu_vel_Z, int16_t ctrl_rudder_1, int16_t ctrl_rudder_2, int16_t ctrl_rudder_3, int16_t ctrl_rudder_4, int16_t fdbk_rudder_1, int16_t fdbk_rudder_2, int16_t fdbk_rudder_3, int16_t fdbk_rudder_4, int16_t attack_angu, int16_t side_slip_angu, int16_t throttle, uint32_t target_dis, uint32_t sys_stat, uint32_t sys_data)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
     char buf[MAVLINK_MSG_ID_XMT_STATUS_LEN];

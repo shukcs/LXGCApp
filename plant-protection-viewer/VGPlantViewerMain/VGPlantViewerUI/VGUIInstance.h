@@ -15,6 +15,7 @@ class VGMainPage;
 class VGLogDataObject;
 class VGFriendsManager;
 class VGMissionHistory;
+class APMCompassCal;
 
 class VGUIInstance : public QObject
 {
@@ -35,6 +36,7 @@ public:
     VGSurveyMonitor     *surveyMonitor()const;
     VGFriendsManager    *friendsManager() const;
     VGMissionHistory    *missionHistory() const;
+    APMCompassCal       *getAPMCompassCal()const;
 public slots:
     //收到日志文件列表信息
     void sltReceiveLogList(long time_utc, long size, int id, int num_logs, bool downloaded);
@@ -60,6 +62,7 @@ private:
     VGSurveyMonitor         *m_surveyMonitor;
     VGBluetoothManager      *m_bltMgr;
     VGMissionHistory        *m_missionHistory;
+    APMCompassCal           *m_compassCal;
 };
 
 #endif // VGUIINSTANCE_H

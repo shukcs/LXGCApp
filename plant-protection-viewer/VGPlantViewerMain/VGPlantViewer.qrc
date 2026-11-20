@@ -104,7 +104,6 @@
         <file alias="adjusting.png">res/image/adjusting.png</file>
         <file alias="adjusting_gray.png">res/image/adjusting_gray.png</file>
         <file alias="arrow.png">res/image/arrow.png</file>
-        <file alias="arrow_down.png">res/image/arrow_down.png</file>
         <file alias="arrow_gray.png">res/image/arrow_gray.png</file>
         <file alias="backw.png">res/image/backw.png</file>
         <file alias="backw_prs.png">res/image/backw_prs.png</file>
@@ -179,7 +178,6 @@
         <file alias="shadow.png">res/image/shadow.png</file>
         <file alias="shutdown.png">res/image/shutdown.png</file>
         <file alias="speed.png">res/image/speed.png</file>
-        <file alias="splash.png">res/image/splash.png</file>
         <file alias="start.png">res/image/start.png</file>
         <file alias="survey.png">res/image/survey.png</file>
         <file alias="syscGreen.png">res/image/syscGreen.png</file>
@@ -201,5 +199,18 @@
         <file alias="ABC.png">res/image/ABC.png</file>
         <file alias="fold.png">res/image/fold.png</file>
         <file alias="expand.png">res/image/expand.png</file>
+        <file alias="splash.png">res/image/bigImg/splash.png</file>
+        <file alias="VehicleDown.png">res/image/bigImg/VehicleDown.png</file>
+        <file alias="VehicleDown_Rotate.png">res/image/bigImg/VehicleDown_Rotate.png</file>
+        <file alias="VehicleLeft.png">res/image/bigImg/VehicleLeft.png</file>
+        <file alias="VehicleLeft_Rotate.png">res/image/bigImg/VehicleLeft_Rotate.png</file>
+        <file alias="VehicleNoseDown.png">res/image/bigImg/VehicleNoseDown.png</file>
+        <file alias="VehicleNoseDown_Rotate.png">res/image/bigImg/VehicleNoseDown_Rotate.png</file>
+        <file alias="VehicleRight.png">res/image/bigImg/VehicleRight.png</file>
+        <file alias="VehicleRight_Rotate.png">res/image/bigImg/VehicleRight_Rotate.png</file>
+        <file alias="VehicleTailDown.png">res/image/bigImg/VehicleTailDown.png</file>
+        <file alias="VehicleTailDown_Rotate.png">res/image/bigImg/VehicleTailDown_Rotate.png</file>
+        <file alias="VehicleUpsideDown.png">res/image/bigImg/VehicleUpsideDown.png</file>
+        <file alias="VehicleUpsideDown_Rotate.png">res/image/bigImg/VehicleUpsideDown_Rotate.png</file>
     </qresource>
 </RCC>

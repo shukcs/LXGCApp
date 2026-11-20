@@ -217,6 +217,11 @@ VGFriendsManager *VGApplication::friendsManager() const
     return NULL;
 }
 
+APMCompassCal * VGApplication::getCompassCalibrate() const
+{
+    return m_pMainUIInterface->getAPMCompassCal();
+}
+
 int VGApplication::getNetConnectStat() const
 {
     if (m_pMainUIInterface && m_pMainUIInterface->netManager())

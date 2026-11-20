@@ -60,6 +60,16 @@ MAVLinkProtocol::MAVLinkProtocol(LinkManager* linkMgr)
     qRegisterMetaType<mavlink_message_t>("mavlink_message_t");
 
     loadSettings();
+    auto arr = QByteArray::fromHex("FD33000052010181010010A4000048DDD100000000000000000000DE12000000000000AEFF2EFF9DFF0000020028F80000FEFFF9FF018001800180018035EF");
+    mavlink_message_t message;
+    mavlink_status_t status;
+    for (int position = 0; position < arr.size(); position++)
+    {
+        unsigned int decodeState = mavlink_parse_char(0, (uint8_t)(arr[position]), &message, &status);
+        if (decodeState > 0)
+            return;
+    }
+    status.flags;
 }
 
 MAVLinkProtocol::~MAVLinkProtocol()

@@ -982,7 +982,7 @@ void VGPlantInformation::ReceiveSupports(const QGeoCoordinate &beg, const QGeoCo
 
 void VGPlantInformation::SetQxAccount(const QString &acc, const QString &pswd, bool bSend)
 {
-    if (bSend)
+    /*if (bSend)
     {
         if (m_directLink)
         {
@@ -1002,33 +1002,33 @@ void VGPlantInformation::SetQxAccount(const QString &acc, const QString &pswd, b
     m_strQxAcc = acc;
     m_strQxPswd = pswd;
     emit qxaccChanged();
-    emit qxpswdChanged();
+    emit qxpswdChanged();*/
 }
 
 void VGPlantInformation::GetQxAccount()
 {
-    if (m_directLink)
-    {
-        if (MAVLinkProtocol *p = qvgApp->mavLink())
-        {
+    //if (m_directLink)
+    //{
+    //    if (MAVLinkProtocol *p = qvgApp->mavLink())
+    //    {
             //mavlink_message_t message;
             //mavlink_msg_qx_acc_cmd_pack(p->getSystemId(), p->getComponentId(), &message, MAV_QX_ACC_CMD_READ);
-            //m_directLink->sendMessage(message);
-        }
-    }
-    else if (VGNetManager *nm = qvgApp->netManager())
-    {
+    //        //m_directLink->sendMessage(message);
+    //    }
+    //}
+    //else if (VGNetManager *nm = qvgApp->netManager())
+    //{
         //mavlink_message_t message;
         //mavlink_msg_qx_acc_cmd_pack(0, 0, &message, MAV_QX_ACC_CMD_READ);
         //nm->SendControlUav(m_planeId, message);
-    }
+    //}
 }
 
 void VGPlantInformation::ClearQxAccount(bool bSend)
 {
-    if (bSend)
+    /*if (bSend)
     {
-        /*if (m_directLink)
+        if (m_directLink)
         {
             if (MAVLinkProtocol *p = qvgApp->mavLink())
             {
@@ -1042,7 +1042,7 @@ void VGPlantInformation::ClearQxAccount(bool bSend)
             mavlink_message_t message;
             mavlink_msg_qx_acc_cmd_pack(0, 0, &message, MAV_QX_ACC_CMD_CLEAR);
             nm->SendControlUav(m_planeId, message);
-        }*/
+        }
     }
     else
     {
@@ -1050,7 +1050,7 @@ void VGPlantInformation::ClearQxAccount(bool bSend)
         m_strQxPswd.clear();
         emit qxaccChanged();
         emit qxpswdChanged();
-    }
+    }*/
 }
 
 void VGPlantInformation::ProcessSuspend(int ridge, const QString &plan, const QGeoCoordinate &c)
@@ -1080,7 +1080,7 @@ void VGPlantInformation::GetQXSdkAccount()
 
 void VGPlantInformation::SetQxSdkAccount(const QString &key, const QString &secret, const QString &devid, int type, bool bSend)
 {
-    m_strAppkey = key;
+    /*m_strAppkey = key;
     m_strAppsecret = secret;
     m_devid = devid;
     m_devType = type;
@@ -1101,7 +1101,7 @@ void VGPlantInformation::SetQxSdkAccount(const QString &key, const QString &secr
             VGMavLinkCode::EncodeQXSdkAccount(message,key, secret, devid, QString::number(type+ 1) );
             nm->SendControlUav(m_planeId, message);
         }
-    }
+    }*/
 }
 
 void VGPlantInformation::ClearQxSdkAccount(bool bSend)
@@ -1190,6 +1190,17 @@ void VGPlantInformation::SetVihevleMisson(const QList<MissionItem*> &items)
         m_uploadVm = wpp->GetMission();
         connect(m_uploadVm, &QObject::destroyed, this, &VGPlantInformation::onContentDestroied);
     }
+}
+
+ParamtersModel * VGPlantInformation::paramModel() const
+{
+    return m_params;
+}
+
+void VGPlantInformation::requestDataStream(MAV_DATA_STREAM tp, uint16_t rate)
+{
+    if (m_directLink)
+        m_directLink->requestDataStream(tp, rate);
 }
 
 void VGPlantInformation::reqMissionFromNet(int idx)
@@ -2004,17 +2015,6 @@ void VGPlantInformation::_removeParamOp(const QString &key)
     }
 }
 
-void VGPlantInformation::_prcsRawIMU(const mavlink_message_t &msg)
-{
-    mavlink_raw_imu_t raw_imu;
-    mavlink_msg_raw_imu_decode(&msg, &raw_imu);
-}
-
-void VGPlantInformation::_prcsScaleIMU(const mavlink_message_t &msg)
-{
-
-}
-
 void VGPlantInformation::_prcsSysStatus(const mavlink_message_t &msg)
 {
     mavlink_sys_status_t sysStatus;
@@ -2038,4 +2038,12 @@ void VGPlantInformation::_prcsXMT_STATUS(const mavlink_message_t &msg)
 {
     mavlink_xmt_status_t xmtStat;
     mavlink_msg_xmt_status_decode(&msg, &xmtStat);
+    auto lat = xmtStat.lat / 10e-7;
+    auto lon = xmtStat.lon / 10e-7;
+    auto alt = xmtStat.atitude*.1 - 500.0;
+    setCoordinate(QGeoCoordinate(lat, lon, alt));
+    auto spN = xmtStat.speed_N * 200.0 / (0xffff);
+    auto spE = xmtStat.speed_E * 200.0 / (0xffff);
+    SetSpeedHor(sqrt(spN*spN + spE*spN));
+    SetSpeedVer(xmtStat.speed_G * 200.0 / (0xffff));
 }

@@ -12,7 +12,7 @@ typedef struct __mavlink_task_status_t {
  int32_t lon; /*< [degree] longitude of target, [-90,90], LSB：90 /(2^31-1)*/
  uint16_t atitude; /*< [m] atitude of target, [-500,3000], LSB：0.1，offset： -500*/
  uint8_t sin_Y_mode; /*< [m/s] Y-信模式*/
- uint8_t trigC; /*< [m/s] trigger condition*/
+ uint8_t trigger_c; /*< [m/s] trigger condition*/
 } mavlink_task_status_t;
 
 #define MAVLINK_MSG_ID_TASK_STATUS_LEN 16
@@ -20,8 +20,8 @@ typedef struct __mavlink_task_status_t {
 #define MAVLINK_MSG_ID_13001_LEN 16
 #define MAVLINK_MSG_ID_13001_MIN_LEN 16
 
-#define MAVLINK_MSG_ID_TASK_STATUS_CRC 122
-#define MAVLINK_MSG_ID_13001_CRC 122
+#define MAVLINK_MSG_ID_TASK_STATUS_CRC 220
+#define MAVLINK_MSG_ID_13001_CRC 220
 
 
 
@@ -35,7 +35,7 @@ typedef struct __mavlink_task_status_t {
          { "lon", NULL, MAVLINK_TYPE_INT32_T, 0, 8, offsetof(mavlink_task_status_t, lon) }, \
          { "atitude", NULL, MAVLINK_TYPE_UINT16_T, 0, 12, offsetof(mavlink_task_status_t, atitude) }, \
          { "sin_Y_mode", NULL, MAVLINK_TYPE_UINT8_T, 0, 14, offsetof(mavlink_task_status_t, sin_Y_mode) }, \
-         { "trigC", NULL, MAVLINK_TYPE_UINT8_T, 0, 15, offsetof(mavlink_task_status_t, trigC) }, \
+         { "trigger_c", NULL, MAVLINK_TYPE_UINT8_T, 0, 15, offsetof(mavlink_task_status_t, trigger_c) }, \
          } \
 }
 #else
@@ -47,7 +47,7 @@ typedef struct __mavlink_task_status_t {
          { "lon", NULL, MAVLINK_TYPE_INT32_T, 0, 8, offsetof(mavlink_task_status_t, lon) }, \
          { "atitude", NULL, MAVLINK_TYPE_UINT16_T, 0, 12, offsetof(mavlink_task_status_t, atitude) }, \
          { "sin_Y_mode", NULL, MAVLINK_TYPE_UINT8_T, 0, 14, offsetof(mavlink_task_status_t, sin_Y_mode) }, \
-         { "trigC", NULL, MAVLINK_TYPE_UINT8_T, 0, 15, offsetof(mavlink_task_status_t, trigC) }, \
+         { "trigger_c", NULL, MAVLINK_TYPE_UINT8_T, 0, 15, offsetof(mavlink_task_status_t, trigger_c) }, \
          } \
 }
 #endif
@@ -63,11 +63,11 @@ typedef struct __mavlink_task_status_t {
  * @param lon [degree] longitude of target, [-90,90], LSB：90 /(2^31-1)
  * @param atitude [m] atitude of target, [-500,3000], LSB：0.1，offset： -500
  * @param sin_Y_mode [m/s] Y-信模式
- * @param trigC [m/s] trigger condition
+ * @param trigger_c [m/s] trigger condition
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_task_status_pack(uint32_t system_id, uint8_t component_id, mavlink_message_t* msg,
-                               uint32_t time_boot_ms, int32_t lat, int32_t lon, uint16_t atitude, uint8_t sin_Y_mode, uint8_t trigC)
+                               uint32_t time_boot_ms, int32_t lat, int32_t lon, uint16_t atitude, uint8_t sin_Y_mode, uint8_t trigger_c)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
     char buf[MAVLINK_MSG_ID_TASK_STATUS_LEN];
@@ -76,7 +76,7 @@ static inline uint16_t mavlink_msg_task_status_pack(uint32_t system_id, uint8_t 
     _mav_put_int32_t(buf, 8, lon);
     _mav_put_uint16_t(buf, 12, atitude);
     _mav_put_uint8_t(buf, 14, sin_Y_mode);
-    _mav_put_uint8_t(buf, 15, trigC);
+    _mav_put_uint8_t(buf, 15, trigger_c);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_TASK_STATUS_LEN);
 #else
@@ -86,7 +86,7 @@ static inline uint16_t mavlink_msg_task_status_pack(uint32_t system_id, uint8_t 
     packet.lon = lon;
     packet.atitude = atitude;
     packet.sin_Y_mode = sin_Y_mode;
-    packet.trigC = trigC;
+    packet.trigger_c = trigger_c;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_TASK_STATUS_LEN);
 #endif
@@ -107,11 +107,11 @@ static inline uint16_t mavlink_msg_task_status_pack(uint32_t system_id, uint8_t 
  * @param lon [degree] longitude of target, [-90,90], LSB：90 /(2^31-1)
  * @param atitude [m] atitude of target, [-500,3000], LSB：0.1，offset： -500
  * @param sin_Y_mode [m/s] Y-信模式
- * @param trigC [m/s] trigger condition
+ * @param trigger_c [m/s] trigger condition
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_task_status_pack_status(uint32_t system_id, uint8_t component_id, mavlink_status_t *_status, mavlink_message_t* msg,
-                               uint32_t time_boot_ms, int32_t lat, int32_t lon, uint16_t atitude, uint8_t sin_Y_mode, uint8_t trigC)
+                               uint32_t time_boot_ms, int32_t lat, int32_t lon, uint16_t atitude, uint8_t sin_Y_mode, uint8_t trigger_c)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
     char buf[MAVLINK_MSG_ID_TASK_STATUS_LEN];
@@ -120,7 +120,7 @@ static inline uint16_t mavlink_msg_task_status_pack_status(uint32_t system_id, u
     _mav_put_int32_t(buf, 8, lon);
     _mav_put_uint16_t(buf, 12, atitude);
     _mav_put_uint8_t(buf, 14, sin_Y_mode);
-    _mav_put_uint8_t(buf, 15, trigC);
+    _mav_put_uint8_t(buf, 15, trigger_c);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_TASK_STATUS_LEN);
 #else
@@ -130,7 +130,7 @@ static inline uint16_t mavlink_msg_task_status_pack_status(uint32_t system_id, u
     packet.lon = lon;
     packet.atitude = atitude;
     packet.sin_Y_mode = sin_Y_mode;
-    packet.trigC = trigC;
+    packet.trigger_c = trigger_c;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_TASK_STATUS_LEN);
 #endif
@@ -154,12 +154,12 @@ static inline uint16_t mavlink_msg_task_status_pack_status(uint32_t system_id, u
  * @param lon [degree] longitude of target, [-90,90], LSB：90 /(2^31-1)
  * @param atitude [m] atitude of target, [-500,3000], LSB：0.1，offset： -500
  * @param sin_Y_mode [m/s] Y-信模式
- * @param trigC [m/s] trigger condition
+ * @param trigger_c [m/s] trigger condition
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_task_status_pack_chan(uint32_t system_id, uint8_t component_id, uint8_t chan,
                                mavlink_message_t* msg,
-                                   uint32_t time_boot_ms,int32_t lat,int32_t lon,uint16_t atitude,uint8_t sin_Y_mode,uint8_t trigC)
+                                   uint32_t time_boot_ms,int32_t lat,int32_t lon,uint16_t atitude,uint8_t sin_Y_mode,uint8_t trigger_c)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
     char buf[MAVLINK_MSG_ID_TASK_STATUS_LEN];
@@ -168,7 +168,7 @@ static inline uint16_t mavlink_msg_task_status_pack_chan(uint32_t system_id, uin
     _mav_put_int32_t(buf, 8, lon);
     _mav_put_uint16_t(buf, 12, atitude);
     _mav_put_uint8_t(buf, 14, sin_Y_mode);
-    _mav_put_uint8_t(buf, 15, trigC);
+    _mav_put_uint8_t(buf, 15, trigger_c);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_TASK_STATUS_LEN);
 #else
@@ -178,7 +178,7 @@ static inline uint16_t mavlink_msg_task_status_pack_chan(uint32_t system_id, uin
     packet.lon = lon;
     packet.atitude = atitude;
     packet.sin_Y_mode = sin_Y_mode;
-    packet.trigC = trigC;
+    packet.trigger_c = trigger_c;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_TASK_STATUS_LEN);
 #endif
@@ -197,7 +197,7 @@ static inline uint16_t mavlink_msg_task_status_pack_chan(uint32_t system_id, uin
  */
 static inline uint16_t mavlink_msg_task_status_encode(uint32_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_task_status_t* task_status)
 {
-    return mavlink_msg_task_status_pack(system_id, component_id, msg, task_status->time_boot_ms, task_status->lat, task_status->lon, task_status->atitude, task_status->sin_Y_mode, task_status->trigC);
+    return mavlink_msg_task_status_pack(system_id, component_id, msg, task_status->time_boot_ms, task_status->lat, task_status->lon, task_status->atitude, task_status->sin_Y_mode, task_status->trigger_c);
 }
 
 /**
@@ -211,7 +211,7 @@ static inline uint16_t mavlink_msg_task_status_encode(uint32_t system_id, uint8_
  */
 static inline uint16_t mavlink_msg_task_status_encode_chan(uint32_t system_id, uint8_t component_id, uint8_t chan, mavlink_message_t* msg, const mavlink_task_status_t* task_status)
 {
-    return mavlink_msg_task_status_pack_chan(system_id, component_id, chan, msg, task_status->time_boot_ms, task_status->lat, task_status->lon, task_status->atitude, task_status->sin_Y_mode, task_status->trigC);
+    return mavlink_msg_task_status_pack_chan(system_id, component_id, chan, msg, task_status->time_boot_ms, task_status->lat, task_status->lon, task_status->atitude, task_status->sin_Y_mode, task_status->trigger_c);
 }
 
 /**
@@ -225,7 +225,7 @@ static inline uint16_t mavlink_msg_task_status_encode_chan(uint32_t system_id, u
  */
 static inline uint16_t mavlink_msg_task_status_encode_status(uint32_t system_id, uint8_t component_id, mavlink_status_t* _status, mavlink_message_t* msg, const mavlink_task_status_t* task_status)
 {
-    return mavlink_msg_task_status_pack_status(system_id, component_id, _status, msg,  task_status->time_boot_ms, task_status->lat, task_status->lon, task_status->atitude, task_status->sin_Y_mode, task_status->trigC);
+    return mavlink_msg_task_status_pack_status(system_id, component_id, _status, msg,  task_status->time_boot_ms, task_status->lat, task_status->lon, task_status->atitude, task_status->sin_Y_mode, task_status->trigger_c);
 }
 
 /**
@@ -237,11 +237,11 @@ static inline uint16_t mavlink_msg_task_status_encode_status(uint32_t system_id,
  * @param lon [degree] longitude of target, [-90,90], LSB：90 /(2^31-1)
  * @param atitude [m] atitude of target, [-500,3000], LSB：0.1，offset： -500
  * @param sin_Y_mode [m/s] Y-信模式
- * @param trigC [m/s] trigger condition
+ * @param trigger_c [m/s] trigger condition
  */
 #ifdef MAVLINK_USE_CONVENIENCE_FUNCTIONS
 
-static inline void mavlink_msg_task_status_send(mavlink_channel_t chan, uint32_t time_boot_ms, int32_t lat, int32_t lon, uint16_t atitude, uint8_t sin_Y_mode, uint8_t trigC)
+static inline void mavlink_msg_task_status_send(mavlink_channel_t chan, uint32_t time_boot_ms, int32_t lat, int32_t lon, uint16_t atitude, uint8_t sin_Y_mode, uint8_t trigger_c)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
     char buf[MAVLINK_MSG_ID_TASK_STATUS_LEN];
@@ -250,7 +250,7 @@ static inline void mavlink_msg_task_status_send(mavlink_channel_t chan, uint32_t
     _mav_put_int32_t(buf, 8, lon);
     _mav_put_uint16_t(buf, 12, atitude);
     _mav_put_uint8_t(buf, 14, sin_Y_mode);
-    _mav_put_uint8_t(buf, 15, trigC);
+    _mav_put_uint8_t(buf, 15, trigger_c);
 
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_TASK_STATUS, buf, MAVLINK_MSG_ID_TASK_STATUS_MIN_LEN, MAVLINK_MSG_ID_TASK_STATUS_LEN, MAVLINK_MSG_ID_TASK_STATUS_CRC);
 #else
@@ -260,7 +260,7 @@ static inline void mavlink_msg_task_status_send(mavlink_channel_t chan, uint32_t
     packet.lon = lon;
     packet.atitude = atitude;
     packet.sin_Y_mode = sin_Y_mode;
-    packet.trigC = trigC;
+    packet.trigger_c = trigger_c;
 
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_TASK_STATUS, (const char *)&packet, MAVLINK_MSG_ID_TASK_STATUS_MIN_LEN, MAVLINK_MSG_ID_TASK_STATUS_LEN, MAVLINK_MSG_ID_TASK_STATUS_CRC);
 #endif
@@ -274,7 +274,7 @@ static inline void mavlink_msg_task_status_send(mavlink_channel_t chan, uint32_t
 static inline void mavlink_msg_task_status_send_struct(mavlink_channel_t chan, const mavlink_task_status_t* task_status)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-    mavlink_msg_task_status_send(chan, task_status->time_boot_ms, task_status->lat, task_status->lon, task_status->atitude, task_status->sin_Y_mode, task_status->trigC);
+    mavlink_msg_task_status_send(chan, task_status->time_boot_ms, task_status->lat, task_status->lon, task_status->atitude, task_status->sin_Y_mode, task_status->trigger_c);
 #else
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_TASK_STATUS, (const char *)task_status, MAVLINK_MSG_ID_TASK_STATUS_MIN_LEN, MAVLINK_MSG_ID_TASK_STATUS_LEN, MAVLINK_MSG_ID_TASK_STATUS_CRC);
 #endif
@@ -288,7 +288,7 @@ static inline void mavlink_msg_task_status_send_struct(mavlink_channel_t chan, c
   is usually the receive buffer for the channel, and allows a reply to an
   incoming message with minimum stack space usage.
  */
-static inline void mavlink_msg_task_status_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  uint32_t time_boot_ms, int32_t lat, int32_t lon, uint16_t atitude, uint8_t sin_Y_mode, uint8_t trigC)
+static inline void mavlink_msg_task_status_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  uint32_t time_boot_ms, int32_t lat, int32_t lon, uint16_t atitude, uint8_t sin_Y_mode, uint8_t trigger_c)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
     char *buf = (char *)msgbuf;
@@ -297,7 +297,7 @@ static inline void mavlink_msg_task_status_send_buf(mavlink_message_t *msgbuf, m
     _mav_put_int32_t(buf, 8, lon);
     _mav_put_uint16_t(buf, 12, atitude);
     _mav_put_uint8_t(buf, 14, sin_Y_mode);
-    _mav_put_uint8_t(buf, 15, trigC);
+    _mav_put_uint8_t(buf, 15, trigger_c);
 
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_TASK_STATUS, buf, MAVLINK_MSG_ID_TASK_STATUS_MIN_LEN, MAVLINK_MSG_ID_TASK_STATUS_LEN, MAVLINK_MSG_ID_TASK_STATUS_CRC);
 #else
@@ -307,7 +307,7 @@ static inline void mavlink_msg_task_status_send_buf(mavlink_message_t *msgbuf, m
     packet->lon = lon;
     packet->atitude = atitude;
     packet->sin_Y_mode = sin_Y_mode;
-    packet->trigC = trigC;
+    packet->trigger_c = trigger_c;
 
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_TASK_STATUS, (const char *)packet, MAVLINK_MSG_ID_TASK_STATUS_MIN_LEN, MAVLINK_MSG_ID_TASK_STATUS_LEN, MAVLINK_MSG_ID_TASK_STATUS_CRC);
 #endif
@@ -370,11 +370,11 @@ static inline uint8_t mavlink_msg_task_status_get_sin_Y_mode(const mavlink_messa
 }
 
 /**
- * @brief Get field trigC from task_status message
+ * @brief Get field trigger_c from task_status message
  *
  * @return [m/s] trigger condition
  */
-static inline uint8_t mavlink_msg_task_status_get_trigC(const mavlink_message_t* msg)
+static inline uint8_t mavlink_msg_task_status_get_trigger_c(const mavlink_message_t* msg)
 {
     return _MAV_RETURN_uint8_t(msg,  15);
 }
@@ -393,7 +393,7 @@ static inline void mavlink_msg_task_status_decode(const mavlink_message_t* msg, 
     task_status->lon = mavlink_msg_task_status_get_lon(msg);
     task_status->atitude = mavlink_msg_task_status_get_atitude(msg);
     task_status->sin_Y_mode = mavlink_msg_task_status_get_sin_Y_mode(msg);
-    task_status->trigC = mavlink_msg_task_status_get_trigC(msg);
+    task_status->trigger_c = mavlink_msg_task_status_get_trigger_c(msg);
 #else
         uint8_t len = msg->len < MAVLINK_MSG_ID_TASK_STATUS_LEN? msg->len : MAVLINK_MSG_ID_TASK_STATUS_LEN;
         memset(task_status, 0, MAVLINK_MSG_ID_TASK_STATUS_LEN);

@@ -44,9 +44,10 @@ Rectangle {
             Component.onCompleted: {
                 //addTab(qsTr("Uav parameters"))//"飞机参数"
                 //addTab(qsTr("QX account"))//"千寻账号"
-                addTab(qsTr("Controller correct"))//"遥控器校准"
                 //addTab(qsTr("Mission params"))//"换垄设置"
                 addTab(qsTr("All parameters"))//"所有参数"
+                addTab(qsTr("Remote controller calibrate"))//"遥控器校准"
+                addTab(qsTr("Sensor calibrate"))//"传感器校准"
                 setCurrentIndex(0)
             }
             onCurrentChanged: headerChange(idx)
@@ -59,90 +60,11 @@ Rectangle {
             width:  parent.width
         }
     }
-/*    Flickable {
-        id:                     flickCnt
-        anchors {top: rctHeader.bottom; bottom: rowBtn.top; left: parent.left; right: parent.right; margins: 10}
-        clip:                   true
-        contentHeight:          colCnt.height
-        contentWidth:           width
-        flickableDirection:     Flickable.VerticalFlick
-        visible: tabFunc.currentIndex == 0
-        Column {
-            id: colCnt
-            property string strIdEdit: ""
-            spacing: 6
-            Repeater{
-                model: parameters.getParams("undef")
-                Rectangle{
-                    width:flickCnt.width
-                    height: rowShow.height + (paramEdit.visible ? paramEdit.height + 9 : 4)
-                    Row {
-                        id: rowShow
-                        anchors {left: parent.left; leftMargin: 2; top:parent.top; topMargin: 2}
-                        spacing: 15
-                        Text {
-                            id:     nameTxt
-                            height: contentHeight*1.5
-                            text:   parameters.getName(modelData)+":"
-                            font:   vgMainPage.font(true)
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                        Text {
-                            id:     txtVal
-                            height: nameTxt.height
-                            text:   plantManager.getParamValue(modelData)
-                            font:   vgMainPage.font()
-                            color:  "#0b81ff"
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                        Text {
-                            height:     nameTxt.height
-                            visible:    parameters.isScope(modelData)
-                            text:       "(" + parameters.getLeast(modelData) + " ~~ " + parameters.getBiggest(modelData)+")"
-                            font:       vgMainPage.font()
-                            color:      "#ff0b81"
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                        VGTextButton {
-                            id: btn
-                            height:     nameTxt.height
-                            enabled:    plantManager.connected
-                            visible:    !parameters.isParamReadonly(modelData) && !paramEdit.visible
-                            strText:    qsTr("Modify")//qsTr("修改")
-                            onBtnClicked: colCnt.strIdEdit = modelData
-                        }
-                        Connections{
-                            target: plantManager
-                            onParamChanged: {
-                                if (modelData !== idStr)
-                                    return
-                                txtVal.text = plantManager.getParamValue(idStr)
-                            }
-                        }
-                    }
-                    VGParamEdit {
-                        id:      paramEdit
-                        visible: colCnt.strIdEdit === modelData
-                        bEdit:   true
-                        anchors  {top:rowShow.bottom; topMargin: 5; left: parent.left; leftMargin: 12}
-                        Component.onCompleted: setParamID(modelData)
-                        onFinishEdit: {
-                            if (bSelect || plantManager.setParameter(modelData, str)) {
-                                colCnt.strIdEdit = ""
-                                return
-                            }
-                            vgMainPage.curQmlPage = tipCom.createObject(root)
-                            vgMainPage.curQmlPage.strTip = qsTr("Range:") + parameters.getLeast(modelData) + " ~~ " + parameters.getBiggest(modelData)+qsTr("!")//qsTr("参数范围：");qsTr("！")
-                        }
-                    }
-                }
-            }
-        }
-    }*/
+
     AllParametersView {
         id:                     rctAllParams
         anchors {top: rctHeader.bottom; bottom: rowBtn.top; left: parent.left; right: parent.right; margins: 10}
-        visible: tabFunc.currentIndex == 1
+        visible: tabFunc.currentIndex == 0
     }
     /*Rectangle{
         id: rctQX
@@ -281,7 +203,7 @@ Rectangle {
     Rectangle {
         id:     rctCntlr
         anchors {top: rctHeader.bottom; bottom: rowBtn.top; left: parent.left; right: parent.right}
-        visible: tabFunc.currentIndex == 0
+        visible: tabFunc.currentIndex == 1
         Grid{
             id:     grid
             anchors {top: parent.top; topMargin: 20; horizontalCenter: parent.horizontalCenter}

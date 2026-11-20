@@ -24,6 +24,7 @@ class MAVLinkProtocol;
 class VGBluetoothManager;
 class VGController;
 class VGFriendsManager;
+class APMCompassCal;
 
 class VGApplication : public QApplication, public Application
 {
@@ -53,6 +54,7 @@ public:
     VGPlantEvents           *plantEvents()const;
     VGController            *controller()const;
     VGFriendsManager        *friendsManager() const;
+    APMCompassCal           *getCompassCalibrate()const;
 
     int                     getNetConnectStat()const;
 	QString					GetUserId()const;

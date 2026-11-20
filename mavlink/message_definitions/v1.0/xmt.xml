@@ -3,7 +3,7 @@
   <include>common.xml</include>
   <dialect>2</dialect>
   <messages>
-    <message id="13000" name="XMT_STATUS">
+    <message id="385" name="XMT_STATUS">
       <description>XMT飞控数据帧, </description>
       <field type="uint32_t" name="time_boot_ms" units="ms">Timestamp (time since system boot).</field>
       <field type="int32_t" name="lat" units="degree" >latitude of vehicle, [-180,180], LSB：10e-7)</field>

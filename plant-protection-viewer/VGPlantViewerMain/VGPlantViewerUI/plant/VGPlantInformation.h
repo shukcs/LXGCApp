@@ -23,6 +23,7 @@ class VGBlock;
 class ParamtersModel;
 class QAbstractItemModel;
 typedef struct __mavlink_message mavlink_message_t;
+typedef enum MAV_DATA_STREAM MAV_DATA_STREAM;
 class VGPlantInformation : public MapAbstractItem
 {
     Q_OBJECT
@@ -221,6 +222,8 @@ public:
     VGVehicleMission *GetPrepareMission()const;
     void ClearWay();
     void SetVihevleMisson(const QList<MissionItem*> &item);
+    ParamtersModel *paramModel()const;
+    void requestDataStream(MAV_DATA_STREAM tp, uint16_t rate);
 public:
     static QString GetFlightModeDscb(const QString &str);
     static QString GetQxStatDscb(int stat);
@@ -319,13 +322,12 @@ private:
     void _showBlocks(bool b);
     void _doParam(const QString &str, const QVariant &var = QVariant());
     void _removeParamOp(const QString &key);
-    void _prcsRawIMU(const mavlink_message_t &msg);
-    void _prcsScaleIMU(const mavlink_message_t &msg);
     void _prcsSysStatus(const mavlink_message_t &msg);
     void _prcsBattaryStatus(const mavlink_message_t &msg);
     void _prcsXMT_STATUS(const mavlink_message_t &msg);
 private:
     friend class VGPlantManager;
+    friend class CalWorkerThread;
     VGVehicle       *m_directLink;  //直连设备
     bool            m_bLanded;      //是否降落
     PlantStatus     m_status;

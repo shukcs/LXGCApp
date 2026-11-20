@@ -14,6 +14,7 @@ typedef enum MAV_TYPE MAV_TYPE;
 typedef enum MAV_CMD MAV_CMD;
 typedef enum MAV_AUTOPILOT MAV_AUTOPILOT;
 typedef enum MAV_MISSION_TYPE MAV_MISSION_TYPE;
+typedef enum MAV_DATA_STREAM MAV_DATA_STREAM;
 typedef struct __mavlink_message mavlink_message_t;
 class MissionManager;
 class VGVehicleMission;
@@ -84,6 +85,7 @@ public:
     void getParameter(int idx);
 	QString flightMode()const;
     void getParametesList();
+    void requestDataStream(MAV_DATA_STREAM tp, uint16_t rate);
 protected:
     void timerEvent(QTimerEvent *event);
     void _prcsParameters();

@@ -17,6 +17,7 @@ set(VG_SOURCES
     ../base/VGMavLinkCode.cpp
     ../base/ParameterLimit.cpp
     ../base/ParametersMgr.cpp
+    ../base/APMCompassCal.cpp
 )
 
 set(VG_HEADERS
@@ -33,6 +34,7 @@ set(VG_HEADERS
     ../base/VGGlobalFun.h
     ../base/ParameterLimit.h
     ../base/ParametersMgr.h
+    ../base/APMCompassCal.h
 )
 
 #----------------------------------------------------------------------
